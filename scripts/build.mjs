@@ -16,7 +16,7 @@ if (filenames.length !== 15) {
 const parts = await Promise.all(filenames.map(name => readFile(new URL(name, sourceDir))));
 const html = Buffer.concat(parts);
 const checksum = createHash('sha256').update(html).digest('hex');
-const expected = '2321718803cf286df9c395201ea5a001e0cb2a325759587e06596d34ea9c1b1e';
+const expected = '0637bb889fbb097551dc2b507735414391b80512a7bc5387e79dfdab92191da3';
 
 if (checksum !== expected) {
   throw new Error('Zinbo HTML checksum mismatch: refusing to deploy a changed or incomplete artifact');
@@ -24,4 +24,4 @@ if (checksum !== expected) {
 
 await mkdir(publicDir, { recursive: true });
 await writeFile(new URL('index.html', publicDir), html);
-console.log('Zinbo V4.6.2 QA artifact validated:', html.length, 'bytes');
+console.log('Zinbo P0 reviewed candidate artifact validated:', html.length, 'bytes');
