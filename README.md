@@ -1,30 +1,30 @@
-# Zinbo — taal en zinnen oefenen
+# Zinbo — oefenen met taal en zinnen
 
-Zinbo is de toekomstige platformnaam van het bestaande Zinsbouwer-project. Dit repository-startpakket bevat de **V4.6.2 auteurspilot** met vier neutrale niveaus en adaptieve grammaticaoefeningen.
+De officiële GitHub-bron van Zinbo (voorheen Zinsbouwer).
 
-## Status
+## Huidige status
 
-- **Testversie**, geen vrijgegeven kindrelease.
-- De HTML-app is statisch, bevat ingesloten beelden en gebruikt geen externe backend.
-- De site is na publicatie **publiek toegankelijk**. `noindex` is geen toegangsbeveiliging.
-- Opgaven voor VTT, *omdat* en *als* wachten nog op de afgesproken onafhankelijke didactische beoordeling.
-- De app wordt in dit startpakket niet visueel gerebrand; verdere naamswijzigingen worden separaat getest.
+- **V4.6.2 auteurspilot**, technisch getest; **geen** vrijgegeven kindrelease.
+- Neutrale niveaus 1–4, adaptieve grammaticale oefeningen, VTT, `omdat` en `als`.
+- De bestaande illustraties, audio en interface blijven ongewijzigd.
+- Geen backend of externe runtime nodig; voortgang wordt in de browser bewaard.
+- Niet alle kandidaatopgaven zijn onafhankelijk didactisch vrijgegeven.
 
-## Structuur
+## Publicatie
 
-- `public/index.html`: bestaande V4.6.2 HTML-testversie.
-- `public/_headers`: noindex-header en basisbeveiligingsheaders.
-- `public/robots.txt`: verzoek aan zoekmachines de testsite niet te indexeren.
-- `docs/CLOUDFLARE_PAGES.md`: exacte Git-integratie-instellingen.
+Cloudflare Pages is bedoeld als **Git-gekoppelde** stagingomgeving. Publiceer niet via Direct Upload.
 
-## Deployment
+- Repository: `market-predictions/zinbo`
+- Production branch: `main`
+- Framework preset: `None`
+- Build command: `node scripts/build.mjs`
+- Build output: `public`
+- Gewenste projectnaam: `zinbo` (`https://zinbo.pages.dev`, indien beschikbaar)
 
-De bron van waarheid is GitHub `market-predictions/zinbo`, branch `main`.
-Cloudflare Pages importeert deze repository **via Connect to Git**, met build command `exit 0` en outputmap `public`.
-Elke nieuwe commit op `main` wordt daarna automatisch gepubliceerd, mits de Cloudflare Git-integratie actief is.
+De V4.6.2-release zit in `src/html-parts/` als vijftien genummerde tekstsegmenten, uitsluitend vanwege de uploadlimiet van de GitHub-koppeling. Het kleine standaard Node-script voegt ze **byte voor byte** samen tot `public/index.html` en controleert de SHA-256. Dit is geen tweede applicatie of deploymentroute.
 
-**Gebruik niet het Cloudflare-pad 'Direct Upload'.** Dat creëert een ander projecttype dat later niet naar de native Git-integratie kan worden omgezet.
+Lokaal controleren: `node scripts/build.mjs` en `public/index.html` openen.
 
-## Belangrijk bij voortgang
+Zie [Cloudflare-inrichting](docs/CLOUDFLARE_PAGES.md).
 
-De huidige browseropslag op een lokaal `file://` adres is niet automatisch beschikbaar op `https://zinbo.pages.dev/`. Nieuwe versies moeten de opslagstructuur zorgvuldig behouden.
+**Let op:** de publieke testsite gebruikt een andere browser-opslagoorsprong dan de eerdere offline HTML. Voortgang verhuist niet automatisch. `noindex` is geen toegangsbeveiliging; gebruik geen persoonsgegevens van kinderen voor deze publieke test.
