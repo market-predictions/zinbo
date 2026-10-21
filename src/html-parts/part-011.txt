@@ -225,6 +225,13 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
   const app=document.getElementById('app');
   function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   function caps(s){return s.charAt(0).toLocaleUpperCase('nl-NL')+s.slice(1);}
+  // Sentence-initial capitals are display-only. Names such as Sam and Sara stay capitalized.
+  function sentenceTileText(tile,index){
+    const value=tile.text;
+    if(index===0)return caps(value);
+    return /^(ik|jij|hij|zij|wij|jullie|de|het|een|oma|opa|gisteren|vandaag|morgen|buiten|binnen)\b/i.test(value)
+      ?value.charAt(0).toLocaleLowerCase('nl-NL')+value.slice(1):value;
+  }
   function item(){
     if(isWorld()||isAdaptive())return state.lessonItems[state.index];
     const list=state.mode==='order'?ORDER:MORPH;
@@ -232,11 +239,11 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     return list.find(q=>q.id===id);
   }
   function pilotSentence(it, sequence){
-    const words=sequence.map((id,i)=>{const w=it.tiles.find(t=>t.id===id).text;return i===0?caps(w):w;});
+    const words=sequence.map((id,i)=>sentenceTileText(it.tiles.find(t=>t.id===id),i));
     if(it.kind==='conditional'&&sequence[0]==='w0')words[2]=words[2]+',';
     return words.join(' ')+'.';
   }
-  function sentence(it, sequence){if(it.kind==='conditional')return pilotSentence(it, sequence);return sequence.map((id,i)=>{const word=it.tiles.find(t=>t.id===id).text; return i===0?caps(word):word;}).join(' ')+'.';}
+  function sentence(it, sequence){if(it.kind==='conditional')return pilotSentence(it, sequence);return sequence.map((id,i)=>sentenceTileText(it.tiles.find(t=>t.id===id),i)).join(' ')+'.';}
   function currentComplete(){return state.mode==='order'?state.positions.every(x=>x!==null):state.selected!==null;}
   // One audiovisual director: old speech and queued celebrations are cancelled together.
   // Browser speech is temporary prototype-quality; all instructions remain visible.
@@ -452,7 +459,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     state={screen:'exercise',motionOn,settingsOpen:false,mode,series,index:0,seriesItems:shuffleItems(SERIES[mode][series]),positions:[],selected:null,attempts:0,helpUsed:false,solvedFirst:0,message:'',showHint:false,completed:false,focusPos:null,audioOn};
     resetItem();render();speak(taskInstruction());
   }
-  function resetItem(){if(isAuthorPilot()){const same=state.pilotCurrentId===item().id;state.pilotCurrentId=item().id;if(!same){state.pilotAttemptedError=false;state.pilotUsedHelp=false;}}state.positions=state.mode==='order'?Array(item().tiles.length).fill(null):[];state.selected=null;state.choiceOrder=Array.isArray(item().choices)?shuffleItems(item().choices):null;state.attempts=0;state.helpUsed=false;state.message='';state.showHint=false;state.completed=false;state.focusPos=null;}
+  function resetItem(){if(isAuthorPilot()){const same=state.pilotCurrentId===item().id;state.pilotCurrentId=item().id;if(!same){state.pilotAttemptedError=false;state.pilotUsedHelp=false;}}state.positions=state.mode==='order'?Array(item().tiles.length).fill(null):[];state.selected=null;state.choiceOrder=Array.isArray(item().choices)?shuffleItems(item().choices):null;state.attempts=0;state.helpUsed=false;state.exampleUsed=false;state.message='';state.showHint=false;state.completed=false;state.focusPos=null;}
   function chooseTile(id){if(state.screen!=='exercise'||state.completed)return;let empty=state.positions.findIndex(x=>x===null);if(empty<0)return;placeTile(id,empty);const t=item().tiles.find(t=>t.id===id);if(t)speak(t.text);}
   function placeTile(id,at,from=null){
     if(state.screen!=='exercise'||state.completed||state.mode!=='order'||at<0||at>=state.positions.length)return;
@@ -468,7 +475,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
   function unplace(idx){if(state.screen!=='exercise'||state.completed)return;stopAudio();state.positions[idx]=null;state.message='';state.focusPos=null;render();}
   function chooseEnding(value){if(state.screen!=='exercise'||state.completed)return;stopAudio();state.selected=value;state.message='';render();}
   function toggleHint(){if(state.completed)return;state.showHint=!state.showHint;if(state.showHint){state.helpUsed=true;if(isAuthorPilot()){state.pilotUsedHelp=true;state.message='';}}render();if(state.showHint)speak(hintText(item()));}
-  function taskInstruction(){const q=item();if((isPilotO3()||isPilotO4())&&(q.kind==='conditional'||q.kind==='because'))return q.contextCue+' Maak een zin met '+(q.kind==='conditional'?'als. Probeer beide volgordes.':'omdat. Het werkwoord in het omdat-deel staat achteraan.');if((isPilotVTT()||isPilotO4())&&q.kind==='vtt')return q.contextCue+' Maak de zin met een hulpwerkwoord en een voltooid deelwoord.';const pre=itemPerspective(q)==='ik'?'Stel je voor dat jij dit doet. ':'';if(q.kind==='tense'||q.kind==='strong')return pre+q.prompt+' Kies het hele werkwoord.';return state.mode==='order'?pre+'Kijk naar het plaatje. Maak een zin.'+(q.beginWith?' Begin met '+q.beginWith+'.':''):'Maak het werkwoord af. Kies wat past.';}
+  function taskInstruction(){const q=item();if((isPilotO3()||isPilotO4())&&(q.kind==='conditional'||q.kind==='because'))return q.contextCue+' Maak een zin met '+(q.kind==='conditional'?'als. Probeer beide volgordes.':'omdat. Kijk goed waar de doe-woorden staan.');if((isPilotVTT()||isPilotO4())&&q.kind==='vtt')return q.contextCue+' Maak de zin met een hulpwerkwoord en een voltooid deelwoord.';const pre=itemPerspective(q)==='ik'?'Stel je voor dat jij dit doet. ':'';if(q.kind==='tense'||q.kind==='strong')return pre+q.prompt+' Kies het hele werkwoord.';return state.mode==='order'?pre+'Kijk naar het plaatje. Maak een zin.'+(q.beginWith?' Begin met '+q.beginWith+'.':''):'Maak het werkwoord af. Kies wat past.';}
   function finishItem(){
     if(state.attempts===0&&!state.helpUsed){state.solvedFirst++;if(!isAuthorPilot()){stars++;saveLearning();}}
     if(isPilotO4())recordPilotO4();
@@ -483,7 +490,8 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     render();
     // The exercise stays on screen, including the child's finished sentence.
     focusInlineNote();
-    celebrateAndRead();
+    if(state.exampleUsed)speak(correctSentence());
+    else celebrateAndRead();
   }
   function check(){
     if(state.screen!=='exercise'||state.completed||!currentComplete())return;
@@ -501,7 +509,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
       state.message=state.attempts>=2
         ?'Tik op '+(q.ending===''?'geen einde':'-'+q.ending)+'.'
         :q.count==='many'?'Kijk naar '+q.subject+'. Dat zijn meer mensen.'
-        :q.count==='i'?'Kijk naar Ik. Welk einde past?'
+        :q.count==='i'?'De zin gaat over ik. Welk einde past?'
         :'Kijk naar '+q.subject+'. Eén persoon.';
       }
     }else{
@@ -511,7 +519,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
         state.focusPos=wrong;
         state.message=state.attempts>=2
           ?'Zet '+q.tiles.find(t=>t.id===best[wrong]).text+' op plek '+(wrong+1)+'.'
-          :q.kind==='conditional'?'Bij als vooraan: blijft de persoonsvorm vóór ik in de hoofdzin?':'Bij omdat staat de persoonsvorm achteraan in de bijzin. Kijk naar plek '+(wrong+1)+'.';
+          :q.kind==='conditional'?'Bij als vooraan: blijft de persoonsvorm vóór ik in de hoofdzin?':'Na omdat vertel je waarom. Kijk waar de doe-woorden staan. Controleer plek '+(wrong+1)+'.';
         render();focusInlineNote();speak(state.message);return;
       }
       const verbIndex=state.positions.findIndex(id=>q.tiles.find(t=>t.id===id)?.role==='verb');
@@ -550,9 +558,14 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
   function showAnswer(){
     if(state.screen!=='exercise'||state.attempts<2||state.completed)return;
     state.helpUsed=true;if(isAuthorPilot())state.pilotUsedHelp=true;
-    if(state.mode==='order')state.positions=[...item().solutions[0]];
-    else state.selected=item().ending;
-    finishItem();
+    const example=state.mode==='order'?sentence(item(),item().solutions[0]):item().full;
+    state.exampleUsed=true;
+    state.positions=state.mode==='order'?Array(item().tiles.length).fill(null):[];
+    state.selected=null;
+    state.showHint=false;
+    state.focusPos=null;
+    state.message='Zo kan het: '+example+' Probeer het nu zelf.';
+    render();focusInlineNote();speak(example);
   }
   function next(){
     if(state.screen!=='exercise'||!state.completed)return;
