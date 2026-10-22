@@ -48,3 +48,12 @@ P1: inhoudsvalidatie en taalkundige vrijgave; P2: eerlijk onderscheid zelfstandi
 **Verificatie:** [GitHub Actions run 39739635808](https://github.com/market-predictions/zinbo/actions/runs/39739635808) **SUCCESS**, commit `1ae1bcf4d26da2ec068bf05fdc5f3ea46504e7ee`. Bewijs: SHA-256-gebonden HTML-build, statische tekstcontrole, syntax- en inhoudsregressies, en echte Chromium-interactie op desktop, tablet en mobiel. Getest: niveau 1 versus 4, audio en antwoord voordoen/herbouwen. Niet getest: alle mogelijke leerlijnen, alle oefeningen of echte kinderen.
 
 **Releasebesluit:** P0-codeherstel is in de gecontroleerde concept-PR geïmplementeerd, maar *niet* vrijgegeven. Vóór een kindrelease blijven onafhankelijke taalkundige review van de gewijzigde inhoud, passende pilotobservaties en formele vrijgave noodzakelijk. P1 wordt inhoudscontrole, niet een nieuwe architectuur. De productiebranch `main` is ongewijzigd.
+
+
+## Instructie en browserstem — gebruikerstest 22 oktober 2026
+
+De handmatige test signaleerde twee oorzaken: instructiekaart en TTS bouwden hun tekst apart op; grammaticale uitleg in opdrachten maakte het begrijpen onnodig zwaar. De conceptwijziging gebruikt nu **één letterlijke instructie** voor het scherm en de voorleesknop. O3-contextzinnen zijn korter, geven direct de situatie en vragen slechts één actie. Extra uitleg staat onder **Hint**; het rechtzetten van grammaticale concepten blijft onderdeel van de onafhankelijke taalreview (issue #3).
+
+Voor spraak krijgt een **lokaal beschikbare** Nederlandse (bij voorkeur vrouwelijke/natuurlijk klinkende) stem voorrang. Zonder zo'n geïnstalleerde stem blijft Chrome's standaard Nederlandstalige TTS de fallback. Geen externe spraakdienst of backend toegevoegd, geen garantie van stemgeslacht of opnamekwaliteit. De herhaaltoets spreekt exact de op het scherm getoonde tekst. De inhoud blijft concept en niet voor kinderen vrijgegeven.
+
+Verificatie: regressietests van alle 14 O3-instructies, stemkeuze zonder remote voice, en Chromium-smoke op exact tekst=spraak. Nieuwe commit en CI-bewijs staan in de PR. De bovengenoemde eerdere CI-run blijft historisch bewijs voor de vorige commit.
