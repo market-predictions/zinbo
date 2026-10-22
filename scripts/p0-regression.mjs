@@ -178,4 +178,13 @@ assert.equal(spokenUtterances[0].voice.name,'Previously used Dutch voice',
   'Return to original first available Dutch voice');
 assert.equal(spokenUtterances[0].rate,.85,'Restore original speech rate');
 
+// Reward prototype must stay a non-persistent author-only UI on the real exercise.
+assert.ok(html.includes("data-action=\"reward-preview-open\""),'QA reward entry missing');
+assert.ok(html.includes("data-action=\"reward-demo-complete\""),'QA reward demo button missing');
+assert.ok(html.includes("function rewardPreviewEnd(){"),'QA end celebration missing');
+assert.ok(html.includes("state.previewCoins+=state.previewLastGain;"),'Demo reward state missing');
+assert.ok(html.includes("isPilotO3()&&!isRewardPreview()"),'Reward preview must not write author pilot results');
+assert.ok(html.includes("if(!isAuthorPilot()){stars++;saveLearning();}"),'Normal independent rewards must be untouched');
+assert.ok(html.includes("prefers-reduced-motion: reduce"),'Reduced-motion option missing');
+
 console.log(`PASS P0 regression: ${scripts} JS program(s), 6 modal items, 27 distractor repairs, 4 world-level choices, casing, audio, help and text labels`);
