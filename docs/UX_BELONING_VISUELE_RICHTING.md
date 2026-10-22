@@ -109,3 +109,61 @@ De visuele beloningsflow is als **geïsoleerde QA-route op het echte oefenscherm
 - Deze QA-route schrijft **geen** normale sterren, leerresultaten of O3-pilotgeschiedenis. De bestaande onafhankelijke review en kindpilot blijven onverkort nodig.
 
 **Beperking:** Dit is een eerste echte interactieve browserimplementatie van de visuele richting, niet de definitieve asset-art of soundtrack. De robot is een eenvoudige inline SVG; de kist is in CSS geconstrueerd. De stemwijziging uit de vorige fase wordt niet aangeraakt. Test ook met echte kinderen vóór vrijgave.
+
+
+## Besluit 23 oktober 2026 — muntanimatie v2: leesbare reis naar een schatkist
+
+**Status:** goedgekeurde mini-specificatie voor de volgende implementatie, **nog niet gebouwd**. Vervangt voor de muntanimatie de eerdere richtwaarde van 400–550 ms hierboven. Geen wijziging in de grammaticale oefening, stem of release-gates.
+
+### Gebruikersprobleem en vastgestelde oorzaak
+
+De bestaande QA-functie `animateRewardCoin()` in `src/html-parts/part-014.txt` start een munt bij de succeskaart, verplaatst deze in 780 ms naar de teller rechtsboven en schaalt tot 36% met eindopacity 45%. Het ontvangende element is een abstracte teller, geen visueel herkenbare kist. De munt is nauwelijks te volgen en lijkt boven uit beeld te verdwijnen. Herstel niet alleen de snelheid: herstel **vertrek, route, doel, aankomst én geluid**.
+
+### Nieuwe microflow
+
+| Stap | Tijd (richtwaarde) | Visuele / auditieve gebeurtenis |
+| --- | --- | --- |
+| 1. Verschijnen | 0–220 ms | Gouden munt verschijnt bij de feedback, schaalt zacht van 85% naar 110% en terug naar 100%; volledige opacity. |
+| 2. Herkenningspauze | 220–500 ms | Munt blijft zichtbaar; kind kan herkennen: “ik heb een munt verdiend”. |
+| 3. Vlucht | 500–1550 ms | Munt volgt **1.050 ms** een brede, kalme gebogen baan binnen de viewport naar de *zichtbare* kist. Behoud >= 75% van het originele formaat tot het laatste kwart; eindigt op 70–80%, nooit als een bijna onzichtbaar stipje. |
+| 4. Landing | 1550–1800 ms | De munt verdwijnt zichtbaar achter/in de kist; kist beweegt 4–6 px, licht heel kort op en het aantal munten stijgt. Eén herkenbaar zacht *kling* precies bij aankomst. |
+| 5. Rust | daarna | Feedback en gemaakte zin blijven zichtbaar; “Volgende” blijft altijd direct beschikbaar. Geen autoplay naar de volgende vraag. |
+
+De timing is een **luister- en observatiehypothese**, geen vaste TOS-norm. Geef de munt geen geforceerde piek van `-62px` als dit op smalle schermen tot clipping leidt. Gebruik een vloeiende boog met `cubic-bezier(.2,.65,.3,1)` als startwaarde; verfijn pas op basis van een echte browser- en kindtest.
+
+### Zichtbaar doel, ook op mobiel
+
+- Zet een kleine, herkenbare **blauw-gouden schatkist** naast de bestaande muntteller op het oefenscherm, uitsluitend in de belonings-UX. De kist fungeert als ontvangende container; de teller is geïntegreerd in/naast de kist. Houd de oefening visueel dominant.
+- Tijdens de muntvlucht blijft het doel **in de zichtbare viewport**. Op desktop/laptop rechtsboven; op mobiel compact rechtsboven maar onder eventuele QA-banner. Gebruik zo nodig een tijdelijk binnen het scherm gepositioneerd ontvangerelement, niet de offscreen positie van een weggescrolde header.
+- Lees bij de start de `getBoundingClientRect()` van munt en schatkist. De baan wordt afgeleid van hun werkelijke, actuele locaties, niet van vaste absolute coördinaten.
+- Bewaak minimaal **16 px marge** rondom de gehele zichtbare munt gedurende de vlucht. Bij een onhaalbaar traject: gebruik een kortere, volledig zichtbare baan; **niet** buiten beeld animeren.
+- De landing raakt het midden van de opening van de kist en wordt visueel afgedekt door de kistrand (geen verdwijnende munt boven/naast een icoon).
+
+### Geluidsregie
+
+- **Correcte zin eerst verstaanbaar laten uitspreken.** Toon de munt direct; start de vlucht na de uitgesproken zin (of na een beperkte fallback als spraak niet start). Vermijd muntgeluid tijdens de doelzin.
+- Eén zacht munt-*kling* op het moment van zichtbare landing, geen eerdere beloningstoon die los van het beeld klinkt. De kist reageert tegelijk.
+- Respecteer “Geluid uit”. Geen nieuwe externe audio-/TTS-dienst; behoud bestaande spraakstem.
+
+### Tijdelijk, toegankelijk en correct
+
+- `prefers-reduced-motion: reduce` of “Beweging uit”: munt verschijnt *meteen* bij de kist, teller wordt zichtbaar verhoogd, geen vliegroute of schudanimatie.
+- Bij snel “Volgende”, navigeren, herstart of vernieuwen: animatie schoon afbreken; de geregistreerde beloning mag **niet dubbel** worden toegekend. Bij overslaan moet de teller wel op het juiste aantal staan.
+- Award één keer bij gevalideerde `finishItem()`; onderscheid dit van **wanneer de zichtbare teller** na de animatie toeneemt. Geen opslag van QA-demomunten, geen invloed op sterren, voortgang of taalbeheersingsbewijs.
+- Bij een bonus van twee munten mag één munt vliegen met label “+2”; vermijd twee onnodig opeenvolgende vluchten.
+
+### Technische implementatie: minimaal, geen tweede architectuur
+
+Hergebruik het bestaande QA-pad `reward-preview`, `animateRewardCoin()`, de succeskaart, de teller, Web Animations API en de bestaande instellingen. Voeg uitsluitend een visueel kistdoel, goed zichtbare animatiestappen en een aankomstgeluid/-reactie toe. Gebruik `animation.finished` plus een veilige afbreekroute voor cleanup; animerende DOM-nodes mogen niet blijven hangen bij navigatie. De beloningslogica blijft los van leerresultaten.
+
+### Acceptatiecontrole vóór afronding
+
+1. Op **1366×768, 1024×768 en 390×844** staat de hele munt gedurende 100% van de route binnen het zichtbare scherm.
+2. Munt blijft minstens 250 ms herkenbaar vóór vertrek; de vlucht duurt rond **1.050 ms** en eindigt zichtbaar in de kist, niet in de hoek erboven.
+3. Er is één duidelijk gelijktijdig zichtbaar- en hoorbaar ontvangstmoment. Stem en munt-*kling* praten niet door elkaar.
+4. De teller stijgt één keer per geldig antwoord, ook bij snel klikken of overslaan; niets wordt extra opgeslagen in gewone leerlingvoortgang.
+5. Geluid uit en verminderde beweging geven begrijpelijke, prettige feedback zonder verdwijnende of doorlopende animaties.
+6. Op een echte laptop en telefoon/tablet is de beweging **zonder uitleg goed te volgen**; dit moet de gebruiker expliciet beoordelen, niet alleen de CI.
+7. PR blijft **draft** en geen kindrelease vóór onafhankelijk didactisch oordeel en pilot.
+
+**Besluit:** leesbare muntvlucht is visueel P0 binnen het beloningsprototype. Pas na deze correctie andere verzamel- of decoratie-effecten toevoegen.
