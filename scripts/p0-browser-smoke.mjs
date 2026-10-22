@@ -37,7 +37,7 @@ try {
       const first=async level=>{
         await page.locator('[data-action="world-group"]').click();
         await page.locator('[data-action="o4-level"][data-level="'+level+'"]').last().click();
-        await page.locator('[data-action="close-parent"]').first().click();
+        await page.locator('.parent-close').click();
         await page.locator('[data-action="world-open"][data-world="sport"]').click();
         const label=await page.locator('.qa-item-id').innerText();
         const id=label.match(/Oefening-ID:\s*([^\s·]+)/)?.[1];
