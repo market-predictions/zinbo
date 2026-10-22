@@ -9,7 +9,8 @@ const html = await readFile(resolve('public/index.html'),'utf8');
 const adv=JSON.parse(html.match(/const ADVANCED = (\{[\s\S]*?\});/)[1]);
 const order=JSON.parse(html.match(/const ORDER = (\[[\s\S]*?\]);/)[1]);
 const morph=JSON.parse(html.match(/const MORPH = (\[[\s\S]*?\]);/)[1]);
-const byId=new Map([...order,...morph,...Object.values(adv).flat()].map(q=>[q.id,q]));
+const v43=JSON.parse(html.match(/const V43_CANDIDATES = (\{[\s\S]*?\});/)[1]);
+const byId=new Map([...order,...morph,...Object.values(adv).flat(),...Object.values(v43).flat()].map(q=>[q.id,q]));
 const band=q=>{
   const stage=Number.isInteger(q.stage)?q.stage:0;
   if(q.kind==='inversion'||q.kind==='strong')return stage>=2?4:stage>=1?3:2;
@@ -38,7 +39,7 @@ try {
         await page.locator('[data-action="world-group"]').click();
         await page.locator('.world-parent-dialog [data-action="o4-level"][data-level="'+level+'"]').click();
         await page.locator('.parent-close').click();
-        await page.locator('[data-action="world-open"][data-world="sport"]').click();
+        await page.locator('.op1-card[data-action="world-open"][data-world="sport"]').click();
         const label=await page.locator('.qa-item-id').innerText();
         const id=label.match(/Oefening-ID:\s*([^\s·]+)/)?.[1];
         assert.ok(id&&byId.has(id),'Unknown sport exercise: '+id);
