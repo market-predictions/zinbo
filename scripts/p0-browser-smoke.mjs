@@ -52,16 +52,36 @@ try {
       await page.locator('[data-action="home"]').first().click();
       const hard=await first(4);
       assert.notEqual(easy.id,hard.id,'Different levels must choose different content');
-      assert.ok(hard.tiles?.length,'Level 4 sport item should be a sentence-order exercise');
-      // Choose the published wrong bank order twice, then request the model.
-      for(const tile of hard.bankOrder) await page.locator('[data-action="tile"][data-id="'+tile+'"]').click();
+      // Level 4 contains both sentence-order and strong-verb exercises.
+      // Validate the real interaction for whichever suitable item was chosen.
+      if(hard.tiles?.length){
+        for(const tile of [...hard.solutions[0]].reverse())
+          await page.locator('[data-action="tile"][data-id="'+tile+'"]').click();
+      } else {
+        const wrong=hard.choices.find(v=>v!==hard.ending);
+        assert.ok(wrong,'Expected a distractor');
+        await page.locator('[data-action="ending"][data-ending="'+wrong+'"]').click();
+      }
       await page.locator('[data-action="check"]').click();
+      if(!hard.tiles?.length){
+        const wrong=hard.choices.find(v=>v!==hard.ending);
+        await page.locator('[data-action="ending"][data-ending="'+wrong+'"]').click();
+      }
       await page.locator('[data-action="check"]').click();
       await page.locator('[data-action="answer"]').click();
-      assert.equal(await page.locator('.slot.filled').count(),0,'Reveal should reset tiles');
+      if(hard.tiles?.length)
+        assert.equal(await page.locator('.slot.filled').count(),0,'Reveal should reset tiles');
+      else
+        assert.equal((await page.locator('[data-ending-slot]').innerText()).trim(),'?',
+          'Reveal should reset the chosen verb');
       assert.equal(await page.locator('[data-action="check"]').isDisabled(),true,
         'Revealed answer must not count as completed');
-      for(const tile of hard.solutions[0]) await page.locator('[data-action="tile"][data-id="'+tile+'"]').click();
+      if(hard.tiles?.length){
+        for(const tile of hard.solutions[0])
+          await page.locator('[data-action="tile"][data-id="'+tile+'"]').click();
+      } else {
+        await page.locator('[data-action="ending"][data-ending="'+hard.ending+'"]').click();
+      }
       await page.locator('[data-action="check"]').click();
       assert.ok((await page.locator('.feedback-text').innerText()).includes('Je hebt de zin opnieuw gemaakt'),
         'Assisted completion should not receive the independent-success message');
