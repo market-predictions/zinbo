@@ -156,17 +156,26 @@ for(const q of o3Items){
   assert.ok(spoken.length<=115,q.id+' instruction too long ('+spoken.length+')');
   assert.ok(!/(persoonsvorm|bijzin|omdat-deel|hulpwerkwoord)/i.test(spoken),q.id+' instruction contains jargon');
 }
-const voiceStart=html.indexOf('  function chooseDutchVoice(voices){');
-const voiceEnd=html.indexOf('  function speak(text){',voiceStart);
-assert.ok(voiceStart>=0&&voiceEnd>voiceStart,'Dutch voice chooser missing');
-const chooseVoice=runInNewContext(html.slice(voiceStart,voiceEnd)+'\nchooseDutchVoice');
-const voices=[
-  {name:'Microsoft Frank',lang:'nl-NL',localService:true},
-  {name:'Microsoft Fenna (Natural)',lang:'nl-NL',localService:true},
-  {name:'Remote Colette',lang:'nl-NL',localService:false},
-  {name:'English female',lang:'en-US',localService:true}];
-assert.equal(chooseVoice(voices).name,'Microsoft Fenna (Natural)','Prefer local female Dutch voice');
-assert.equal(chooseVoice([voices[0]]).name,'Microsoft Frank','Use available Dutch fallback');
-assert.equal(chooseVoice([voices[2]]),null,'Do not select remote-only voices');
+// The October female-voice preference was reverted after a negative listening
+// test. Verify the original browser voice order and speaking rate are preserved.
+const voiceStart=html.indexOf('  function speak(text){');
+const voiceEnd=html.indexOf('  function celebrateAndRead(){',voiceStart);
+assert.ok(voiceStart>=0&&voiceEnd>voiceStart,'Original speech handler missing');
+assert.ok(!html.includes('function chooseDutchVoice('),'Female voice override must be removed');
+const spokenUtterances=[];
+const availableVoices=[
+  {name:'Previously used Dutch voice',lang:'nl-NL',localService:true},
+  {name:'New female voice',lang:'nl-NL',localService:true},
+  {name:'Another language',lang:'en-US',localService:true}];
+function FakeUtterance(text){this.text=text;}
+const speechContext={
+  window:{speechSynthesis:{getVoices:()=>availableVoices,speak:utterance=>spokenUtterances.push(utterance)}},
+  stopAudio:()=>{},state:{audioOn:true},audioAudit:[],SpeechSynthesisUtterance:FakeUtterance
+};
+runInNewContext(html.slice(voiceStart,voiceEnd)+'\nspeak("Goed gedaan!")',speechContext);
+assert.equal(spokenUtterances.length,1);
+assert.equal(spokenUtterances[0].voice.name,'Previously used Dutch voice',
+  'Return to original first available Dutch voice');
+assert.equal(spokenUtterances[0].rate,.85,'Restore original speech rate');
 
 console.log(`PASS P0 regression: ${scripts} JS program(s), 6 modal items, 27 distractor repairs, 4 world-level choices, casing, audio, help and text labels`);
