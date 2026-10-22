@@ -257,31 +257,22 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     toneNodes=[];
     if('speechSynthesis' in window){try{window.speechSynthesis.cancel();}catch(_){}}
   }
-  // Prefer a natural-sounding Dutch female voice when installed locally.
-  // Voice lists are device-specific and may arrive after the page loads.
-  // Do not select remote-only voices: this prototype must not send children's text away.
-  function chooseDutchVoice(voices){
-    const local=(voices||[]).filter(v=>/^nl(?:-|_)/i.test(v.lang||'')&&v.localService!==false);
-    const score=v=>{
-      const name=String(v.name||'');
-      return (/^nl[-_]nl$/i.test(v.lang||'')?20:0)
-        + (/(fenna|colette|fleur|lotte|ellen)/i.test(name)?30:0)
-        + (/(natural|neural)/i.test(name)?12:0);
-    };
-    return local.sort((a,b)=>score(b)-score(a))[0]||null;
-  }
+  // Restore the original browser voice selection until listening tests
+  // establish a preferred voice. It uses the first Dutch voice, as before.
   function speak(text){
     stopAudio();
     if(!state.audioOn)return;
     audioAudit.push({kind:'speech',text:String(text)});
     if(!('speechSynthesis' in window))return; // never block visual learning
     try{
-      const u=new SpeechSynthesisUtterance(String(text));u.lang='nl-NL';u.rate=.95;u.pitch=1;
-      const dutch=chooseDutchVoice(window.speechSynthesis.getVoices());
+      const u=new SpeechSynthesisUtterance(String(text));u.lang='nl-NL';u.rate=.85;u.pitch=1;
+      const voices=window.speechSynthesis.getVoices();
+      const dutch=voices.find(v=>v.lang&&v.lang.toLowerCase().startsWith('nl'));
       if(dutch)u.voice=dutch;
       window.speechSynthesis.speak(u);
     }catch(_){ /* visible instruction always remains available */ }
   }
+
   function celebrateAndRead(){
     stopAudio();
     if(!state.audioOn)return;
