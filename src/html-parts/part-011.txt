@@ -499,7 +499,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     if(state.attempts===0&&!state.helpUsed){state.solvedFirst++;if(!isAuthorPilot()){stars++;saveLearning();}}
     if(isPilotO4())recordPilotO4();
     else if(isPilotVTT())recordPilotVTT();
-    else if(isPilotO3()&&!isRewardPreview())recordPilotO3();
+    else if(isPilotO3()){if(!isRewardPreview())recordPilotO3();}
     else if(isPlacement())recordPlacementResult();
     else if(isWorld())recordBasicResult();
     else if(isAdaptive())recordAdaptiveResult();
