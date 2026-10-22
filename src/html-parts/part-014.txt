@@ -65,6 +65,30 @@ lRc7bx5hAfQGy8SxdXLNbVi+fQ2fMZH1wmJBkzg3emv7M7YyTcCZFiVI9uBebV4ALca/fic6bKvjgOBj
     ],{duration:780,easing:'cubic-bezier(.18,.65,.35,1)'});
     animation.finished.catch(()=>{}).finally(()=>coin.remove());
   }
+
+  function playRewardChestSound(){
+    if(!state.audioOn)return;
+    try{
+      const AudioCtx=window.AudioContext||window.webkitAudioContext;
+      if(!AudioCtx)return;
+      soundContext=soundContext||new AudioCtx();
+      if(soundContext.state==='suspended')soundContext.resume().catch(()=>{});
+      const start=soundContext.currentTime+.025;
+      [523.25,659.25,783.99].forEach((frequency,i)=>{
+        const oscillator=soundContext.createOscillator(),gain=soundContext.createGain();
+        oscillator.type='sine';oscillator.frequency.value=frequency;
+        const at=start+i*.12;
+        gain.gain.setValueAtTime(.0001,at);
+        gain.gain.exponentialRampToValueAtTime(.045,at+.027);
+        gain.gain.exponentialRampToValueAtTime(.0001,at+.44);
+        oscillator.connect(gain);gain.connect(soundContext.destination);
+        toneNodes.push(oscillator);
+        oscillator.onended=()=>{toneNodes=toneNodes.filter(node=>node!==oscillator);};
+        oscillator.start(at);oscillator.stop(at+.45);
+      });
+    }catch(_){/* Browser audio optional; visual reward still works. */}
+  }
+
   function rewardPreviewEnd(){
     const opened=state.previewChestOpen;
     return `<section class="panel reward-preview-end">
@@ -324,7 +348,7 @@ lRc7bx5hAfQGy8SxdXLNbVi+fQ2fMZH1wmJBkzg3emv7M7YyTcCZFiVI9uBebV4ALca/fic6bKvjgOBj
       else if(a==='o3-pilot-open'){startPilotO3(app.querySelector('#o3-pilot-picker')?.value);}
       else if(a==='reward-preview-open'){startPilotO3('o3-omdat-01',true);}
       else if(a==='reward-preview-again'){startPilotO3('o3-omdat-01',true);}
-      else if(a==='reward-chest-open'&&isRewardPreview()&&state.screen==='end'&&!state.previewChestOpen){state.previewChestOpen=true;render();}
+      else if(a==='reward-chest-open'&&isRewardPreview()&&state.screen==='end'&&!state.previewChestOpen){stopAudio();state.previewChestOpen=true;render();playRewardChestSound();}
       else if(a==='reward-demo-complete'&&isRewardPreview()&&state.screen==='exercise'&&!state.completed){state.positions=item().solutions[0].slice();check();}
       else if(a==='o3-pilot-again'){startPilotO3(O3_PILOT[Math.floor(Math.random()*O3_PILOT.length)].id);}
       else if(a==='vtt-pilot-open'){startPilotVTT(app.querySelector('#vtt-pilot-picker')?.value);}
