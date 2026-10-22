@@ -183,7 +183,7 @@ assert.ok(html.includes("data-action=\"reward-preview-open\""),'QA reward entry 
 assert.ok(html.includes("data-action=\"reward-demo-complete\""),'QA reward demo button missing');
 assert.ok(html.includes("function rewardPreviewEnd(){"),'QA end celebration missing');
 assert.ok(html.includes("state.previewCoins+=state.previewLastGain;"),'Demo reward state missing');
-assert.ok(html.includes("isPilotO3()&&!isRewardPreview()"),'Reward preview must not write author pilot results');
+assert.ok(html.includes("else if(isPilotO3()){if(!isRewardPreview())recordPilotO3();}"),'Reward preview must not write author pilot results');
 assert.ok(html.includes("if(!isAuthorPilot()){stars++;saveLearning();}"),'Normal independent rewards must be untouched');
 assert.ok(html.includes("prefers-reduced-motion: reduce"),'Reduced-motion option missing');
 
