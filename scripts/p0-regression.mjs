@@ -64,7 +64,7 @@ assert.ok(handler.includes('state.answerRevealed=true'), 'Reveal must not count 
 assert.ok(handler.includes('Maak het nu zelf opnieuw.'), 'Rebuild instruction must appear');
 assert.ok(html.includes("state.answerRevealed?'Je hebt de zin opnieuw gemaakt.':'Goed!'"), 'Neutral assisted completion expected');
 
-const candidateMatch = html.match(/const V43_CANDIDATES = (\\{[\\s\\S]*?\\});/);
+const candidateMatch = html.match(/const V43_CANDIDATES = (\{[\s\S]*?\});/);
 assert.ok(candidateMatch, 'V4.3 exercise candidate bank missing');
 const candidateBank = JSON.parse(candidateMatch[1]);
 const expectedPastForms = {
