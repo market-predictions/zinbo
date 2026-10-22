@@ -92,5 +92,15 @@ for (const [skill,mapping] of [['past',expectedPastForms],['strong',expectedStro
   }
 }
 assert.equal(verifiedContrasts,27,'All 27 candidate contrast corrections covered');
+const repairedCandidates=[...candidateBank.past,...candidateBank.strong].filter(q=>{
+  const family = Object.keys({...expectedPastForms,...expectedStrongPastForms})
+    .find(prefix=>q.id.startsWith(prefix+'-'));
+  return family && (q.when==='Nu'||(q.when==='Gisteren'&&q.id.endsWith('-and-past')&&thirdPresent[family]));
+});
+assert.equal(repairedCandidates.length,27);
+for(const q of repairedCandidates){
+  assert.equal(q.reviewStatus,'candidate',q.id+' must be re-reviewed after alteration');
+  assert.ok(!q.reviewBy&&!q.reviewAt,q.id+' must not retain a stale approval claim');
+}
 
 console.log(`PASS P0 regression: ${scripts} JS program(s), 6 modal items, 27 distractor repairs, casing, audio, help and text labels`);
