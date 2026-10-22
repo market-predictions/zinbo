@@ -865,6 +865,17 @@ body{padding-top:46px!important}
 .qa-item-notice{margin:12px 0 4px;padding:13px 17px;background:#fff1cf;border:2px solid #ffa43c;border-radius:12px;color:#734400;font:700 17px/1.4 system-ui,sans-serif}
 .qa-item-id{font-size:14px;color:#5a7192;margin-top:7px}
 @media(max-width:650px){body{padding-top:70px!important}#qa-banner{min-height:70px;flex-direction:column;gap:3px;font-size:13px}.qa-chooser{margin:14px;padding:15px}.qa-chooser h2{font-size:22px}.qa-chooser select,.qa-chooser button{width:100%;max-width:100%}}
+
+/* P0-08: keep the name and explanatory tagline visible on laptop widths. */
+@media (min-width:881px) and (max-width:1450px){
+  .op1-header{min-height:100px;height:auto;gap:12px}
+  .op1-brand{flex-direction:column;align-items:flex-start;justify-content:center;gap:3px;min-width:155px}
+  .op1-brand strong{font-size:clamp(28px,2.65vw,38px)}
+  .op1-brand strong::after{bottom:-3px}
+  .op1-brand span{white-space:normal;font-size:clamp(13px,1.05vw,15px);line-height:1.2}
+  .op1-toolbar{gap:7px}
+  .op1-pill{padding:9px 11px}
+}
 </style>
 <style id="o3-qa-only-layout">
 /* QA pilot only: don't shrink six tiles to unreadable 1/6 mobile columns. */
