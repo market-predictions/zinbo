@@ -46,8 +46,10 @@ for (const q of o3.filter(x=>modal.has(x.id))) {
     assert.ok(sentences.some(sentence=>/wil (lezen|bewegen|spelen)$/.test(sentence)),q.id);
     assert.ok(sentences.some(sentence=>/(lezen|bewegen|spelen) wil$/.test(sentence)),q.id);
   } else {
-    assert.equal(sentences.length,1,q.id+' must keep object before verb group');
-    assert.ok(sentences[0].endsWith('iets wil zien')||sentences[0].endsWith('iets wil vragen'),q.id);
+    assert.equal(sentences.length,2,q.id+' must accept both modal orders');
+    const infinitive=q.id.endsWith('10')?'zien':'vragen';
+    assert.ok(sentences.some(x=>x.endsWith('iets wil '+infinitive)),q.id);
+    assert.ok(sentences.some(x=>x.endsWith('iets '+infinitive+' wil')),q.id);
   }
 }
 assert.ok(!html.includes('Premium illustratie bij '), 'Leaked internal image-review label');
