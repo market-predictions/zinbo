@@ -54,6 +54,7 @@ for (const q of o3.filter(x=>modal.has(x.id))) {
 }
 assert.ok(!html.includes('Premium illustratie bij '), 'Leaked internal image-review label');
 assert.ok(!html.includes('Kijk naar Ik.'), 'Awkward pronoun hint');
+assert.ok(!html.includes('De persoonsvorm komt achteraan in dat stukje.'), 'Modal-clause hint must not assert an incorrect final finite verb');
 assert.ok(html.includes('data-action="speak-task" ${state.audioOn?\'\':\'disabled\'} aria-label="Herhaal de opdracht"'),
   'Instruction audio must be enabled when sound is on');
 
