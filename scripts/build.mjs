@@ -16,7 +16,7 @@ if (filenames.length !== 15) {
 const parts = await Promise.all(filenames.map(name => readFile(new URL(name, sourceDir))));
 const html = Buffer.concat(parts);
 const checksum = createHash('sha256').update(html).digest('hex');
-const expected = '2926d0ddf805ef167ca660f153a79a0da2e5d75cc8708344c48d2fe5ec83e6a5';
+const expected = 'ea06dbf764ee59e46a681c6c685825164ad93ffc9b3ac63b5af727d6633a21bc';
 
 if (checksum !== expected) {
   throw new Error('Zinbo HTML checksum mismatch: refusing to deploy a changed or incomplete artifact');
