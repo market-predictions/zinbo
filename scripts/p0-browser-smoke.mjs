@@ -106,6 +106,26 @@ try {
       const vttVisible=await page.locator('.instruction-card span').innerText();
       const vttSpoken=await page.evaluate(()=>window.__zinsbouwerTest.getAudioAudit().filter(x=>x.kind==='speech').at(-1)?.text);
       assert.equal(vttVisible,vttSpoken,'VTT text must match audio');
+
+      // Reward prototype is a QA extension of the REAL O3 exercise; no learning points.
+      await page.locator('[data-action="home"]').first().click();
+      await page.locator('[data-action="reward-preview-open"]').click();
+      assert.equal((await page.evaluate(()=>window.__zinsbouwerTest.getRewardPreview())).active,true);
+      assert.equal(await page.locator('.reward-preview-total').count(),1);
+      for(let turn=0;turn<5;turn++){
+        await page.locator('[data-action="reward-demo-complete"]').click();
+        assert.equal(await page.locator('.reward-preview-feedback').count(),1,'Missing success reaction');
+        const s=await page.evaluate(()=>window.__zinsbouwerTest.getRewardPreview());
+        assert.equal(s.coins,(turn+1)*2,'Demo coins should track 5 independent successes');
+        await page.locator('[data-action="next"]').click();
+      }
+      assert.equal(await page.locator('.reward-preview-end').count(),1,'No chest after five sentences');
+      await page.locator('[data-action="reward-chest-open"]').click();
+      assert.equal(await page.locator('.reward-preview-found').count(),1,'Chest prize not revealed');
+      assert.equal((await page.evaluate(()=>window.__zinsbouwerTest.getRewardPreview())).chestOpen,true);
+      await page.locator('[data-action="home"]').first().click();
+      assert.equal((await page.evaluate(()=>window.__zinsbouwerTest.getRewardPreview())).active,false);
+
     }
     await context.close();
   }
