@@ -97,3 +97,15 @@ Het oorspronkelijke Zinsbouwer-ontwerp noemt animaties tot 300 ms. Dit voorstel 
 9. Aantoonbare browsercontrole én een korte praktijkobservatie vóór gebruik als kindrelease.
 
 **Besluitstatus:** deze visuele richting is een eerste uitgewerkte ontwerpvoorkeur. De gebruiker en uiteindelijk kinderen/deskundigen moeten de visuele aantrekkelijkheid en TOS-geschiktheid nog toetsen. Geen code- of vrijgaveclaim.
+
+
+## Werkend QA-prototype — iteratie 1 (22 oktober 2026)
+
+De visuele beloningsflow is als **geïsoleerde QA-route op het echte oefenscherm** toegevoegd aan de bestaande conceptbranch. Op de startpagina, onder de O3-auteurspilot: knop **Bekijk beloningsprototype (5 zinnen)**. Normale oefenzinnen, validator, tegels, instellingen en correct uitgesproken doelzin blijven de bron van waarheid. Een apart gestippeld knopje **Toon visuele beloning** vult uitsluitend in deze QA-route het juiste antwoord in om de animatie snel te demonstreren.
+
+- Bij een correcte zin verschijnt een licht-gouden succeskaart met compacte blauw-witte Zinbo-helper en één reliëfmunt. Een tweede munt is de bonus voor meteen zelfstandig goed; bij hulp blijft het één. Het aantal munten wordt alleen in de tijdelijke `state.previewCoins` bijgehouden.
+- Een munt vliegt met Web Animations naar de teller rechtsboven. Beweging uit of reduced-motion schakelt de vlucht uit; geluid uit blijft gelden.
+- Na vijf echte, door de bestaande validator geaccepteerde zinnen verschijnt een kist op het bestaande einde-pad. Een expliciete knop opent die en toont één *voorlopige* vondst. Geen verzamelobjecten worden bewaard.
+- Deze QA-route schrijft **geen** normale sterren, leerresultaten of O3-pilotgeschiedenis. De bestaande onafhankelijke review en kindpilot blijven onverkort nodig.
+
+**Beperking:** Dit is een eerste echte interactieve browserimplementatie van de visuele richting, niet de definitieve asset-art of soundtrack. De robot is een eenvoudige inline SVG; de kist is in CSS geconstrueerd. De stemwijziging uit de vorige fase wordt niet aangeraakt. Test ook met echte kinderen vóór vrijgave.
