@@ -327,6 +327,14 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     const arts=WORLD_SCENES[id]||[];
     return ALL_LEGACY_ITEMS.filter(q=>q.primaryWorld ? q.primaryWorld===id : arts.includes(q.art));
   }
+  // Four entry levels select demonstrably different existing exercise constructs.
+  // This is a preference, never a diagnostic measure of the child's language ability.
+  function worldExerciseBand(q){
+    const stage=Number.isInteger(q.stage)?q.stage:0;
+    if(q.kind==='inversion'||q.kind==='strong')return stage>=2?4:stage>=1?3:2;
+    if(q.kind==='tense')return stage>=2?3:stage>=1?2:1;
+    return 1; // basic word order and present-tense agreement
+  }
   function worldFamilies(items){return new Set(items.map(q=>evidenceFamily(q)||itemFamily(q)).filter(Boolean));}
   function worldIsPlayable(id){
     if(!['sport','thuis','familie','school','uitstapjes','zelf'].includes(id))return false; // V1 approved primary domains only
@@ -346,21 +354,18 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     const prior=new Set(worldHistory().map(h=>h.id));
     const recent=worldHistory().slice(-15),recentArts=new Set(recent.map(h=>h.scene).filter(Boolean));
     const chosen=[];
-    const group=o4Data.level;
-    const done=placement.history.length;
-    const independent=placement.history.filter(h=>h.independent).length;
-    // School group and the five-item check are only weak ordering signals, never locks.
-    const initialStage=(group>=2)?1:0;
-    const preferred=Math.max(0,Math.min(2,initialStage+(done>=3&&independent>=3?1:0)-(done>=2&&independent===0?1:0)));
+    const target=[1,2,3,4].includes(o4Data.level)?o4Data.level:1;
+    // Select by grammatical construct, not merely by the 0-2 content-stage label.
+    // Placement observations stay separate from this manually chosen starting focus.
     while(chosen.length<5){
       const options=pool.filter(q=>!chosen.some(p=>p.id===q.id));
       if(!options.length)break;
       const score=q=>{
-        const stage=Number.isInteger(q.stage)?q.stage:0;
         const sameScene=chosen.filter(x=>x.art===q.art).length;
         const sameFamily=chosen.filter(x=>(evidenceFamily(x)||itemFamily(x))===(evidenceFamily(q)||itemFamily(q))).length;
-        return (prior.has(q.id)?20:0) + sameScene*55 + sameFamily*32 +
-          (recentArts.has(q.art)?6:0) + Math.abs(stage-preferred)*12 + Math.random()*9;
+        return Math.abs(worldExerciseBand(q)-target)*180 +
+          (prior.has(q.id)?20:0) + sameScene*45 + sameFamily*25 +
+          (recentArts.has(q.art)?6:0) + Math.random()*9;
       };
       const ranked=options.map(q=>({q,value:score(q)})).sort((a,b)=>a.value-b.value);
       chosen.push(ranked[0].q);
@@ -411,7 +416,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     const chosen=o4Data.level?`Niveau ${o4Data.level}`:'Kies niveau';
     return `<div class="world-parent-backdrop" data-action="close-parent" aria-hidden="true"></div><section class="world-parent-dialog" role="dialog" aria-modal="true" aria-labelledby="parent-title">
     <header><div><span class="parent-kicker">${isGroup?'Kies een uitdagingsniveau':'Voor ouders en begeleiders'}</span><h2 id="parent-title">${isGroup?'Niveau 1 tot en met 4':'Instellingen'}</h2></div><button class="parent-close" data-action="close-parent" aria-label="Sluiten">×</button></header>
-    ${isGroup?`<p>Het gekozen niveau is een <strong>startpunt voor oefeningen</strong>, geen gemeten taalniveau. De app kiest daarna per grammaticaal leerdoel passende opgaven.</p>${groupSelector()}<div class="parent-note"><strong>Instap:</strong> ${chosen}. ${placement.done?'Kennismaking afgerond.':'Kennismaking: '+Math.min(5,placement.history.length)+' van 5 oefenzinnen.'} Dit is geen schoolgroep en geen taaldiagnose.</div><button class="parent-primary" data-action="start-placement">${opIcon('play',22)} ${placement.done?'Kennismaking opnieuw doen':'Start kennismaking'}</button>`
+    ${isGroup?`<p>Het gekozen niveau bepaalt het <strong>soort oefenzinnen</strong> in de werelden, geen gemeten taalniveau. Niveau 4 bevat voorlopig gevorderde bestaande zinnen; VTT en bijzinnen zijn nog niet vrijgegeven.</p>${groupSelector()}<div class="parent-note"><strong>Instap:</strong> ${chosen}. ${placement.done?'Kennismaking afgerond.':'Kennismaking: '+Math.min(5,placement.history.length)+' van 5 oefenzinnen.'} Dit is geen schoolgroep en geen taaldiagnose.</div><button class="parent-primary" data-action="start-placement">${opIcon('play',22)} ${placement.done?'Kennismaking opnieuw doen':'Start kennismaking'}</button>`
     :`<p>Kies hoe je wilt oefenen. Deze instellingen gelden op dit apparaat.</p><div class="parent-settings"><button data-action="sound" aria-pressed="${state.audioOn}">${opIcon('volume',24)} Geluid <strong>${state.audioOn?'Aan':'Uit'}</strong></button><button data-action="motion" aria-pressed="${state.motionOn}">${opIcon('settings',24)} Animaties <strong>${state.motionOn?'Aan':'Uit'}</strong></button></div><p class="parent-privacy">De voortgang blijft in deze browser opgeslagen. Oefenresultaten bewijzen niet automatisch dat een kind zinnen spontaan kan gebruiken.</p>${resetConfirmOpen?'<div class="reset-confirm"><strong>Alle oefenresultaten wissen?</strong><p>Dit kan niet ongedaan gemaakt worden.</p><button data-action="clear-learning">Ja, resultaten wissen</button><button data-action="cancel-clear">Annuleren</button></div>':'<button class="parent-reset" data-action="confirm-clear">Oefenresultaten wissen</button>'}`}
     </section>`;
   }
@@ -443,7 +448,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
       </section>
       <section class="op1-worlds" aria-label="Mijn werelden"><h2>Mijn werelden</h2><p class="op1-sub">Kies wat je wilt oefenen.</p><div class="op1-cards">${WORLD_INFO.map(w=>worldCard(w,last?.id)).join('')}</div></section>
       <section class="op1-progress" id="op1-progress" aria-label="Jouw voortgang"><h2>Jouw voortgang</h2><div class="op1-progress-grid">
-        <article class="op1-stat"><span class="op1-stat-icon">${opIcon('message-circle',32)}</span><span class="op1-stat-text"><strong>${evidence.count}</strong><small>zinnen gemaakt</small></span><div class="op1-stat-meter" role="progressbar" aria-label="Verschillende oefeningen geprobeerd" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${discoveryRate}" title="${evidence.unique} van ${approvedTotal} verschillende oefeningen geprobeerd"><span class="op1-stat-deco"><i style="width:${discoveryRate}%"></i></span><small>${discoveryRate}%</small></div></article>
+        <article class="op1-stat"><span class="op1-stat-icon">${opIcon('message-circle',32)}</span><span class="op1-stat-text"><strong>${evidence.unique}</strong><small>verschillende oefeningen</small></span><div class="op1-stat-meter" role="progressbar" aria-label="Verschillende oefeningen geprobeerd" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${discoveryRate}" title="${evidence.unique} van ${approvedTotal} verschillende oefeningen geprobeerd"><span class="op1-stat-deco"><i style="width:${discoveryRate}%"></i></span><small>${discoveryRate}%</small></div></article>
         <article class="op1-stat"><span class="op1-stat-icon good">${opIcon('circle-check',32)}</span><span class="op1-stat-text"><strong>${evidence.independent}</strong><small>zelfstandig goed</small></span><div class="op1-stat-meter" role="progressbar" aria-label="Zinnen zelfstandig goed gemaakt" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${successRate}" title="${evidence.independent} van ${evidence.count} antwoorden zonder hulp correct"><span class="op1-stat-deco green"><i style="width:${successRate}%"></i></span><small>${successRate}%</small></div></article>
         <article class="op1-stat"><span class="op1-stat-icon accent">${opIcon('chart-column',32)}</span><span class="op1-stat-text"><strong>${evidence.words}</strong><small>werkwoorden geoefend</small></span><div class="op1-stat-meter" role="progressbar" aria-label="Verschillende werkwoorden geoefend" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${verbsRate}" title="${evidence.words} van ${totalVerbs} herkenbare werkwoordfamilies geoefend"><span class="op1-stat-deco orange"><i style="width:${verbsRate}%"></i></span><small>${verbsRate}%</small></div></article>
         <button data-action="challenge-home" class="op1-stat op1-next"><span class="op1-stat-icon">${opIcon('target',31)}</span><span class="op1-stat-text"><strong>Volgende stap</strong><small>Kies een nieuwe uitdaging</small></span></button>
@@ -625,7 +630,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     </button>`;
   }
   function groupSelector(){
-    return `<div class="group-selector"><p><strong>Oefenniveau (1–4)</strong><span class="group-description"> Kies een startpunt. Niet gekoppeld aan schoolgroep of leeftijd.</span></p><div class="group-options">${[1,2,3,4].map(n=>`<button type="button" class="group-option" data-action="o4-level" data-level="${n}" aria-pressed="${o4Data.level===n}">Niveau ${n}</button>`).join('')}</div>${preferences.schoolGroup?`<p>Historische schoolgroep ${esc(preferences.schoolGroup)} blijft bewaard, maar is niet automatisch omgezet.</p>`:''}</div>`;
+    return `<div class="group-selector"><p><strong>Oefenniveau (1–4)</strong><span class="group-description"> 1: basiszinnen · 2: tijdsvormen · 3: omdraaien en afwisselen · 4: gevorderde varianten. Een startpunt, geen meting.</span></p><div class="group-options">${[1,2,3,4].map(n=>`<button type="button" class="group-option" data-action="o4-level" data-level="${n}" aria-pressed="${o4Data.level===n}">Niveau ${n}</button>`).join('')}</div>${preferences.schoolGroup?`<p>Historische schoolgroep ${esc(preferences.schoolGroup)} blijft bewaard, maar is niet automatisch omgezet.</p>`:''}</div>`;
   }
   function parentDetails(text,clear=false){
     return `<details class="review-info landing-parent"><summary>Voor ouders en begeleiders</summary><div class="parent-content"><p>${text}</p>${groupSelector()}${clear?'<button class="secondary" data-action="clear-learning">Oefenvoortgang wissen</button>':''}</div></details>`;
