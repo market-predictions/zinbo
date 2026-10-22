@@ -32,17 +32,19 @@ P1: inhoudsvalidatie en taalkundige vrijgave; P2: eerlijk onderscheid zelfstandi
 
 ## Uitvoeringsstatus — 22 oktober 2026
 
-| Defect | Code | Verificatie / resterende stap |
+| ID | Status code | Bewijs en eventuele beperking |
 |---|---|---|
-| P0-01 hoofdletters | Aangepast | Positieafhankelijke presentatie in tegelbank, zinsbalk en voorleeszin; regressietest. Nog handmatig in browser nalopen. |
-| P0-02 O3-modaliteit | Aangepast | Zes `omdat`-opgaven: vier met beide grammaticale werkwoordvolgordes, twee met object vóór werkwoordgroep. Regressietest; **taalkundige review vereist**. |
-| P0-03 foutieve vaardigheidscontrasten | Gericht hersteld | 18 tegenwoordige-tijditems uit 'Nu of gisteren?' en 4 uit 'Bijzondere werkwoorden' opnieuw voorzien van tijdscontrast. Andere items niet onafhankelijk geaudit. |
-| P0-04 persoonsfout in tijdafleider | Gericht hersteld | Vijf in review benoemde afleiders voor derde persoon gecorrigeerd. |
-| P0-05 'Laat zien' | Aangepast | Modelantwoord tonen, oefening resetten, kind opnieuw laten bouwen; geen directe afronding of feestelijke beloning na onthullen. Browser-E2E nog uit te voeren. |
-| P0-06 geluid | Aangepast | Omgekeerde enabled/disabled-voorwaarde hersteld en regressietest. |
-| P0-07 niveaus werelden | **Open** | Nog aantoonbaar koppelen aan oefendoelen. |
-| P0-08 labels/layout | **Deels** | Onhandige 'Kijk naar Ik' en twaalf interne alt-teksten hersteld; voortgangsetiket en afgekapt headerlabel nog open. |
+| P0-01 | **Gerepareerd** | Positieafhankelijke hoofdletters in tegelbank, zinsbalk en zinnen; regressietests. |
+| P0-02 | **Gerepareerd, herreview nodig** | Alle zes modale `omdat`-items accepteren beide geldige werkwoordvolgordes, waaronder `iets wil zien` / `iets zien wil`; bronregressies groen. Onafhankelijke taalkundige vrijgave ontbreekt. |
+| P0-03 | **Gericht gerepareerd, herreview nodig** | Achttien tijdscontrasten en vier sterke-werkwoordcontrasten gecorrigeerd; bronregressies. De volledige inhoudsbank is nog niet onafhankelijk geaudit. |
+| P0-04 | **Gericht gerepareerd, herreview nodig** | Vijf afleiders hersteld die tegelijk persoonsvormcongruentie toetsten; bronregressies. |
+| P0-05 | **Gerepareerd en in Chromium getest** | `Laat zien` toont het juiste model en zet de opgave terug; na zelfstandig herbouwen volgt géén automatische beloning alsof de eerste poging goed was. |
+| P0-06 | **Gerepareerd en in Chromium getest** | De opdrachtknop is ingeschakeld wanneer geluid aan staat. |
+| P0-07 | **Gerepareerd en in Chromium getest** | Vier instapniveaus selecteren nu op verschillende grammaticale oefentypen, niet op dezelfde 0–2-startwaarde. Dit is géén diagnostisch niveau. Niveau 4 gebruikt voorlopig alleen de bestaande gevorderde inhoud; VTT/O3-kandidaten blijven buiten kindselectie. |
+| P0-08 | **Gerepareerd en in Chromium getest binnen scope** | Teller en percentage gaan over verschillende oefeningen; labels/alt-teksten hersteld; header op 1366, 1024 en 390 px gecontroleerd. |
 
-De 27 gewijzigde V4.3-items zijn expliciet teruggezet naar `reviewStatus: candidate`; historische `reviewBy` en `reviewAt` verwijderd. Hiermee kan een eerdere inhoudelijke goedkeuring niet onterecht de nieuwe varianten vrijgeven. Dat betreft in totaal 18+4 gewijzigde Nu-items en 5 afleiders in Gisteren-items. Nieuwe deskundige beoordeling is vereist.
+**Reviewveiligheid:** de 27 gewijzigde V4.3-kandidaten zijn teruggezet naar `reviewStatus: candidate`; historische `reviewBy` en `reviewAt` zijn verwijderd. Er is geen nieuwe taalkundige goedkeuring geclaimd. De zes gewijzigde O3-items waren al kandidaatmateriaal en blijven dat.
 
-**Technische CI:** [Validate Zinbo P0, run 39734080209](https://github.com/market-predictions/zinbo/actions/runs/39734080209) is **SUCCESS** op commit `435d57248a0d91e3ce6370bb5a19f2cbd3f5a17f`: SHA-256-build, tekstcheck en regressies. Testdekking bestaat uit bron-/scriptcompilatie en gerichte regressies, niet uit een browser- of kindpilot. P0 blijft open; geen kindrelease en geen merge.
+**Verificatie:** [GitHub Actions run 39739635808](https://github.com/market-predictions/zinbo/actions/runs/39739635808) **SUCCESS**, commit `1ae1bcf4d26da2ec068bf05fdc5f3ea46504e7ee`. Bewijs: SHA-256-gebonden HTML-build, statische tekstcontrole, syntax- en inhoudsregressies, en echte Chromium-interactie op desktop, tablet en mobiel. Getest: niveau 1 versus 4, audio en antwoord voordoen/herbouwen. Niet getest: alle mogelijke leerlijnen, alle oefeningen of echte kinderen.
+
+**Releasebesluit:** P0-codeherstel is in de gecontroleerde concept-PR geïmplementeerd, maar *niet* vrijgegeven. Vóór een kindrelease blijven onafhankelijke taalkundige review van de gewijzigde inhoud, passende pilotobservaties en formele vrijgave noodzakelijk. P1 wordt inhoudscontrole, niet een nieuwe architectuur. De productiebranch `main` is ongewijzigd.
