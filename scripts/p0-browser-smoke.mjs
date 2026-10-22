@@ -85,6 +85,17 @@ try {
       await page.locator('[data-action="check"]').click();
       assert.ok((await page.locator('.feedback-text').innerText()).includes('Je hebt de zin opnieuw gemaakt'),
         'Assisted completion should not receive the independent-success message');
+      // The child must read exactly the same text that the speaker reads.
+      await page.locator('[data-action="home"]').first().click();
+      await page.locator('#o3-pilot-picker').selectOption('o3-omdat-01');
+      await page.locator('[data-action="o3-pilot-open"]').click();
+      const visible=await page.locator('.instruction-card span').innerText();
+      const spoken=await page.evaluate(()=>window.__zinsbouwerTest.getAudioAudit().filter(x=>x.kind==='speech').at(-1)?.text);
+      assert.equal(visible,spoken,'O3 screen and audio instruction must be identical');
+      assert.equal(visible,'Je bent blij en je zingt. Maak met de blokjes één zin met omdat.');
+      await page.locator('.instruction-card').click();
+      const repeated=await page.evaluate(()=>window.__zinsbouwerTest.getAudioAudit().filter(x=>x.kind==='speech').at(-1)?.text);
+      assert.equal(repeated,visible,'Audio replay must repeat the visible instruction');
     }
     await context.close();
   }
