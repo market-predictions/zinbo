@@ -103,4 +103,37 @@ for(const q of repairedCandidates){
   assert.ok(!q.reviewBy&&!q.reviewAt,q.id+' must not retain a stale approval claim');
 }
 
-console.log(`PASS P0 regression: ${scripts} JS program(s), 6 modal items, 27 distractor repairs, casing, audio, help and text labels`);
+
+// Check the actual world picker on four distinct construct bands. The selected
+// level is a user preference, not a clinical score or the old stage 0-2 number.
+const bandStart=html.indexOf('  function worldExerciseBand(q){');
+const bandEnd=html.indexOf('  function worldFamilies(items){',bandStart);
+const pickerStart=html.indexOf('  function selectWorldItems(id){');
+const pickerEnd=html.indexOf('  function startWorld(id){',pickerStart);
+assert.ok(bandStart>=0&&bandEnd>bandStart&&pickerStart>bandEnd&&pickerEnd>pickerStart,
+  'World selection functions must exist');
+const samples=[1,2,3,4].flatMap(level=>Array.from({length:6},(_,i)=>{
+  const kind=level===1?'order':level===2?'tense':'inversion';
+  const stage=level===1?0:level===2?1:level===3?1:2;
+  return {id:'sample-'+level+'-'+i,art:'scene-'+i,family:'family-'+i,kind,stage};
+}));
+const context={
+  o4Data:{level:1}, worldItems:()=>samples, worldHistory:()=>[],
+  evidenceFamily:q=>q.family, itemFamily:q=>q.family
+};
+const picker=runInNewContext(
+  html.slice(bandStart,bandEnd)+'\n'+html.slice(pickerStart,pickerEnd)+
+  '\n({worldExerciseBand,selectWorldItems})',context);
+for(let level=1;level<=4;level++){
+  context.o4Data.level=level;
+  const picked=picker.selectWorldItems('sport');
+  assert.equal(picked.length,5);
+  assert.ok(picked.every(q=>picker.worldExerciseBand(q)===level),
+    'Level '+level+' must select its actual grammar construct when available');
+}
+assert.ok(html.includes('<strong>${evidence.unique}</strong><small>verschillende oefeningen</small>'),
+  'Count and progress meter must both describe distinct exercises');
+assert.ok(html.includes('@media (min-width:881px) and (max-width:1450px)'),
+  'Laptop header must be responsive');
+
+console.log(`PASS P0 regression: ${scripts} JS program(s), 6 modal items, 27 distractor repairs, 4 world-level choices, casing, audio, help and text labels`);
