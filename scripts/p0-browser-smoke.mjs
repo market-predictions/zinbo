@@ -127,8 +127,20 @@ try {
       assert.equal((await page.evaluate(()=>window.__zinsbouwerTest.getRewardPreview())).active,false);
 
     }
+    if(width===390){
+      // Reduced-motion still shows the earned reward; no flying decoration.
+      await page.emulateMedia({reducedMotion:'reduce'});
+      await page.locator('[data-action="reward-preview-open"]').click();
+      await page.locator('[data-action="reward-demo-complete"]').click();
+      assert.equal(await page.locator('.reward-preview-feedback').count(),1,'Mobile visual reward missing');
+      assert.equal(await page.locator('.reward-flying-coin').count(),0,'Reduced-motion coin should not fly');
+      const card=await page.locator('.reward-preview-feedback').boundingBox();
+      assert.ok(card&&card.x>=-2&&card.x+card.width<=width+2,'Mobile reward card clipped');
+      const scrollOverflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
+      assert.ok(scrollOverflow<=2,'Reward visual horizontal overflow at 390: '+scrollOverflow);
+    }
     await context.close();
   }
   assert.deepEqual(errors,[],'No uncaught JS errors in Chromium');
-  console.log('PASS Chromium smoke: 1366/1024/390, level 1 vs 4, audio, answer reveal/rebuild');
+  console.log('PASS Chromium smoke: 1366/1024/390, levels, audio, assisted answer, reward flow, mobile reduced motion');
 } finally { await browser.close(); }
