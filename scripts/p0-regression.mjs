@@ -63,4 +63,34 @@ assert.ok(!handler.includes('finishItem()'), 'Reveal must never complete item au
 assert.ok(handler.includes('state.answerRevealed=true'), 'Reveal must not count as independent');
 assert.ok(handler.includes('Maak het nu zelf opnieuw.'), 'Rebuild instruction must appear');
 assert.ok(html.includes("state.answerRevealed?'Je hebt de zin opnieuw gemaakt.':'Goed!'"), 'Neutral assisted completion expected');
-console.log(`PASS P0 regression: ${scripts} JS program(s), casing, 6 modal items, audio, help and text labels`);
+
+const candidateMatch = html.match(/const V43_CANDIDATES = (\\{[\\s\\S]*?\\});/);
+assert.ok(candidateMatch, 'V4.3 exercise candidate bank missing');
+const candidateBank = JSON.parse(candidateMatch[1]);
+const expectedPastForms = {
+  'v43-p01':'aaide', 'v43-p03':'voetbalde', 'v43-p04':'kookte',
+  'v43-d1-01':'leende', 'v43-d1-02':'zwom', 'v43-d1-03':'zong',
+  'v43-d1-04':'klom', 'v43-d1-05':'kocht', 'v43-d1-06':'bekeek'
+};
+const expectedStrongPastForms = { 'v43-p02':'liep', 'v43-p06':'keek' };
+const thirdPresent = {
+  'v43-p01':'aait', 'v43-p03':'voetbalt', 'v43-p04':'kookt',
+  'v43-p02':'loopt', 'v43-p06':'kijkt'
+};
+let verifiedContrasts=0;
+for (const [skill,mapping] of [['past',expectedPastForms],['strong',expectedStrongPastForms]]) {
+  for (const q of candidateBank[skill]) {
+    const family=Object.keys(mapping).find(key=>q.id.startsWith(key+'-'));
+    if (!family) continue;
+    if (q.when==='Nu') {
+      assert.deepEqual(q.choices,[q.ending,mapping[family]],q.id+' must test tense, not person');
+      verifiedContrasts++;
+    } else if (q.when==='Gisteren' && q.id.includes('-and-past') && thirdPresent[family]) {
+      assert.deepEqual(q.choices,[thirdPresent[family],q.ending],q.id+' distractor must agree with subject');
+      verifiedContrasts++;
+    }
+  }
+}
+assert.equal(verifiedContrasts,27,'All 27 candidate contrast corrections covered');
+
+console.log(`PASS P0 regression: ${scripts} JS program(s), 6 modal items, 27 distractor repairs, casing, audio, help and text labels`);
