@@ -145,12 +145,12 @@ const instructionEnd=html.indexOf('  function finishItem(){',instructionStart);
 assert.ok(instructionStart>=0&&instructionEnd>instructionStart,'One shared instruction function required');
 assert.ok(html.includes('const subtitle=esc(taskInstruction());'),
   'The visible instruction must use exactly the spoken instruction source');
-const o3Items=JSON.parse(html.match(/const O3_PILOT = (\\[[\\s\\S]*?\\]);/)[1]);
+const o3Items=JSON.parse(html.match(/const O3_PILOT = (\[[\s\S]*?\]);/)[1]);
 const taskFnSource=html.slice(instructionStart,instructionEnd);
 for(const q of o3Items){
   const ctx={item:()=>q,isPilotO3:()=>true,isPilotO4:()=>false,isPilotVTT:()=>false,
     state:{mode:'order'}};
-  const spoken=runInNewContext(taskFnSource+'\\ntaskInstruction()',ctx);
+  const spoken=runInNewContext(taskFnSource+'\ntaskInstruction()',ctx);
   assert.ok(spoken.startsWith(q.contextCue),q.id+' context mismatch');
   assert.ok(spoken.endsWith(q.kind==='because'?'één zin met omdat.':'één zin met als.'),q.id+' unclear action');
   assert.ok(spoken.length<=115,q.id+' instruction too long ('+spoken.length+')');
@@ -159,7 +159,7 @@ for(const q of o3Items){
 const voiceStart=html.indexOf('  function chooseDutchVoice(voices){');
 const voiceEnd=html.indexOf('  function speak(text){',voiceStart);
 assert.ok(voiceStart>=0&&voiceEnd>voiceStart,'Dutch voice chooser missing');
-const chooseVoice=runInNewContext(html.slice(voiceStart,voiceEnd)+'\\nchooseDutchVoice');
+const chooseVoice=runInNewContext(html.slice(voiceStart,voiceEnd)+'\nchooseDutchVoice');
 const voices=[
   {name:'Microsoft Frank',lang:'nl-NL',localService:true},
   {name:'Microsoft Fenna (Natural)',lang:'nl-NL',localService:true},
