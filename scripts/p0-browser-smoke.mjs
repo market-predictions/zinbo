@@ -36,7 +36,7 @@ try {
     if(width===1366) {
       const first=async level=>{
         await page.locator('[data-action="world-group"]').click();
-        await page.locator('[data-action="o4-level"][data-level="'+level+'"]').last().click();
+        await page.locator('.world-parent-dialog [data-action="o4-level"][data-level="'+level+'"]').click();
         await page.locator('.parent-close').click();
         await page.locator('[data-action="world-open"][data-world="sport"]').click();
         const label=await page.locator('.qa-item-id').innerText();
