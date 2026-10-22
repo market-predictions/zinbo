@@ -866,6 +866,44 @@ body{padding-top:46px!important}
 .qa-item-id{font-size:14px;color:#5a7192;margin-top:7px}
 @media(max-width:650px){body{padding-top:70px!important}#qa-banner{min-height:70px;flex-direction:column;gap:3px;font-size:13px}.qa-chooser{margin:14px;padding:15px}.qa-chooser h2{font-size:22px}.qa-chooser select,.qa-chooser button{width:100%;max-width:100%}}
 
+
+/* QA-only reward prototype: real exercise UI remains the visual source of truth. */
+body.reward-preview-mode .reward-preview-feedback{position:absolute;z-index:7;right:clamp(20px,5vw,82px);top:clamp(160px,15vw,240px);width:min(33vw,365px);min-width:265px;min-height:168px;display:flex;align-items:center;gap:8px;padding:15px 16px;border-radius:30px;border:2px solid #ffdb83;background:linear-gradient(132deg,#fffefa 4%,#fff2cf 100%);box-shadow:0 18px 45px #785d2224;animation:reward-pop .4s cubic-bezier(.2,1.5,.45,1)}
+.reward-preview-feedback .reward-bot{width:114px;flex-shrink:0;filter:drop-shadow(0 8px 5px #25517d29);animation:reward-bounce .65s ease-out}
+.reward-preview-words{display:flex;flex-direction:column;gap:4px;align-items:flex-start;min-width:0}
+.reward-preview-feedback strong{font-size:clamp(21px,2vw,30px);line-height:1.12;letter-spacing:-.4px;color:#071f54}
+.reward-preview-feedback small{font-size:16px;color:#24416d;font-weight:750}
+.reward-preview-coin,.reward-flying-coin{display:inline-grid;place-items:center;width:55px;height:55px;border-radius:50%;border:4px solid #eea20a;box-shadow:inset 0 0 0 3px #fff1af,inset 0 -5px 0 #dd8c0d,0 7px 16px #ad7a2238;color:#a36b05;background:radial-gradient(circle at 34% 28%,#fff7c2 0%,#ffdc64 30%,#ffb42e 72%,#d9910c 100%);font-size:37px;font-weight:900;line-height:1}
+.reward-preview-coin{width:49px;height:49px;font-size:32px}
+.reward-preview-total{border:2px solid #ffdb83!important;box-shadow:0 6px 23px #d4a54125!important}
+.reward-preview-total .reward-coin-symbol{font-size:41px;color:#e7a111;filter:drop-shadow(0 2px 1px #d88910);line-height:1}
+.reward-prototype-tools{display:flex;gap:12px;align-items:center;justify-content:flex-end;flex-wrap:wrap;margin:6px clamp(20px,4.45vw,80px) 0;font-size:14px}
+.reward-prototype-tools .reward-demo-trigger{border:2px dashed #a9c9e5;border-radius:14px;color:#24528a;background:#fff;min-height:44px;padding:7px 15px;font-size:15px;font-weight:800}
+.reward-preview-label{display:inline-flex;align-items:center;padding:7px 12px;border-radius:999px;color:#21446c;background:#e9f4ff;font-weight:800}
+.reward-flying-coin{position:fixed;z-index:1000;pointer-events:none;margin:0}
+.reward-preview-end{min-height:calc(100vh - 30px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:15px;background:radial-gradient(ellipse at 50% 20%,#fff5cd 0%,#fffaf0 55%,#e3f5ff 100%);padding:110px 22px 42px!important;border:0!important;text-align:center;overflow:hidden}
+.reward-preview-end h1{font-size:clamp(34px,5vw,64px);font-weight:900;color:#071f54;margin:8px 0 0}
+.reward-preview-end p{font-size:clamp(19px,2vw,24px);color:#294b73;margin:0;max-width:580px}
+.reward-preview-badge{background:#fff;padding:10px 17px;border-radius:99px;color:#184879;font-size:15px;font-weight:800;box-shadow:0 5px 19px #284e711c}
+.reward-chest{width:min(450px,80vw);height:290px;position:relative;display:grid;place-items:center;filter:drop-shadow(0 18px 16px #1a35532b)}
+.reward-chest::before{content:"";position:absolute;width:100%;height:84%;background:radial-gradient(ellipse,#ffe7a6 0%,#ffe7a600 70%);transform:scale(1.2)}
+.reward-chest-lid{position:absolute;z-index:4;top:47px;width:72%;height:97px;display:grid;place-items:center;border:11px solid #db9718;border-bottom:9px solid #ffc751;border-radius:100px 100px 24px 24px;background:repeating-linear-gradient(90deg,#0b4791 0 47px,#1a77bc 47px 92px);box-shadow:inset 0 11px #70bafb,0 8px 0 #80551c;transform-origin:40% 100%;transition:transform .7s cubic-bezier(.17,.76,.25,1)}
+.reward-chest-box{position:absolute;z-index:3;top:129px;width:76%;height:128px;border:11px solid #e6a72d;border-radius:23px 23px 32px 32px;background:repeating-linear-gradient(90deg,#09529c 0 50px,#1679be 50px 96px);box-shadow:inset 0 8px #65aeef,inset 0 -13px #083f78,0 12px 0 #b17715}
+.reward-chest-lock{position:absolute;z-index:5;top:145px;display:grid;place-items:center;width:77px;height:77px;border-radius:50%;border:8px solid #e69b12;background:radial-gradient(circle at 30% 20%,#ffefa5,#ffb925 75%);color:#7a4b00;font-size:49px;box-shadow:0 5px 9px #0d315170}
+.reward-chest.is-open .reward-chest-lid{transform:rotate(-21deg) translate(-19px,-43px)}
+.reward-chest.is-open::after{content:"";position:absolute;top:27px;width:70%;height:210px;background:radial-gradient(ellipse,#ffda7188,#ffdf5500 70%);animation:reward-pop .65s ease-out}
+.reward-preview-found{z-index:8;position:relative;display:flex;flex-direction:column;align-items:center;gap:10px;border:3px solid #c6def2;border-radius:23px;padding:16px 34px 20px;background:#fffdfa;box-shadow:0 16px 35px #31567a24;max-width:90vw;animation:reward-pop .45s ease-out}
+.reward-preview-found .reward-found-symbol{font-size:74px;line-height:1.15}
+.reward-preview-found strong{font-size:24px;color:#071f54}
+.reward-preview-end .actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+@keyframes reward-pop{from{opacity:.2;transform:scale(.83) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes reward-bounce{0%{transform:translateY(12px) scale(.92)}45%{transform:translateY(-8px) scale(1.04)}100%{transform:translateY(0) scale(1)}}
+body.no-motion .reward-preview-feedback,body.no-motion .reward-preview-feedback .reward-bot,body.no-motion .reward-preview-found{animation:none!important}
+body.no-motion .reward-chest-lid{transition:none}
+@media(prefers-reduced-motion:reduce){.reward-preview-feedback,.reward-preview-feedback .reward-bot,.reward-preview-found{animation:none!important}.reward-chest-lid{transition:none!important}}
+@media(max-width:930px){body.reward-preview-mode .reward-preview-feedback{position:relative;top:auto;right:auto;z-index:8;width:calc(100% - 40px);margin:-12px 20px 16px;min-width:0;min-height:100px}.reward-preview-feedback .reward-bot{width:88px}.reward-preview-words{flex-direction:row;flex-wrap:wrap;align-items:center;gap:9px}.reward-preview-feedback strong{font-size:24px}.reward-preview-coin{width:41px;height:41px;font-size:27px}.reward-prototype-tools{justify-content:center;margin:14px 12px}.reward-preview-end{padding-top:40px!important}}
+@media(max-width:520px){body.reward-preview-mode .reward-preview-feedback{padding:9px 11px;border-radius:18px}.reward-preview-feedback .reward-bot{width:60px}.reward-preview-feedback strong{font-size:20px}.reward-preview-feedback small{font-size:14px}.reward-chest{height:250px;transform:scale(.83);margin:-18px auto}.reward-preview-end h1{font-size:32px}.reward-preview-end .actions{flex-direction:column;width:100%}.reward-preview-end .actions button{width:100%}}
+
 /* P0-08: keep the name and explanatory tagline visible on laptop widths. */
 @media (min-width:881px) and (max-width:1450px){
   .op1-header{min-height:100px;height:auto;gap:12px}
