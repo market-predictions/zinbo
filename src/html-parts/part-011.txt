@@ -257,15 +257,27 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     toneNodes=[];
     if('speechSynthesis' in window){try{window.speechSynthesis.cancel();}catch(_){}}
   }
+  // Prefer a natural-sounding Dutch female voice when installed locally.
+  // Voice lists are device-specific and may arrive after the page loads.
+  // Do not select remote-only voices: this prototype must not send children's text away.
+  function chooseDutchVoice(voices){
+    const local=(voices||[]).filter(v=>/^nl(?:-|_)/i.test(v.lang||'')&&v.localService!==false);
+    const score=v=>{
+      const name=String(v.name||'');
+      return (/^nl[-_]nl$/i.test(v.lang||'')?20:0)
+        + (/(fenna|colette|fleur|lotte|ellen)/i.test(name)?30:0)
+        + (/(natural|neural)/i.test(name)?12:0);
+    };
+    return local.sort((a,b)=>score(b)-score(a))[0]||null;
+  }
   function speak(text){
     stopAudio();
     if(!state.audioOn)return;
     audioAudit.push({kind:'speech',text:String(text)});
     if(!('speechSynthesis' in window))return; // never block visual learning
     try{
-      const u=new SpeechSynthesisUtterance(String(text));u.lang='nl-NL';u.rate=.85;u.pitch=1;
-      const voices=window.speechSynthesis.getVoices();
-      const dutch=voices.find(v=>v.lang&&v.lang.toLowerCase().startsWith('nl'));
+      const u=new SpeechSynthesisUtterance(String(text));u.lang='nl-NL';u.rate=.95;u.pitch=1;
+      const dutch=chooseDutchVoice(window.speechSynthesis.getVoices());
       if(dutch)u.voice=dutch;
       window.speechSynthesis.speak(u);
     }catch(_){ /* visible instruction always remains available */ }
@@ -481,7 +493,17 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
   function unplace(idx){if(state.screen!=='exercise'||state.completed)return;stopAudio();state.positions[idx]=null;state.message='';state.focusPos=null;render();}
   function chooseEnding(value){if(state.screen!=='exercise'||state.completed)return;stopAudio();state.selected=value;state.message='';render();}
   function toggleHint(){if(state.completed)return;state.showHint=!state.showHint;if(state.showHint){state.helpUsed=true;if(isAuthorPilot()){state.pilotUsedHelp=true;state.message='';}}render();if(state.showHint)speak(hintText(item()));}
-  function taskInstruction(){const q=item();if((isPilotO3()||isPilotO4())&&(q.kind==='conditional'||q.kind==='because'))return q.contextCue+' Maak een zin met '+(q.kind==='conditional'?'als. Probeer beide volgordes.':'omdat. De werkwoorden staan bij elkaar achteraan in het omdat-deel.');if((isPilotVTT()||isPilotO4())&&q.kind==='vtt')return q.contextCue+' Maak de zin met een hulpwerkwoord en een voltooid deelwoord.';const pre=itemPerspective(q)==='ik'?'Stel je voor dat jij dit doet. ':'';if(q.kind==='tense'||q.kind==='strong')return pre+q.prompt+' Kies het hele werkwoord.';return state.mode==='order'?pre+'Kijk naar het plaatje. Maak een zin.'+(q.beginWith?' Begin met '+q.beginWith+'.':''):'Maak het werkwoord af. Kies wat past.';}
+  // The instruction shown on screen is the exact text that gets spoken.
+  // One short context and one concrete action; grammar rules are available via Hint.
+  function taskInstruction(){
+    const q=item();
+    if((isPilotO3()||isPilotO4())&&(q.kind==='because'||q.kind==='conditional'))
+      return q.contextCue+' Maak met de blokjes één zin met '+(q.kind==='because'?'omdat.':'als.');
+    if((isPilotVTT()||isPilotO4())&&q.kind==='vtt')return q.contextCue;
+    if(q.kind==='tense'||q.kind==='strong')return q.prompt+' Kies het goede werkwoord.';
+    if(state.mode==='order')return (q.beginWith?'Begin met '+q.beginWith+'. ':'')+'Maak met de blokjes een zin.';
+    return 'Maak het werkwoord af. Kies wat past.';
+  }
   function finishItem(){
     if(state.attempts===0&&!state.helpUsed){state.solvedFirst++;if(!isAuthorPilot()){stars++;saveLearning();}}
     if(isPilotO4())recordPilotO4();
@@ -524,7 +546,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
         state.focusPos=wrong;
         state.message=state.attempts>=2
           ?'Zet '+q.tiles.find(t=>t.id===best[wrong]).text+' op plek '+(wrong+1)+'.'
-          :q.kind==='conditional'?'Bij als vooraan: blijft de persoonsvorm vóór ik in de hoofdzin?':'Bij omdat staan de werkwoorden achteraan in de bijzin. Kijk naar plek '+(wrong+1)+'.';
+          :q.kind==='conditional'?'Kijk naar de woorden ná als. Waar komt het werkwoord?':'Kijk naar het stukje na omdat. Wat hoort op plek '+(wrong+1)+'?';
         render();focusInlineNote();speak(state.message);return;
       }
       const verbIndex=state.positions.findIndex(id=>q.tiles.find(t=>t.id===id)?.role==='verb');
