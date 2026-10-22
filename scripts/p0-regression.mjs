@@ -139,4 +139,34 @@ assert.ok(html.includes('<strong>${evidence.unique}</strong><small>verschillende
 assert.ok(html.includes('@media (min-width:881px) and (max-width:1450px)'),
   'Laptop header must be responsive');
 
+
+const instructionStart=html.indexOf('  function taskInstruction(){');
+const instructionEnd=html.indexOf('  function finishItem(){',instructionStart);
+assert.ok(instructionStart>=0&&instructionEnd>instructionStart,'One shared instruction function required');
+assert.ok(html.includes('const subtitle=esc(taskInstruction());'),
+  'The visible instruction must use exactly the spoken instruction source');
+const o3Items=JSON.parse(html.match(/const O3_PILOT = (\\[[\\s\\S]*?\\]);/)[1]);
+const taskFnSource=html.slice(instructionStart,instructionEnd);
+for(const q of o3Items){
+  const ctx={item:()=>q,isPilotO3:()=>true,isPilotO4:()=>false,isPilotVTT:()=>false,
+    state:{mode:'order'}};
+  const spoken=runInNewContext(taskFnSource+'\\ntaskInstruction()',ctx);
+  assert.ok(spoken.startsWith(q.contextCue),q.id+' context mismatch');
+  assert.ok(spoken.endsWith(q.kind==='because'?'één zin met omdat.':'één zin met als.'),q.id+' unclear action');
+  assert.ok(spoken.length<=115,q.id+' instruction too long ('+spoken.length+')');
+  assert.ok(!/(persoonsvorm|bijzin|omdat-deel|hulpwerkwoord)/i.test(spoken),q.id+' instruction contains jargon');
+}
+const voiceStart=html.indexOf('  function chooseDutchVoice(voices){');
+const voiceEnd=html.indexOf('  function speak(text){',voiceStart);
+assert.ok(voiceStart>=0&&voiceEnd>voiceStart,'Dutch voice chooser missing');
+const chooseVoice=runInNewContext(html.slice(voiceStart,voiceEnd)+'\\nchooseDutchVoice');
+const voices=[
+  {name:'Microsoft Frank',lang:'nl-NL',localService:true},
+  {name:'Microsoft Fenna (Natural)',lang:'nl-NL',localService:true},
+  {name:'Remote Colette',lang:'nl-NL',localService:false},
+  {name:'English female',lang:'en-US',localService:true}];
+assert.equal(chooseVoice(voices).name,'Microsoft Fenna (Natural)','Prefer local female Dutch voice');
+assert.equal(chooseVoice([voices[0]]).name,'Microsoft Frank','Use available Dutch fallback');
+assert.equal(chooseVoice([voices[2]]),null,'Do not select remote-only voices');
+
 console.log(`PASS P0 regression: ${scripts} JS program(s), 6 modal items, 27 distractor repairs, 4 world-level choices, casing, audio, help and text labels`);
