@@ -46,6 +46,9 @@ try {
         assert.equal(band(byId.get(id)),level,'World level '+level+' chose wrong construct: '+id);
         assert.equal(await page.locator('[data-action="speak-task"].instruction-card').isEnabled(),true,
           'Instruction replay must work when audio is on');
+        const onScreen=await page.locator('.instruction-card span').innerText();
+        const spoken=await page.evaluate(()=>window.__zinsbouwerTest.getAudioAudit().filter(x=>x.kind==='speech').at(-1)?.text);
+        assert.equal(onScreen,spoken,'World level '+level+' text must match audio');
         return byId.get(id);
       };
       const easy=await first(1);
@@ -96,6 +99,13 @@ try {
       await page.locator('.instruction-card').click();
       const repeated=await page.evaluate(()=>window.__zinsbouwerTest.getAudioAudit().filter(x=>x.kind==='speech').at(-1)?.text);
       assert.equal(repeated,visible,'Audio replay must repeat the visible instruction');
+
+      await page.locator('[data-action="home"]').first().click();
+      await page.locator('#vtt-pilot-picker').selectOption('vtt-001');
+      await page.locator('[data-action="vtt-pilot-open"]').click();
+      const vttVisible=await page.locator('.instruction-card span').innerText();
+      const vttSpoken=await page.evaluate(()=>window.__zinsbouwerTest.getAudioAudit().filter(x=>x.kind==='speech').at(-1)?.text);
+      assert.equal(vttVisible,vttSpoken,'VTT text must match audio');
     }
     await context.close();
   }
