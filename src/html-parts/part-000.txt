@@ -904,6 +904,31 @@ body.no-motion .reward-chest-lid{transition:none}
 @media(max-width:930px){body.reward-preview-mode .reward-preview-feedback{position:relative;top:auto;right:auto;z-index:8;width:calc(100% - 40px);margin:-12px 20px 16px;min-width:0;min-height:100px}.reward-preview-feedback .reward-bot{width:88px}.reward-preview-words{flex-direction:row;flex-wrap:wrap;align-items:center;gap:9px}.reward-preview-feedback strong{font-size:24px}.reward-preview-coin{width:41px;height:41px;font-size:27px}.reward-prototype-tools{justify-content:center;margin:14px 12px}.reward-preview-end{padding-top:40px!important}}
 @media(max-width:520px){body.reward-preview-mode .reward-preview-feedback{padding:9px 11px;border-radius:18px}.reward-preview-feedback .reward-bot{width:60px}.reward-preview-feedback strong{font-size:20px}.reward-preview-feedback small{font-size:14px}.reward-chest{height:250px;transform:scale(.83);margin:-18px auto}.reward-preview-end h1{font-size:32px}.reward-preview-end .actions{flex-direction:column;width:100%}.reward-preview-end .actions button{width:100%}}
 
+
+/* Coin-to-chest v2: the reward target stays visible in the QA viewport. */
+body.reward-preview-mode .reward-vault{
+  position:fixed;top:76px;right:clamp(105px,12vw,170px);z-index:90;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  min-width:135px;height:76px;padding:8px 11px;
+  border:2px solid #ffd47f;border-radius:23px;background:#fff7e5;
+  box-shadow:0 8px 20px #163b602e;
+  font-size:28px;color:#071f54;
+}
+.reward-vault-number{font-weight:900;line-height:1}
+.reward-vault-chest{position:relative;display:block;width:62px;height:55px;flex:none}
+.reward-vault-lid{position:absolute;top:2px;left:3px;width:56px;height:23px;border:5px solid #e69d18;border-radius:26px 26px 8px 8px;background:linear-gradient(90deg,#165293,#2d99d7 55%,#14558f);box-shadow:inset 0 4px #8cd5ef}
+.reward-vault-slot{position:absolute;top:25px;left:12px;width:38px;height:9px;border-radius:9px 9px 4px 4px;background:#072754;box-shadow:0 2px #d78e16}
+.reward-vault-front{position:absolute;top:32px;left:3px;display:grid;place-items:center;width:56px;height:22px;border:4px solid #dfa32b;border-radius:5px 5px 11px 11px;background:linear-gradient(#126bb1,#164785);color:#ffd76c;font-size:18px;line-height:1}
+body.reward-preview-mode .reward-vault-received{animation:reward-vault-land .35s ease-out}
+@keyframes reward-vault-land{0%{transform:scale(1)}45%{transform:scale(1.1);box-shadow:0 6px 25px #f5b9367a}100%{transform:scale(1)}}
+.reward-flying-coin{z-index:1000}
+@media(max-width:600px){
+  body.reward-preview-mode .reward-vault{top:96px;right:87px;min-width:125px;height:66px;padding:6px 9px;gap:6px;font-size:24px}
+  .reward-vault-chest{transform:scale(.88);margin:-2px -3px}
+}
+@media(prefers-reduced-motion:reduce){body.reward-preview-mode .reward-vault-received{animation:none!important}}
+body.no-motion.reward-preview-mode .reward-vault-received{animation:none!important}
+
 /* P0-08: keep the name and explanatory tagline visible on laptop widths. */
 @media (min-width:881px) and (max-width:1450px){
   .op1-header{min-height:100px;height:auto;gap:12px}
