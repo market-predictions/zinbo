@@ -14,7 +14,39 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
   const emptySkill=()=>({streak:0,independent:0,assisted:0,novel:0,reviewSuccess:0,seen:[],history:[],lastStarted:null});
   let learning=Object.fromEntries(SKILLS.map(k=>[k,emptySkill()]));
   let stars=0; // One star per independently correct sentence; saved alongside adaptive results.
-  let preferences={audioOn:true,motionOn:true,schoolGroup:null};
+
+  // Eight original, replaceable vector avatars. Persist only IDs, never artwork.
+  const PROFILE_AVATARS=[
+    {id:'smile-happy',name:'Blij'},{id:'smile-wink',name:'Knipoog'},
+    {id:'smile-grin',name:'Grote lach'},{id:'smile-cool',name:'Stoer'},
+    {id:'obj-rocket',name:'Raket'},{id:'obj-star',name:'Ster'},
+    {id:'obj-volleyball',name:'Volleybal'},{id:'obj-bolt',name:'Bliksem'}
+  ];
+  const DEFAULT_PROFILE_AVATAR='smile-happy';
+  function validProfileAvatar(id){return PROFILE_AVATARS.some(a=>a.id===id)?id:DEFAULT_PROFILE_AVATAR;}
+  function cleanProfileName(raw){
+    if(typeof raw!=='string')return '';
+    return Array.from(raw.normalize('NFC').replace(/[\u0000-\u001f\u007f-\u009f]/g,'').replace(/\s+/g,' ').trim()).slice(0,14).join('');
+  }
+  function profileLabel(){return preferences.displayName||'Mijn Zinbo';}
+  function profileAvatar(id){
+    const selected=validProfileAvatar(id);
+    const base='<circle cx="32" cy="33" r="25" fill="#BCE9FF" stroke="#0C4A89" stroke-width="2.5"/><path d="M17 19Q31 8 46 18" fill="none" stroke="#FFF" stroke-width="4" stroke-linecap="round" opacity=".7"/>';
+    const face='<circle cx="32" cy="32" r="23" fill="#FFCB52" stroke="#DA8B16" stroke-width="2.5"/><path d="M17 20Q27 10 39 17" fill="none" stroke="#FFF4C4" stroke-width="5" stroke-linecap="round"/>';
+    const svg={
+      'smile-happy':face+'<circle cx="24" cy="29" r="3.2" fill="#102F66"/><circle cx="40" cy="29" r="3.2" fill="#102F66"/><path d="M21 38Q32 50 43 38" stroke="#102F66" stroke-width="3.7" stroke-linecap="round" fill="none"/>',
+      'smile-wink':face+'<path d="M19 30Q24 25 29 30" stroke="#102F66" stroke-width="3.5" stroke-linecap="round" fill="none"/><circle cx="41" cy="29" r="3.2" fill="#102F66"/><path d="M22 39Q31 46 42 36" stroke="#102F66" stroke-width="3.7" stroke-linecap="round" fill="none"/>',
+      'smile-grin':face+'<circle cx="23" cy="28" r="3" fill="#102F66"/><circle cx="41" cy="28" r="3" fill="#102F66"/><path d="M20 38Q32 55 44 38Z" fill="#102F66"/><path d="M24 41H40" stroke="#FFF" stroke-width="3.2" stroke-linecap="round"/>',
+      'smile-cool':face+'<path d="M16 25H47L44 36Q38 40 34 33L31 33Q26 40 20 36Z" fill="#123464" stroke="#071D44" stroke-width="1.5"/><path d="M20 27L26 27" stroke="#77CBFF" stroke-width="2.5" stroke-linecap="round"/><path d="M28 44Q32 47 37 43" fill="none" stroke="#102F66" stroke-width="2.8" stroke-linecap="round"/>',
+      'obj-rocket':base+'<path d="M27 44L20 52L18 42L24 36M39 44L46 52L48 42L42 36" fill="#FF9A23" stroke="#0C4A89" stroke-width="2"/><path d="M24 44L24 27Q25 16 33 11Q41 18 42 28L42 44Z" fill="#FFF" stroke="#0C4A89" stroke-width="2.5"/><circle cx="33" cy="28" r="6" fill="#69C7FF" stroke="#0C4A89" stroke-width="2.5"/><path d="M28 44H38L34 53Z" fill="#FF9A23"/>',
+      'obj-star':base+'<path d="M32 12L38 25L52 27L42 37L45 52L32 45L19 52L22 37L12 27L26 25Z" fill="#FFD052" stroke="#E79416" stroke-width="3" stroke-linejoin="round"/><circle cx="27" cy="34" r="2" fill="#0C4A89"/><circle cx="37" cy="34" r="2" fill="#0C4A89"/><path d="M27 39Q32 44 37 39" fill="none" stroke="#0C4A89" stroke-width="2" stroke-linecap="round"/>',
+      'obj-volleyball':base+'<circle cx="32" cy="32" r="18" fill="#FFF" stroke="#0C4A89" stroke-width="2.5"/><path d="M17 29Q29 19 44 20M22 45Q23 26 32 15M32 50Q39 34 49 31M17 29Q31 31 43 45M26 16Q31 28 47 37" fill="none" stroke="#168DE1" stroke-width="3"/>',
+      'obj-bolt':base+'<path d="M33 10L16 36H30L27 54L50 27H35L40 10Z" fill="#FFCC48" stroke="#E58F13" stroke-width="3" stroke-linejoin="round"/><path d="M33 18L24 32" stroke="#FFF6BA" stroke-width="3" stroke-linecap="round"/>'
+    };
+    return '<svg class="zinbo-avatar-svg" data-avatar-id="'+selected+'" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" focusable="false" aria-hidden="true">'+svg[selected]+'</svg>';
+  }
+
+  let preferences={audioOn:true,motionOn:true,schoolGroup:null,displayName:'',avatarId:'smile-happy'};
   // A placement round is provisional. Its observations never count as mastery evidence.
   let placement={seen:[],history:[],done:false};
   let basicHistory=[];
@@ -26,6 +58,8 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
       if(raw.preferences && typeof raw.preferences==='object'){
         if(typeof raw.preferences.audioOn==='boolean')preferences.audioOn=raw.preferences.audioOn;
         if(typeof raw.preferences.motionOn==='boolean')preferences.motionOn=raw.preferences.motionOn;
+        preferences.displayName=cleanProfileName(raw.preferences.displayName);
+        preferences.avatarId=validProfileAvatar(raw.preferences.avatarId);
          if(['5','6','7','8'].includes(raw.preferences.schoolGroup))preferences.schoolGroup=raw.preferences.schoolGroup;
         if(['sport','thuis','familie'].includes(raw.preferences.lastWorld))preferences.lastWorld=raw.preferences.lastWorld;
       }
@@ -225,6 +259,14 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
   const app=document.getElementById('app');
   function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   function caps(s){return s.charAt(0).toLocaleUpperCase('nl-NL')+s.slice(1);}
+  // Sentence-initial capitals are presentation, not a clue printed on a loose tile.
+  // Preserve personal names (Sam, Sara, ...) while normalizing common sentence starters.
+  function tileText(raw,first=false){
+    const text=String(raw);
+    const ordinary=/^(De |Het |Een |Ik\b|Wij\b|Jij\b|Hij\b|Zij\b|Ze\b|Oma\b|Papa\b|Mama\b|Vandaag\b|Gisteren\b|Buiten\b)/;
+    const neutral=ordinary.test(text)?text.charAt(0).toLocaleLowerCase('nl-NL')+text.slice(1):text;
+    return first?caps(neutral):neutral;
+  }
   function item(){
     if(isWorld()||isAdaptive())return state.lessonItems[state.index];
     const list=state.mode==='order'?ORDER:MORPH;
@@ -232,11 +274,11 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     return list.find(q=>q.id===id);
   }
   function pilotSentence(it, sequence){
-    const words=sequence.map((id,i)=>{const w=it.tiles.find(t=>t.id===id).text;return i===0?caps(w):w;});
+    const words=sequence.map((id,i)=>tileText(it.tiles.find(t=>t.id===id).text,i===0));
     if(it.kind==='conditional'&&sequence[0]==='w0')words[2]=words[2]+',';
     return words.join(' ')+'.';
   }
-  function sentence(it, sequence){if(it.kind==='conditional')return pilotSentence(it, sequence);return sequence.map((id,i)=>{const word=it.tiles.find(t=>t.id===id).text; return i===0?caps(word):word;}).join(' ')+'.';}
+  function sentence(it, sequence){if(it.kind==='conditional')return pilotSentence(it, sequence);return sequence.map((id,i)=>tileText(it.tiles.find(t=>t.id===id).text,i===0)).join(' ')+'.';}
   function currentComplete(){return state.mode==='order'?state.positions.every(x=>x!==null):state.selected!==null;}
   // One audiovisual director: old speech and queued celebrations are cancelled together.
   // Browser speech is temporary prototype-quality; all instructions remain visible.
@@ -248,20 +290,40 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     for(const osc of toneNodes){try{osc.stop();}catch(_){}}
     toneNodes=[];
     if('speechSynthesis' in window){try{window.speechSynthesis.cancel();}catch(_){}}
+    if(typeof cancelRewardFlight==='function')cancelRewardFlight();
   }
-  function speak(text){
+  // Restore the original browser voice selection until listening tests
+  // establish a preferred voice. It uses the first Dutch voice, as before.
+  function speak(text, onFinished){
     stopAudio();
-    if(!state.audioOn)return;
+    if(!state.audioOn){if(onFinished)onFinished();return;}
     audioAudit.push({kind:'speech',text:String(text)});
-    if(!('speechSynthesis' in window))return; // never block visual learning
+    if(!('speechSynthesis' in window)){if(onFinished)onFinished();return;} // visual fallback
     try{
       const u=new SpeechSynthesisUtterance(String(text));u.lang='nl-NL';u.rate=.85;u.pitch=1;
       const voices=window.speechSynthesis.getVoices();
       const dutch=voices.find(v=>v.lang&&v.lang.toLowerCase().startsWith('nl'));
       if(dutch)u.voice=dutch;
+      if(onFinished){
+        const ticket=audioTicket;
+        let completed=false;
+        const finish=()=>{
+          if(completed||ticket!==audioTicket)return;
+          completed=true;
+          if(speechTimer!==null){clearTimeout(speechTimer);speechTimer=null;}
+          onFinished();
+        };
+        u.onend=finish;u.onerror=finish;
+        // Some embedded browsers never fire speech callbacks: fail gracefully.
+        speechTimer=setTimeout(finish,Math.min(12000,Math.max(2500,String(text).length*120)));
+      }
       window.speechSynthesis.speak(u);
-    }catch(_){ /* visible instruction always remains available */ }
+    }catch(_){
+      if(speechTimer!==null){clearTimeout(speechTimer);speechTimer=null;}
+      if(onFinished)onFinished(); // Speech failed, but the visible reward still works.
+    }
   }
+
   function celebrateAndRead(){
     stopAudio();
     if(!state.audioOn)return;
@@ -319,6 +381,14 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     const arts=WORLD_SCENES[id]||[];
     return ALL_LEGACY_ITEMS.filter(q=>q.primaryWorld ? q.primaryWorld===id : arts.includes(q.art));
   }
+  // Four entry levels select demonstrably different existing exercise constructs.
+  // This is a preference, never a diagnostic measure of the child's language ability.
+  function worldExerciseBand(q){
+    const stage=Number.isInteger(q.stage)?q.stage:0;
+    if(q.kind==='inversion'||q.kind==='strong')return stage>=2?4:stage>=1?3:2;
+    if(q.kind==='tense')return stage>=2?3:stage>=1?2:1;
+    return 1; // basic word order and present-tense agreement
+  }
   function worldFamilies(items){return new Set(items.map(q=>evidenceFamily(q)||itemFamily(q)).filter(Boolean));}
   function worldIsPlayable(id){
     if(!['sport','thuis','familie','school','uitstapjes','zelf'].includes(id))return false; // V1 approved primary domains only
@@ -338,21 +408,18 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     const prior=new Set(worldHistory().map(h=>h.id));
     const recent=worldHistory().slice(-15),recentArts=new Set(recent.map(h=>h.scene).filter(Boolean));
     const chosen=[];
-    const group=o4Data.level;
-    const done=placement.history.length;
-    const independent=placement.history.filter(h=>h.independent).length;
-    // School group and the five-item check are only weak ordering signals, never locks.
-    const initialStage=(group>=2)?1:0;
-    const preferred=Math.max(0,Math.min(2,initialStage+(done>=3&&independent>=3?1:0)-(done>=2&&independent===0?1:0)));
+    const target=[1,2,3,4].includes(o4Data.level)?o4Data.level:1;
+    // Select by grammatical construct, not merely by the 0-2 content-stage label.
+    // Placement observations stay separate from this manually chosen starting focus.
     while(chosen.length<5){
       const options=pool.filter(q=>!chosen.some(p=>p.id===q.id));
       if(!options.length)break;
       const score=q=>{
-        const stage=Number.isInteger(q.stage)?q.stage:0;
         const sameScene=chosen.filter(x=>x.art===q.art).length;
         const sameFamily=chosen.filter(x=>(evidenceFamily(x)||itemFamily(x))===(evidenceFamily(q)||itemFamily(q))).length;
-        return (prior.has(q.id)?20:0) + sameScene*55 + sameFamily*32 +
-          (recentArts.has(q.art)?6:0) + Math.abs(stage-preferred)*12 + Math.random()*9;
+        return Math.abs(worldExerciseBand(q)-target)*180 +
+          (prior.has(q.id)?20:0) + sameScene*45 + sameFamily*25 +
+          (recentArts.has(q.art)?6:0) + Math.random()*9;
       };
       const ranked=options.map(q=>({q,value:score(q)})).sort((a,b)=>a.value-b.value);
       chosen.push(ranked[0].q);
@@ -375,6 +442,29 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
   function isWorld(){return Boolean(state.worldId);}
   let parentPanelOpen=false;
   let profileMenuOpen=false;
+
+  let profileDialogOpen=false;
+  let profileDraftName='';
+  let profileDraftAvatar=DEFAULT_PROFILE_AVATAR;
+  function closeProfileDialog(){
+    profileDialogOpen=false;profileMenuOpen=false;render();
+    app.querySelector('[data-action="world-profile"]')?.focus();
+  }
+  function profileDialog(){
+    const selected=validProfileAvatar(profileDraftAvatar);
+    const opts=PROFILE_AVATARS.map(a=>'<button type="button" data-action="profile-avatar" data-avatar="'+a.id+'" aria-label="'+a.name+'" aria-pressed="'+(selected===a.id)+'" class="zinbo-profile-option '+(selected===a.id?'is-picked':'')+'">'+profileAvatar(a.id)+'<span>'+a.name+'</span>'+(selected===a.id?'<span class="zinbo-profile-picked" aria-hidden="true">✓</span>':'')+'</button>').join('');
+    return '<div class="zinbo-profile-backdrop" data-action="profile-cancel" aria-hidden="true"></div>'+
+      '<section class="zinbo-profile-dialog" role="dialog" aria-modal="true" aria-labelledby="zinbo-profile-title">'+
+      '<header class="zinbo-profile-titlebar"><div><span class="zinbo-profile-kicker">Jouw plek in Zinbo</span><h2 id="zinbo-profile-title">Mijn profiel</h2></div><button type="button" class="zinbo-profile-close" data-action="profile-cancel" aria-label="Sluit profiel aanpassen">×</button></header>'+
+      '<label for="zinbo-profile-name">Hoe wil je heten?</label>'+
+      '<input type="text" id="zinbo-profile-name" maxlength="14" autocomplete="off" placeholder="Naam of bijnaam" value="'+esc(profileDraftName)+'"/>'+
+      '<small>Gebruik gerust je roepnaam. Maximaal 14 tekens.</small>'+
+      '<div class="zinbo-profile-choice-label">Kies jouw avatar</div>'+
+      '<div class="zinbo-profile-options" role="group" aria-label="Kies een avatar">'+opts+'</div>'+
+      '<footer><button type="button" class="zinbo-profile-cancel" data-action="profile-cancel">Annuleren</button><button type="button" class="zinbo-profile-save" data-action="profile-save">Opslaan</button></footer>'+
+      '<p class="zinbo-profile-local-note">Dit profiel is alleen zichtbaar op dit apparaat. Geen account nodig.</p></section>';
+  }
+
   let resetConfirmOpen=false;
   function worldHeading(){
     const events=worldHistory();
@@ -403,7 +493,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     const chosen=o4Data.level?`Niveau ${o4Data.level}`:'Kies niveau';
     return `<div class="world-parent-backdrop" data-action="close-parent" aria-hidden="true"></div><section class="world-parent-dialog" role="dialog" aria-modal="true" aria-labelledby="parent-title">
     <header><div><span class="parent-kicker">${isGroup?'Kies een uitdagingsniveau':'Voor ouders en begeleiders'}</span><h2 id="parent-title">${isGroup?'Niveau 1 tot en met 4':'Instellingen'}</h2></div><button class="parent-close" data-action="close-parent" aria-label="Sluiten">×</button></header>
-    ${isGroup?`<p>Het gekozen niveau is een <strong>startpunt voor oefeningen</strong>, geen gemeten taalniveau. De app kiest daarna per grammaticaal leerdoel passende opgaven.</p>${groupSelector()}<div class="parent-note"><strong>Instap:</strong> ${chosen}. ${placement.done?'Kennismaking afgerond.':'Kennismaking: '+Math.min(5,placement.history.length)+' van 5 oefenzinnen.'} Dit is geen schoolgroep en geen taaldiagnose.</div><button class="parent-primary" data-action="start-placement">${opIcon('play',22)} ${placement.done?'Kennismaking opnieuw doen':'Start kennismaking'}</button>`
+    ${isGroup?`<p>Het gekozen niveau bepaalt het <strong>soort oefenzinnen</strong> in de werelden, geen gemeten taalniveau. Niveau 4 bevat voorlopig gevorderde bestaande zinnen; VTT en bijzinnen zijn nog niet vrijgegeven.</p>${groupSelector()}<div class="parent-note"><strong>Instap:</strong> ${chosen}. ${placement.done?'Kennismaking afgerond.':'Kennismaking: '+Math.min(5,placement.history.length)+' van 5 oefenzinnen.'} Dit is geen schoolgroep en geen taaldiagnose.</div><button class="parent-primary" data-action="start-placement">${opIcon('play',22)} ${placement.done?'Kennismaking opnieuw doen':'Start kennismaking'}</button>`
     :`<p>Kies hoe je wilt oefenen. Deze instellingen gelden op dit apparaat.</p><div class="parent-settings"><button data-action="sound" aria-pressed="${state.audioOn}">${opIcon('volume',24)} Geluid <strong>${state.audioOn?'Aan':'Uit'}</strong></button><button data-action="motion" aria-pressed="${state.motionOn}">${opIcon('settings',24)} Animaties <strong>${state.motionOn?'Aan':'Uit'}</strong></button></div><p class="parent-privacy">De voortgang blijft in deze browser opgeslagen. Oefenresultaten bewijzen niet automatisch dat een kind zinnen spontaan kan gebruiken.</p>${resetConfirmOpen?'<div class="reset-confirm"><strong>Alle oefenresultaten wissen?</strong><p>Dit kan niet ongedaan gemaakt worden.</p><button data-action="clear-learning">Ja, resultaten wissen</button><button data-action="cancel-clear">Annuleren</button></div>':'<button class="parent-reset" data-action="confirm-clear">Oefenresultaten wissen</button>'}`}
     </section>`;
   }
@@ -427,22 +517,22 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
         <div class="op1-toolbar"><span class="op1-pill op1-star" aria-label="${stars} sterren">${opIcon('star',28)}<strong>${stars}</strong></span>
           <button data-action="world-group" class="op1-pill op1-group" aria-label="Oefenniveau: ${chosen}. Kennismaking ${placed} van 5.">${opIcon('graduation-cap',26)}<span class="op1-group-copy"><span>Instap</span><strong>${chosen}</strong><small>${placement.done?'Kennismaking klaar':`${placed} van 5 oefenzinnen`}</small></span><span class="op1-group-track" aria-hidden="true"><i style="width:${pct}%"></i></span></button>
           <button data-action="world-settings" class="op1-pill op1-settings">${opIcon('settings',23)} Instellingen</button>
-          <div class="op1-profile-holder"><button data-action="world-profile" class="op1-pill op1-profile" aria-haspopup="menu" aria-expanded="${profileMenuOpen}"><img src="data:image/webp;base64,UklGRmgGAABXRUJQVlA4IFwGAACQHwCdASo0ADQAPh0MhEGhBYNVmQQAcS1AE6ZV5ov3v7GvcTrn8+/AXM7HC7NMg3qz8wD9RelR5gP2M/arsWegB+w3WNegB5cPsi/tp+2nwAfrhcwPpu7dvvl66/udpB/QR7T+WP5O/F/gLvEv49/afyA/LnlGgAflH9R/wv5hcy3cf/5XjyqAH5j9AD/S+5n20fRX/F9wP+Uf03/XfnB/jPmq9jPo5fruj8p8Rz1/OOavdRGPBZf5PHLV+TBMoEWgkWSrkvOTvB/8zhfGuMnMXMicUD60/Dx5z6S3OUdPF5Kz5KygKeFNg3gdIaJmN2aV6j7YvOW0YmV+pMWnGC3/W5MNAIAA/v/+orCX4y7XTghv0KehbltV+onY5HH0cbLTwJhw2o8GDl3W3sr5leZRmUUl5o2imCe8gU1NILTNN4TWIkCn7oIa+/5O3rd//l5a36YDWnr6b7AQSQSFVMqOIfUzxlx9Z+QpEYV97T6m302miTTdF7FEZV+7tBqRMqz5x7jNR60+qfRy3/p/xyDFb78i3war/52bxG2+5FoBYHsugN2kEfAzddpd8aRdCxdL9Xgtc+GveUMv+uyb/BbXfrYAYifFHZK8FjffF5dSNULvoP6UTWOCFzIEaYe8ATqXZE+MaYdrBmlSdIf0rNsbXzJvdxdV9oz+ehH/shKqiLabIEVtNUEC6yQTsm40UMO3Bgwr2bDn3gvEmqJkszOF9xaZJIPhjwxuJ09n5ZrHH3GQsyHmn4u+U+qVf/b/BEvA2ZDVteXCP/xi2NrS37+6umVWjrajVOmhKuHRyK/BdGQurl848y1vATRPCbsXYAq0ahrSXpmlV96ucdvFkoDeFTT4/dzXfkZOXEHORE/KvT/Nh+D6u0FooDw8m2YlUDn/BgPTVjW2xfikpGPYNz7298TgJqVn435CF34HhOkjtDJlWmXeWW30nWH4UPlYFUP/6ZNybmFgPnaQycDqLNanq+rDYNnqOXoRLwsrrB4mpHCy5anl4e8RHgXS3epvy7oRddRPWHa2XfIINiG/IFYy//pLaSbNju9j78qEYsgfxaa+3O/zt1+uUyeoWVh0tg1Ac+cf/5xf7n3L3OIM0kVT4lTV6O4EMbuduHad3MQibwPOewsOUPcaqEyyB3CpgsC2FY4w07ml8uUQQIPAv1SUI+3C+HA6v/QltDRP9IUU5Q57R1yPTncfkZQH/+n0D5gHkKj9aOXQz0nrgTZ+A0/QZhEUU1l49KtnXIzf8/5Oq8NjLZOmvqe/xIOfyQFG+6p4FcEz04sQ+A5SarDUzYT7jp1wi0hnAWZFdZ9ie8ENOiZFdSP9BxzyMLpIMhR7qQ/7Jf60C2lffUEc2N4dIIOQctuCmf9M8g4ky26Onefn5ScGlaEMywfIkuYUuu1DGvJR22y5jR6waOX4dJn/oMdFZR9bccW3ERN7wjtmKfIxY77tLwj4C5j42ckiMQzym/fgC/wdxxg8IKbJfkTLshW6ECNBkHTnhxQW/9k5SA5iEftdGlSVjtQx2Ys0ippbsBZYqb/8d/hp08WRweyfx2j3/W8OE/qo/q3F4jIqntScJJzIQfTnfwMGDQQW5OWEN52XM6k0LkzkIBQECVCtjIVE60re47mDzK5f+VkvW0Hy6cT/7/ORGnIxd8vqBAmtjpycIV0vkYq0Ci1GLl01gtDmdQKP8YIRUfe/WGtNL/HEQpv3WmTdrYYGwGTNuOmKZIP2GF2Lhpk7Ta2/5msGY/ngCs4skfEokJH8GSYzpREPa1Hv6Abv59M2//4ecmoNaVD2SD0As5k270RJ3+UBrOlgGHWP7R+Z+I0BL7CIb6ZbsNbOt5JqCdlO4pYBgpU5ZkJbp+IjQWEQKdTiUdRdQKuwtk6OyWTbyngTc9RCoH4wPjCb8cOPCaGNp1g/7DTtkSgW5RuAKQXr2uofuMzMghixQx8CrW+qfdsitX/RiSXaPWq4fFjGhhPf6G2Mf/VgSefJ7dxSNjfFjKuVNf31lIqj9zSUhOB7eusx3/0pRcNKcwH/JNRg96/BvIAmjRaj2QtpBcaM4LBtpmiG4+38i6HvRF0f+acmGLCIQLHj0qMDkhevlYkmJ+nJYQClVBX8BBAoAplv35W69HmYnzYGbMNwgY7KRmPrxNjXih7PgDivV3DDfQF33OhHYAAAAA==" alt=""><span>Leerling</span>${opIcon('chevron-down',19)}</button>
-          ${profileMenuOpen?`<div class="op1-menu" role="menu"><button role="menuitem" data-action="world-progress">${opIcon('chart-column',22)} Jouw voortgang</button><button role="menuitem" data-action="world-group">${opIcon('graduation-cap',22)} Oefenniveau</button><button role="menuitem" data-action="parent-open">${opIcon('settings',22)} Instellingen</button><button role="menuitem" data-action="start-placement">${opIcon('play',22)} Kennismaking</button></div>`:''}</div>
+          <div class="op1-profile-holder"><button data-action="world-profile" class="op1-pill op1-profile" aria-haspopup="menu" aria-expanded="${profileMenuOpen}"><span class="op1-profile-avatar">${profileAvatar(preferences.avatarId)}</span><span class="op1-profile-name">${esc(profileLabel())}</span>${opIcon('chevron-down',19)}</button>
+          ${profileMenuOpen?`<div class="op1-menu" role="menu"><button role="menuitem" data-action="profile-edit">${opIcon('circle-check',22)} Mijn profiel aanpassen</button><button role="menuitem" data-action="world-progress">${opIcon('chart-column',22)} Jouw voortgang</button><button role="menuitem" data-action="world-group">${opIcon('graduation-cap',22)} Oefenniveau</button><button role="menuitem" data-action="parent-open">${opIcon('settings',22)} Instellingen</button><button role="menuitem" data-action="start-placement">${opIcon('play',22)} Kennismaking</button></div>`:''}</div>
         </div>
       </header>
       <section class="op1-hero" aria-label="Welkom bij Zinsbouwer"><div class="op1-welcome"><div class="op1-welcome-top"><h1>Hoi!</h1><p>Waar wil je vandaag mee oefenen?</p><p class="op1-welcome-guide">Kies hieronder een wereld.</p></div></div><span class="op1-hero-message">Jij kunt dit!</span>
       </section>
       <section class="op1-worlds" aria-label="Mijn werelden"><h2>Mijn werelden</h2><p class="op1-sub">Kies wat je wilt oefenen.</p><div class="op1-cards">${WORLD_INFO.map(w=>worldCard(w,last?.id)).join('')}</div></section>
       <section class="op1-progress" id="op1-progress" aria-label="Jouw voortgang"><h2>Jouw voortgang</h2><div class="op1-progress-grid">
-        <article class="op1-stat"><span class="op1-stat-icon">${opIcon('message-circle',32)}</span><span class="op1-stat-text"><strong>${evidence.count}</strong><small>zinnen gemaakt</small></span><div class="op1-stat-meter" role="progressbar" aria-label="Verschillende oefeningen geprobeerd" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${discoveryRate}" title="${evidence.unique} van ${approvedTotal} verschillende oefeningen geprobeerd"><span class="op1-stat-deco"><i style="width:${discoveryRate}%"></i></span><small>${discoveryRate}%</small></div></article>
+        <article class="op1-stat"><span class="op1-stat-icon">${opIcon('message-circle',32)}</span><span class="op1-stat-text"><strong>${evidence.unique}</strong><small>verschillende oefeningen</small></span><div class="op1-stat-meter" role="progressbar" aria-label="Verschillende oefeningen geprobeerd" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${discoveryRate}" title="${evidence.unique} van ${approvedTotal} verschillende oefeningen geprobeerd"><span class="op1-stat-deco"><i style="width:${discoveryRate}%"></i></span><small>${discoveryRate}%</small></div></article>
         <article class="op1-stat"><span class="op1-stat-icon good">${opIcon('circle-check',32)}</span><span class="op1-stat-text"><strong>${evidence.independent}</strong><small>zelfstandig goed</small></span><div class="op1-stat-meter" role="progressbar" aria-label="Zinnen zelfstandig goed gemaakt" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${successRate}" title="${evidence.independent} van ${evidence.count} antwoorden zonder hulp correct"><span class="op1-stat-deco green"><i style="width:${successRate}%"></i></span><small>${successRate}%</small></div></article>
         <article class="op1-stat"><span class="op1-stat-icon accent">${opIcon('chart-column',32)}</span><span class="op1-stat-text"><strong>${evidence.words}</strong><small>werkwoorden geoefend</small></span><div class="op1-stat-meter" role="progressbar" aria-label="Verschillende werkwoorden geoefend" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${verbsRate}" title="${evidence.words} van ${totalVerbs} herkenbare werkwoordfamilies geoefend"><span class="op1-stat-deco orange"><i style="width:${verbsRate}%"></i></span><small>${verbsRate}%</small></div></article>
         <button data-action="challenge-home" class="op1-stat op1-next"><span class="op1-stat-icon">${opIcon('target',31)}</span><span class="op1-stat-text"><strong>Volgende stap</strong><small>Kies een nieuwe uitdaging</small></span></button>
         <button class="op1-start" ${last?`data-action="world-open" data-world="${last.id}"`:'data-action="routes"'}><span class="op1-start-icon">${opIcon('play',37)}</span><span><strong>Verder oefenen</strong><small>${last?esc(last.name):'Kies een oefening'}</small></span></button>
       </div><button class="op1-parent-tip" data-action="world-settings">${opIcon('users',22)} Voor ouders: bekijk instellingen en oefenresultaten.</button></section>
       <details class="op1-other"><summary>Andere oefenroutes</summary><div class="op1-other-buttons"><button data-action="routes">${opIcon('book-open',20)} Basisoefeningen</button><button data-action="challenge-home">${opIcon('target',20)} Nieuwe uitdaging</button><button data-action="start-placement">${opIcon('play',20)} Kennismaking</button></div></details>
-      ${parentPanelOpen?parentPanel():''}</div>`;
+      ${parentPanelOpen?parentPanel():''}${profileDialogOpen?profileDialog():''}</div>`;
   }
   function goHome(){profileMenuOpen=false;stopAudio();state.screen='home';state.mode=null;state.lessonSkill=null;state.worldId=null;render();}
   function pickMode(mode){stopAudio();state.lessonSkill=null;state.mode=mode;state.screen='series';render();}
@@ -452,7 +542,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     state={screen:'exercise',motionOn,settingsOpen:false,mode,series,index:0,seriesItems:shuffleItems(SERIES[mode][series]),positions:[],selected:null,attempts:0,helpUsed:false,solvedFirst:0,message:'',showHint:false,completed:false,focusPos:null,audioOn};
     resetItem();render();speak(taskInstruction());
   }
-  function resetItem(){if(isAuthorPilot()){const same=state.pilotCurrentId===item().id;state.pilotCurrentId=item().id;if(!same){state.pilotAttemptedError=false;state.pilotUsedHelp=false;}}state.positions=state.mode==='order'?Array(item().tiles.length).fill(null):[];state.selected=null;state.choiceOrder=Array.isArray(item().choices)?shuffleItems(item().choices):null;state.attempts=0;state.helpUsed=false;state.message='';state.showHint=false;state.completed=false;state.focusPos=null;}
+  function resetItem(){if(isAuthorPilot()){const same=state.pilotCurrentId===item().id;state.pilotCurrentId=item().id;if(!same){state.pilotAttemptedError=false;state.pilotUsedHelp=false;}}state.positions=state.mode==='order'?Array(item().tiles.length).fill(null):[];state.selected=null;state.choiceOrder=Array.isArray(item().choices)?shuffleItems(item().choices):null;state.attempts=0;state.helpUsed=false;state.message='';state.showHint=false;state.completed=false;state.answerRevealed=false;state.focusPos=null;}
   function chooseTile(id){if(state.screen!=='exercise'||state.completed)return;let empty=state.positions.findIndex(x=>x===null);if(empty<0)return;placeTile(id,empty);const t=item().tiles.find(t=>t.id===id);if(t)speak(t.text);}
   function placeTile(id,at,from=null){
     if(state.screen!=='exercise'||state.completed||state.mode!=='order'||at<0||at>=state.positions.length)return;
@@ -468,22 +558,41 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
   function unplace(idx){if(state.screen!=='exercise'||state.completed)return;stopAudio();state.positions[idx]=null;state.message='';state.focusPos=null;render();}
   function chooseEnding(value){if(state.screen!=='exercise'||state.completed)return;stopAudio();state.selected=value;state.message='';render();}
   function toggleHint(){if(state.completed)return;state.showHint=!state.showHint;if(state.showHint){state.helpUsed=true;if(isAuthorPilot()){state.pilotUsedHelp=true;state.message='';}}render();if(state.showHint)speak(hintText(item()));}
-  function taskInstruction(){const q=item();if((isPilotO3()||isPilotO4())&&(q.kind==='conditional'||q.kind==='because'))return q.contextCue+' Maak een zin met '+(q.kind==='conditional'?'als. Probeer beide volgordes.':'omdat. Het werkwoord in het omdat-deel staat achteraan.');if((isPilotVTT()||isPilotO4())&&q.kind==='vtt')return q.contextCue+' Maak de zin met een hulpwerkwoord en een voltooid deelwoord.';const pre=itemPerspective(q)==='ik'?'Stel je voor dat jij dit doet. ':'';if(q.kind==='tense'||q.kind==='strong')return pre+q.prompt+' Kies het hele werkwoord.';return state.mode==='order'?pre+'Kijk naar het plaatje. Maak een zin.'+(q.beginWith?' Begin met '+q.beginWith+'.':''):'Maak het werkwoord af. Kies wat past.';}
+  // The instruction shown on screen is the exact text that gets spoken.
+  // One short context and one concrete action; grammar rules are available via Hint.
+  function taskInstruction(){
+    const q=item();
+    if((isPilotO3()||isPilotO4())&&(q.kind==='because'||q.kind==='conditional'))
+      return q.contextCue+' Maak met de blokjes één zin met '+(q.kind==='because'?'omdat.':'als.');
+    if((isPilotVTT()||isPilotO4())&&q.kind==='vtt')return q.contextCue;
+    if(q.kind==='tense'||q.kind==='strong')return q.prompt+' Kies het goede werkwoord.';
+    if(state.mode==='order')return (q.beginWith?'Begin met '+q.beginWith+'. ':'')+'Maak met de blokjes een zin.';
+    return 'Maak het werkwoord af. Kies wat past.';
+  }
   function finishItem(){
     if(state.attempts===0&&!state.helpUsed){state.solvedFirst++;if(!isAuthorPilot()){stars++;saveLearning();}}
     if(isPilotO4())recordPilotO4();
     else if(isPilotVTT())recordPilotVTT();
-    else if(isPilotO3())recordPilotO3();
+    else if(isPilotO3()){if(!isRewardPreview())recordPilotO3();}
     else if(isPlacement())recordPlacementResult();
     else if(isWorld())recordBasicResult();
     else if(isAdaptive())recordAdaptiveResult();
     else recordBasicResult();
+    if(isRewardPreview()){
+      // Visual QA only: never write practice rewards or learning evidence.
+      state.previewLastGain=state.attempts===0&&!state.helpUsed?2:1;
+      state.previewCoins+=state.previewLastGain;
+    }
     state.completed=true;
     state.message='';state.focusPos=null;
     render();
     // The exercise stays on screen, including the child's finished sentence.
     focusInlineNote();
-    celebrateAndRead();
+    if(isRewardPreview()){
+      // Reward sound and motion follow the complete spoken language model.
+      speak('Goed! '+correctSentence(),()=>animateRewardCoin());
+    }else if(state.answerRevealed)speak(correctSentence());
+    else celebrateAndRead();
   }
   function check(){
     if(state.screen!=='exercise'||state.completed||!currentComplete())return;
@@ -501,7 +610,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
       state.message=state.attempts>=2
         ?'Tik op '+(q.ending===''?'geen einde':'-'+q.ending)+'.'
         :q.count==='many'?'Kijk naar '+q.subject+'. Dat zijn meer mensen.'
-        :q.count==='i'?'Kijk naar Ik. Welk einde past?'
+        :q.count==='i'?'Kijk naar ik. Welk einde past?'
         :'Kijk naar '+q.subject+'. Eén persoon.';
       }
     }else{
@@ -511,7 +620,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
         state.focusPos=wrong;
         state.message=state.attempts>=2
           ?'Zet '+q.tiles.find(t=>t.id===best[wrong]).text+' op plek '+(wrong+1)+'.'
-          :q.kind==='conditional'?'Bij als vooraan: blijft de persoonsvorm vóór ik in de hoofdzin?':'Bij omdat staat de persoonsvorm achteraan in de bijzin. Kijk naar plek '+(wrong+1)+'.';
+          :q.kind==='conditional'?'Kijk naar de woorden ná als. Waar komt het werkwoord?':'Kijk naar het stukje na omdat. Wat hoort op plek '+(wrong+1)+'?';
         render();focusInlineNote();speak(state.message);return;
       }
       const verbIndex=state.positions.findIndex(id=>q.tiles.find(t=>t.id===id)?.role==='verb');
@@ -549,16 +658,21 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
   }
   function showAnswer(){
     if(state.screen!=='exercise'||state.attempts<2||state.completed)return;
-    state.helpUsed=true;if(isAuthorPilot())state.pilotUsedHelp=true;
-    if(state.mode==='order')state.positions=[...item().solutions[0]];
-    else state.selected=item().ending;
-    finishItem();
+    state.helpUsed=true;state.answerRevealed=true;
+    if(isAuthorPilot())state.pilotUsedHelp=true;
+    const q=item();
+    const model=state.mode==='order'?sentence(q,q.solutions[0]):q.full;
+    // Model the correct form, then require the child to rebuild it.
+    state.positions=state.mode==='order'?Array(q.tiles.length).fill(null):[];
+    state.selected=null;
+    state.message='Zo kan het: '+model+' Maak het nu zelf opnieuw.';
+    state.focusPos=null;render();speak(model);
   }
   function next(){
     if(state.screen!=='exercise'||!state.completed)return;
     stopAudio();
     if(isAuthorPilot()){
-      if(state.index>=4){state.screen='end';render();speak('Goed geoefend! Deze auteurspilot blijft in beoordeling.');}
+      if(state.index>=4){state.screen='end';render();speak(isRewardPreview()?'Vijf zinnen gemaakt. Open je schatkist!':'Goed geoefend! Deze auteurspilot blijft in beoordeling.');}
       else{state.index++;if(isPilotO4()){const nextItem=o4Next(state.o4StartLevel,state.lessonItems.map(q=>q.id),state.index);if(nextItem){state.lessonItems.push(nextItem);state.mode=nextItem.tiles?'order':'morph';}else{state.screen='end';render();return;}}resetItem();render();speak(taskInstruction());}
       return;
     }
@@ -612,7 +726,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     </button>`;
   }
   function groupSelector(){
-    return `<div class="group-selector"><p><strong>Oefenniveau (1–4)</strong><span class="group-description"> Kies een startpunt. Niet gekoppeld aan schoolgroep of leeftijd.</span></p><div class="group-options">${[1,2,3,4].map(n=>`<button type="button" class="group-option" data-action="o4-level" data-level="${n}" aria-pressed="${o4Data.level===n}">Niveau ${n}</button>`).join('')}</div>${preferences.schoolGroup?`<p>Historische schoolgroep ${esc(preferences.schoolGroup)} blijft bewaard, maar is niet automatisch omgezet.</p>`:''}</div>`;
+    return `<div class="group-selector"><p><strong>Oefenniveau (1–4)</strong><span class="group-description"> 1: basiszinnen · 2: tijdsvormen · 3: omdraaien en afwisselen · 4: gevorderde varianten. Een startpunt, geen meting.</span></p><div class="group-options">${[1,2,3,4].map(n=>`<button type="button" class="group-option" data-action="o4-level" data-level="${n}" aria-pressed="${o4Data.level===n}">Niveau ${n}</button>`).join('')}</div>${preferences.schoolGroup?`<p>Historische schoolgroep ${esc(preferences.schoolGroup)} blijft bewaard, maar is niet automatisch omgezet.</p>`:''}</div>`;
   }
   function parentDetails(text,clear=false){
     return `<details class="review-info landing-parent"><summary>Voor ouders en begeleiders</summary><div class="parent-content"><p>${text}</p>${groupSelector()}${clear?'<button class="secondary" data-action="clear-learning">Oefenvoortgang wissen</button>':''}</div></details>`;
@@ -655,7 +769,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     const total=(isWorld()||isAdaptive())?5:state.seriesItems.length;
     const done=state.index+(state.completed?1:0);
     const pct=Math.round(done/total*100);
-    return `<div class="exercise-bar"><button class="round-tool back" data-action="home" aria-label="Naar het startscherm" title="Naar start">${uiIcon('home',38)}</button><div class="progress-wrap"><div class="progress-track" role="progressbar" aria-valuenow="${done}" aria-valuemin="0" aria-valuemax="${total}" aria-label="Zinnen afgerond"><span class="progress-fill" style="width:${pct}%"></span></div><span class="counter">${done} / ${total}</span></div><div class="bar-actions"><div class="star-pill" title="Een ster voor een zin die meteen goed is, zonder hint" aria-label="${stars} sterren verdiend zonder hint of herkansing"><span aria-hidden="true" class="star-symbol">★</span><span>${stars}</span></div><button class="round-tool settings-button" data-action="settings" aria-label="Instellingen" aria-expanded="${state.settingsOpen}" title="Instellingen">${uiIcon('settings',35)}</button></div>${state.settingsOpen?settingsPanel():''}</div>`;
+    return `<div class="exercise-bar"><button class="round-tool back" data-action="home" aria-label="Naar het startscherm" title="Naar start">${uiIcon('home',38)}</button><div class="progress-wrap"><div class="progress-track" role="progressbar" aria-valuenow="${done}" aria-valuemin="0" aria-valuemax="${total}" aria-label="Zinnen afgerond"><span class="progress-fill" style="width:${pct}%"></span></div><span class="counter">${done} / ${total}</span></div><div class="bar-actions">${isRewardPreview()?`<div class="star-pill reward-preview-total reward-vault" role="status" aria-label="${state.previewShownCoins} demo-munten in de schatkist"><span class="reward-vault-chest" aria-hidden="true"><span class="reward-vault-lid"></span><span class="reward-vault-slot"></span><span class="reward-vault-front">★</span></span><span class="reward-vault-number">${state.previewShownCoins}</span></div>`:`<div class="star-pill" title="Een ster voor een zin die meteen goed is, zonder hint" aria-label="${stars} sterren verdiend zonder hint of herkansing"><span aria-hidden="true" class="star-symbol">★</span><span>${stars}</span></div>`}<button class="round-tool settings-button" data-action="settings" aria-label="Instellingen" aria-expanded="${state.settingsOpen}" title="Instellingen">${uiIcon('settings',35)}</button></div>${state.settingsOpen?settingsPanel():''}</div>`;
   }
   function settingsPanel(){return `<div class="settings-panel" role="group" aria-label="Instellingen"><div class="settings-heading">Instellingen <button data-action="settings" class="close-settings" aria-label="Sluit instellingen">×</button></div><button class="setting-row" data-action="sound" aria-pressed="${state.audioOn}"><span>Geluid</span><strong>${state.audioOn?'Aan':'Uit'}</strong></button><button class="setting-row" data-action="motion" aria-pressed="${state.motionOn}"><span>Beweging</span><strong>${state.motionOn?'Aan':'Uit'}</strong></button><p>★ Een ster krijg je als de zin meteen goed is, zonder hint.</p></div>`;}
   function toolbar(){return `<button class="hero-listen round-tool" data-action="speak-task" ${state.audioOn?'':'disabled'} aria-label="Lees de opdracht voor" title="Luister naar de opdracht">${uiIcon('audio',43)}</button>`;}
