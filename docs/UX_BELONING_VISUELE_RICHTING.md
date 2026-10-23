@@ -113,7 +113,7 @@ De visuele beloningsflow is als **geïsoleerde QA-route op het echte oefenscherm
 
 ## Besluit 23 oktober 2026 — muntanimatie v2: leesbare reis naar een schatkist
 
-**Status:** goedgekeurde mini-specificatie voor de volgende implementatie, **nog niet gebouwd**. Vervangt voor de muntanimatie de eerdere richtwaarde van 400–550 ms hierboven. Geen wijziging in de grammaticale oefening, stem of release-gates.
+**Status:** v2 in de auteurspreview geïmplementeerd op 23 oktober 2026; onafhankelijke gebruikstest nog nodig. Vervangt voor de muntanimatie de eerdere richtwaarde van 400–550 ms hierboven. Geen wijziging in de grammaticale oefening, stem of release-gates.
 
 ### Gebruikersprobleem en vastgestelde oorzaak
 
@@ -167,3 +167,8 @@ Hergebruik het bestaande QA-pad `reward-preview`, `animateRewardCoin()`, de succ
 7. PR blijft **draft** en geen kindrelease vóór onafhankelijk didactisch oordeel en pilot.
 
 **Besluit:** leesbare muntvlucht is visueel P0 binnen het beloningsprototype. Pas na deze correctie andere verzamel- of decoratie-effecten toevoegen.
+
+
+### Implementatienotitie (23 oktober 2026)
+
+QA-code gebruikt nu een altijd zichtbaar blauw-gouden mini-schatkistje naast de teller. De vlucht bestaat uit een 220ms verschijning, een zichtbare pauze, een gebogen vlucht van circa 1050ms en een landing. De totale animatie duurt circa 1800ms. Het muntklingeltje klinkt bij de landing en de zichtbare teller verandert dan pas. Het correcte taalmodel wordt eerst gesproken; een optionele `speak(..., onFinished)`-callback koppelt het einde van de zin aan de start van de animatie, zonder de oude stemkeuze te wijzigen. Onderbreking ruimt de animatie op en toont meteen het juiste aantal. Beweging uit en reduced-motion tonen geen vlucht. Alle effecten blijven uitsluitend in het bestaande QA-prototype. Bevestiging door een gebruiker die de animatie bekijkt blijft noodzakelijk.
