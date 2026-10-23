@@ -145,6 +145,23 @@ try {
       assert.equal((await page.evaluate(()=>window.__zinsbouwerTest.getRewardPreview())).active,false);
 
     }
+    if(width===1024){
+      // Mid-size laptop: the coin must remain visible and 'Volgende' must cancel safely.
+      await page.locator('[data-action="reward-preview-open"]').click();
+      await page.locator('[data-action="settings"]').first().click();
+      await page.locator('[data-action="sound"]').click();
+      await page.locator('[data-action="settings"]').first().click();
+      await page.locator('[data-action="reward-demo-complete"]').click();
+      await page.locator('.reward-flying-coin').waitFor({state:'visible'});
+      await page.waitForTimeout(850);
+      const midCoin=await page.locator('.reward-flying-coin').boundingBox();
+      assert.ok(midCoin&&midCoin.x>=4&&midCoin.x+midCoin.width<=width+4
+        &&midCoin.y>=46&&midCoin.y+midCoin.height<=height+4,'1024px coin leaves screen');
+      await page.locator('[data-action="next"]').click();
+      assert.equal(await page.locator('.reward-flying-coin').count(),0,'Next must clean up moving coin');
+      assert.equal((await page.locator('.reward-vault-number').innerText()).trim(),'2',
+        'Skipping flight must not lose coins');
+    }
     if(width===390){
       // A full-size coin must also stay within mobile bounds with motion enabled.
       await page.locator('[data-action="reward-preview-open"]').click();
