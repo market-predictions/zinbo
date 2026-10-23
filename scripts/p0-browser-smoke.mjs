@@ -34,6 +34,72 @@ try {
       'Tagline must remain in viewport at '+width);
     const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth);
     assert.ok(overflow<=2,'Unexpected horizontal overflow at '+width+': '+overflow);
+
+    // Profile edits are scoped to the existing browser preferences, not a new account.
+    const openProfile=async()=>{
+      await page.locator('[data-action="world-profile"]').click();
+      await page.locator('[data-action="profile-edit"]').click();
+      assert.equal(await page.locator('.zinbo-profile-option').count(),8,
+        'Exactly eight native Zinbo avatars');
+      assert.equal(await page.locator('.zinbo-profile-dialog[role="dialog"]').count(),1);
+    };
+    await openProfile();
+    const prefBefore=await page.evaluate(()=>window.__zinsbouwerTest.getPreferences());
+    await page.locator('#zinbo-profile-name').fill('Niet opslaan');
+    await page.locator('[data-action="profile-avatar"][data-avatar="obj-bolt"]').click();
+    await page.locator('[data-action="profile-cancel"]').last().click();
+    assert.equal((await page.evaluate(()=>window.__zinsbouwerTest.getPreferences())).displayName,
+      prefBefore.displayName,'Cancel must not save the nickname');
+    await openProfile();
+    await page.locator('#zinbo-profile-name').fill('Sam');
+    await page.locator('[data-action="profile-avatar"][data-avatar="obj-rocket"]').click();
+    await page.locator('[data-action="profile-save"]').click();
+    assert.equal((await page.locator('.op1-profile-name').innerText()).trim(),'Sam');
+    assert.equal(await page.locator('.op1-profile-avatar svg[data-avatar-id="obj-rocket"]').count(),1);
+    const saved=await page.evaluate(()=>{
+      const o=JSON.parse(localStorage.getItem('zinsbouwer-qa-360-feedback-20261019'));
+      return {name:o.preferences.displayName,avatar:o.preferences.avatarId,stars:o.stars,skills:o.skills};
+    });
+    assert.equal(saved.name,'Sam');assert.equal(saved.avatar,'obj-rocket');
+    await page.reload({waitUntil:'load'});
+    assert.equal((await page.locator('.op1-profile-name').innerText()).trim(),'Sam',
+      'Name must survive reload');
+    assert.equal(await page.locator('.op1-profile-avatar svg[data-avatar-id="obj-rocket"]').count(),1,
+      'Avatar must survive reload');
+    if(width===1366){
+      await page.evaluate(()=>{
+        const key='zinsbouwer-qa-360-feedback-20261019';
+        const o=JSON.parse(localStorage.getItem(key));o.preferences.avatarId='invalid';
+        localStorage.setItem(key,JSON.stringify(o));
+      });
+      await page.reload({waitUntil:'load'});
+      assert.equal(await page.locator('.op1-profile-avatar svg[data-avatar-id="smile-happy"]').count(),1,
+        'Invalid avatar ID must fall back');
+      await openProfile();
+      await page.locator('#zinbo-profile-name').fill('Ada < Zoe');
+      await page.locator('[data-action="profile-save"]').click();
+      assert.equal((await page.locator('.op1-profile-name').innerText()).trim(),'Ada < Zoe',
+        'Escaped name should appear literally');
+      assert.equal(await page.locator('.op1-profile-name img').count(),0,
+        'Name must not inject markup');
+      const after=await page.evaluate(()=>JSON.parse(localStorage.getItem('zinsbouwer-qa-360-feedback-20261019')));
+      assert.equal(after.stars,saved.stars,'Profile must preserve stars');
+      assert.deepEqual(after.skills,saved.skills,'Profile must preserve learning evidence');
+    }
+    if(width===390){
+      await openProfile();
+      const bounds=await page.locator('.zinbo-profile-dialog').boundingBox();
+      assert.ok(bounds&&bounds.x>=-2&&bounds.x+bounds.width<=width+2,
+        'Profile editor must fit narrow viewport');
+      await page.locator('#zinbo-profile-name').fill('Youssef');
+      await page.locator('[data-action="profile-avatar"][data-avatar="smile-wink"]').click();
+      assert.equal(await page.locator('#zinbo-profile-name').inputValue(),'Youssef',
+        'Changing avatar must retain uncommitted name');
+      await page.locator('[data-action="profile-save"]').click();
+      assert.equal((await page.locator('.op1-profile-name').innerText()).trim(),'Youssef');
+      const profileOverflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
+      assert.ok(profileOverflow<=2,'Customized header must not overflow mobile');
+    }
     if(width===1366) {
       const first=async level=>{
         await page.locator('[data-action="world-group"]').click();
