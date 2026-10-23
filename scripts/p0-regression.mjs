@@ -193,6 +193,31 @@ assert.ok(html.includes("if(activeRewardFlight)settleRewardFlight(false)"),'Abor
 assert.ok(html.includes("speak('Goed! '+correctSentence(),()=>animateRewardCoin())"),'Speech must finish before reward flight');
 
 
+
+/* A coin landing must ring, not produce a lone sine ping. Verify the actual
+   WebAudio implementation makes four staggered two-part strikes and obeys mute. */
+const jingleStart=html.indexOf('  function playRewardLandingSound(){');
+const jingleEnd=html.indexOf('  function animateRewardCoin(){',jingleStart);
+assert.ok(jingleStart>=0&&jingleEnd>jingleStart,'Coin landing jingle missing');
+const coinStarts=[];
+const jingleScope={
+  state:{audioOn:true},toneNodes:[],soundContext:null,
+  window:{AudioContext:function(){
+    return {state:'running',currentTime:10,destination:{},
+      createOscillator:()=>({
+        type:'sine',frequency:{setValueAtTime:()=>{}},
+        connect:()=>{},start:t=>coinStarts.push(t),stop:()=>{},onended:null
+      }),
+      createGain:()=>({gain:{setValueAtTime:()=>{},exponentialRampToValueAtTime:()=>{}},
+        connect:()=>{}})
+    };
+  }}
+};
+runInNewContext(html.slice(jingleStart,jingleEnd)+
+  '\nplayRewardLandingSound();state.audioOn=false;playRewardLandingSound();',jingleScope);
+assert.equal(coinStarts.length,8,'Coin landing should have 4 soft layered strikes; mute adds none');
+assert.ok(new Set(coinStarts).size>=4,'Landing should ring in several staggered moments');
+
 /* Profile customization: original artwork and safe local preferences. */
 const expectedAvatars=['smile-happy','smile-wink','smile-grin','smile-cool',
   'obj-rocket','obj-star','obj-volleyball','obj-bolt'];
