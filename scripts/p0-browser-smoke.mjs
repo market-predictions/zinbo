@@ -100,6 +100,22 @@ try {
       const profileOverflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
       assert.ok(profileOverflow<=2,'Customized header must not overflow mobile');
     }
+
+    const assertChestSilhouette=async()=>{
+      const v=await page.locator('.reward-vault-chest').evaluate(chest=>{
+        const lid=chest.querySelector('.reward-vault-lid').getBoundingClientRect();
+        const front=chest.querySelector('.reward-vault-front').getBoundingClientRect();
+        const slot=chest.querySelector('.reward-vault-slot').getBoundingClientRect();
+        const parent=chest.getBoundingClientRect();
+        return {gap:front.top-lid.bottom,slotHeight:slot.height,
+          hasSolidBody:getComputedStyle(chest).backgroundImage!=='none',
+          left:parent.left,right:parent.right};
+      });
+      assert.ok(v.hasSolidBody,'Mini chest should have one continuous blue body');
+      assert.ok(v.gap<=5,'Mini chest lid must visibly overlap the body, not float above it: '+v.gap);
+      assert.ok(v.slotHeight<=6,'Chest should show only a narrow coin opening');
+      assert.ok(v.left>=0&&v.right<=width+2,'Mini chest must fit the viewport');
+    };
     if(width===1366) {
       const first=async level=>{
         await page.locator('[data-action="world-group"]').click();
@@ -183,6 +199,7 @@ try {
       await page.locator('[data-action="settings"]').first().click();
       assert.equal((await page.evaluate(()=>window.__zinsbouwerTest.getState())).audioOn,false);
       assert.equal(await page.locator('.reward-preview-total').count(),1);
+      await assertChestSilhouette();
       for(let turn=0;turn<5;turn++){
         await page.locator('[data-action="reward-demo-complete"]').click();
         if(turn===0){
@@ -214,6 +231,7 @@ try {
     if(width===1024){
       // Mid-size laptop: the coin must remain visible and 'Volgende' must cancel safely.
       await page.locator('[data-action="reward-preview-open"]').click();
+      await assertChestSilhouette();
       await page.locator('[data-action="settings"]').first().click();
       await page.locator('[data-action="sound"]').click();
       await page.locator('[data-action="settings"]').first().click();
@@ -231,6 +249,7 @@ try {
     if(width===390){
       // A full-size coin must also stay within mobile bounds with motion enabled.
       await page.locator('[data-action="reward-preview-open"]').click();
+      await assertChestSilhouette();
       await page.locator('[data-action="settings"]').first().click();
       await page.locator('[data-action="sound"]').click();
       await page.locator('[data-action="settings"]').first().click();
