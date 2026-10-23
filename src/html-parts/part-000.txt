@@ -915,10 +915,11 @@ body.reward-preview-mode .reward-vault{
   font-size:28px;color:#071f54;
 }
 .reward-vault-number{font-weight:900;line-height:1}
-.reward-vault-chest{position:relative;display:block;width:62px;height:55px;flex:none}
-.reward-vault-lid{position:absolute;top:2px;left:3px;width:56px;height:23px;border:5px solid #e69d18;border-radius:26px 26px 8px 8px;background:linear-gradient(90deg,#165293,#2d99d7 55%,#14558f);box-shadow:inset 0 4px #8cd5ef}
-.reward-vault-slot{position:absolute;top:25px;left:12px;width:38px;height:9px;border-radius:9px 9px 4px 4px;background:#072754;box-shadow:0 2px #d78e16}
-.reward-vault-front{position:absolute;top:32px;left:3px;display:grid;place-items:center;width:56px;height:22px;border:4px solid #dfa32b;border-radius:5px 5px 11px 11px;background:linear-gradient(#126bb1,#164785);color:#ffd76c;font-size:18px;line-height:1}
+/* Compact chest v3: one continuous body, a slightly hinged lid and a narrow slot. */
+.reward-vault-chest{position:relative;display:block;width:62px;height:55px;flex:none;isolation:isolate;border:3px solid #d8910d;border-radius:16px 16px 12px 12px;background:linear-gradient(120deg,#2c91d1,#0b5293 70%,#07356c);box-shadow:inset 0 0 0 2px #f6cb61,inset 0 -3px 0 #092f62,0 3px 6px #06366133}
+.reward-vault-lid{position:absolute;z-index:3;top:-3px;left:-4px;width:calc(100% + 8px);height:27px;border:4px solid #e8a321;border-bottom:4px solid #ffca57;border-radius:26px 26px 9px 9px;background:linear-gradient(95deg,#166db1,#41a8e0 50%,#155c9a);box-shadow:inset 0 4px #9edcff,0 2px 3px #07366d77;transform:rotate(-6deg);transform-origin:12% 95%}
+.reward-vault-slot{position:absolute;z-index:4;top:20px;left:14px;width:30px;height:4px;border-radius:4px;background:#072954;box-shadow:0 1px 0 #ffca57}
+.reward-vault-front{position:absolute;z-index:2;top:27px;left:1px;display:grid;place-items:center;width:calc(100% - 2px);height:calc(100% - 28px);border-top:3px solid #ecb344;border-radius:0 0 8px 8px;background:linear-gradient(#1776bc,#0d4c8a);box-shadow:inset 0 -3px 0 #083467;color:#ffe08a;font-size:17px;line-height:1}
 body.reward-preview-mode .reward-vault-received{animation:reward-vault-land .35s ease-out}
 @keyframes reward-vault-land{0%{transform:scale(1)}45%{transform:scale(1.1);box-shadow:0 6px 25px #f5b9367a}100%{transform:scale(1)}}
 .reward-flying-coin{z-index:1000}
