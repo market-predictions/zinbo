@@ -284,7 +284,10 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
         speechTimer=setTimeout(finish,Math.min(12000,Math.max(2500,String(text).length*120)));
       }
       window.speechSynthesis.speak(u);
-    }catch(_){if(onFinished)onFinished();/* visible instruction stays available */}
+    }catch(_){
+      if(speechTimer!==null){clearTimeout(speechTimer);speechTimer=null;}
+      if(onFinished)onFinished(); // Speech failed, but the visible reward still works.
+    }
   }
 
   function celebrateAndRead(){
