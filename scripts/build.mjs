@@ -19,7 +19,7 @@ const checksum = createHash('sha256').update(html).digest('hex');
 const expected = '63dc7d0b5d1fa512bf687435c9566b21e496156d87033ccfcfa3d9e3b87f6d7b';
 
 if (checksum !== expected) {
-  throw new Error('Zinbo HTML checksum mismatch: refusing to deploy a changed or incomplete artifact');
+  throw new Error('Zinbo HTML checksum mismatch: got '+checksum+'; refusing to deploy a changed or incomplete artifact');
 }
 
 await mkdir(publicDir, { recursive: true });
