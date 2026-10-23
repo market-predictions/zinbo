@@ -929,6 +929,45 @@ body.reward-preview-mode .reward-vault-received{animation:reward-vault-land .35s
 @media(prefers-reduced-motion:reduce){body.reward-preview-mode .reward-vault-received{animation:none!important}}
 body.no-motion.reward-preview-mode .reward-vault-received{animation:none!important}
 
+
+/* Zinbo profile v1: one local nickname plus eight consistent native SVG avatars. */
+.op1-profile-avatar{display:grid;place-items:center;width:44px;height:44px;flex:0 0 44px;border-radius:50%;background:#fff}
+.zinbo-avatar-svg{width:100%;height:100%;display:block}
+.op1-profile-name{max-width:115px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.zinbo-profile-backdrop{position:fixed;z-index:1800;inset:0;background:#081c43a6}
+.zinbo-profile-dialog{position:fixed;z-index:1801;top:50%;left:50%;transform:translate(-50%,-50%);width:min(540px,calc(100vw - 28px));max-height:calc(100dvh - 110px);overflow:auto;overscroll-behavior:contain;background:linear-gradient(165deg,#ffffff,#f4faff);border:2px solid #cbe4f4;border-radius:26px;box-shadow:0 24px 90px #061e5380;color:#071f54;padding:24px 26px 17px;text-align:left}
+.zinbo-profile-titlebar{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;margin-bottom:14px}
+.zinbo-profile-titlebar h2{font-size:31px;line-height:1.15;margin:2px 0 0;font-weight:900}
+.zinbo-profile-kicker{color:#2170aa;font-size:13px;font-weight:900;letter-spacing:.03em}
+.zinbo-profile-close{display:grid;place-items:center;flex-shrink:0;background:#e4f3ff;color:#183d72;border-radius:50%;width:42px;height:42px;font-size:30px;line-height:1}
+.zinbo-profile-dialog label,.zinbo-profile-choice-label{display:block;font-size:19px;font-weight:900;margin:12px 0 7px}
+.zinbo-profile-dialog input{display:block;width:100%;height:52px;border:2px solid #b9d8f0;border-radius:13px;padding:9px 15px;background:#fff;font-size:20px;color:#0e305d;font-family:inherit}
+.zinbo-profile-dialog small{color:#55718a;font-size:13px;display:block;margin:6px 0 16px}
+.zinbo-profile-options{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:6px 0 22px}
+.zinbo-profile-option{display:flex;position:relative;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:0;min-height:105px;border:2px solid #d6e4f1;border-radius:16px;background:#fff;color:#173d73;padding:9px 3px 7px;box-shadow:0 3px 9px #245a8b16}
+.zinbo-profile-option .zinbo-avatar-svg{width:62px;height:62px}
+.zinbo-profile-option span:not(.zinbo-profile-picked){font-size:12px;font-weight:800;white-space:nowrap}
+.zinbo-profile-option.is-picked{border:3px solid #168de1;background:#e8f5ff;box-shadow:0 3px 15px #168de13d}
+.zinbo-profile-picked{position:absolute;right:4px;top:4px;display:grid;place-items:center;border-radius:50%;width:20px;height:20px;background:#1677c6;color:#fff;font-size:13px;font-weight:900}
+.zinbo-profile-option:focus-visible,.zinbo-profile-dialog button:focus-visible,.zinbo-profile-dialog input:focus-visible{outline:3px solid #126ec7;outline-offset:3px}
+.zinbo-profile-dialog footer{display:flex;justify-content:flex-end;gap:10px;margin:4px 0 8px}
+.zinbo-profile-dialog footer button{min-height:47px;padding:10px 19px;border-radius:13px;font-size:17px;font-weight:900}
+.zinbo-profile-cancel{border:2px solid #bfd7eb;background:#fff;color:#204b77}
+.zinbo-profile-save{background:#108ce2;color:#fff;box-shadow:0 5px 12px #1378c52b}
+.zinbo-profile-local-note{margin:8px 0 0;font-size:12px;color:#546d8a;line-height:1.4}
+@media(max-width:520px){
+ .op1-profile-avatar{width:34px;height:34px;flex-basis:34px}
+ .op1-profile-name{max-width:73px}
+ .zinbo-profile-dialog{top:calc(50% + 20px);max-height:calc(100dvh - 94px);padding:15px 14px 12px;border-radius:18px}
+ .zinbo-profile-titlebar h2{font-size:25px}
+ .zinbo-profile-options{gap:5px}
+ .zinbo-profile-option{min-height:83px;padding:7px 2px 5px;border-radius:12px}
+ .zinbo-profile-option .zinbo-avatar-svg{width:48px;height:48px}
+ .zinbo-profile-option span:not(.zinbo-profile-picked){font-size:10px}
+ .zinbo-profile-picked{width:16px;height:16px;font-size:11px}
+ .zinbo-profile-dialog footer button{flex:1}
+}
+
 /* P0-08: keep the name and explanatory tagline visible on laptop widths. */
 @media (min-width:881px) and (max-width:1450px){
   .op1-header{min-height:100px;height:auto;gap:12px}
