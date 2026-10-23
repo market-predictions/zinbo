@@ -111,9 +111,27 @@ try {
       await page.locator('[data-action="home"]').first().click();
       await page.locator('[data-action="reward-preview-open"]').click();
       assert.equal((await page.evaluate(()=>window.__zinsbouwerTest.getRewardPreview())).active,true);
+      // QA: disable voice so the test can sample the animation deterministically.
+      await page.locator('[data-action="settings"]').first().click();
+      await page.locator('[data-action="sound"]').click();
+      await page.locator('[data-action="settings"]').first().click();
+      assert.equal((await page.evaluate(()=>window.__zinsbouwerTest.getState())).audioOn,false);
       assert.equal(await page.locator('.reward-preview-total').count(),1);
       for(let turn=0;turn<5;turn++){
         await page.locator('[data-action="reward-demo-complete"]').click();
+        if(turn===0){
+          await page.locator('.reward-flying-coin').waitFor({state:'visible'});
+          const opening=await page.locator('.reward-flying-coin').boundingBox();
+          assert.ok(opening&&opening.y>=46&&opening.y+opening.height<=height-12,'Coin starts outside viewport');
+          assert.equal((await page.locator('.reward-vault-number').innerText()).trim(),'0','Do not show gain before landing');
+          await page.waitForTimeout(850);
+          const travelling=await page.locator('.reward-flying-coin').boundingBox();
+          assert.ok(travelling&&travelling.x>=4&&travelling.x+travelling.width<=width+4
+            &&travelling.y>=46&&travelling.y+travelling.height<=height+4,'Coin escapes viewport mid-flight');
+          await page.locator('.reward-flying-coin').waitFor({state:'detached',timeout:6500});
+          assert.equal((await page.locator('.reward-vault-number').innerText()).trim(),'2','Coin should land and count');
+          assert.equal(await page.locator('.reward-vault-received').count(),1,'Chest must react to landing');
+        }
         assert.equal(await page.locator('.reward-preview-feedback').count(),1,'Missing success reaction');
         const s=await page.evaluate(()=>window.__zinsbouwerTest.getRewardPreview());
         assert.equal(s.coins,(turn+1)*2,'Demo coins should track 5 independent successes');
@@ -128,12 +146,27 @@ try {
 
     }
     if(width===390){
+      // A full-size coin must also stay within mobile bounds with motion enabled.
+      await page.locator('[data-action="reward-preview-open"]').click();
+      await page.locator('[data-action="settings"]').first().click();
+      await page.locator('[data-action="sound"]').click();
+      await page.locator('[data-action="settings"]').first().click();
+      await page.locator('[data-action="reward-demo-complete"]').click();
+      await page.locator('.reward-flying-coin').waitFor({state:'visible'});
+      await page.waitForTimeout(900);
+      const mobileCoin=await page.locator('.reward-flying-coin').boundingBox();
+      assert.ok(mobileCoin&&mobileCoin.x>=4&&mobileCoin.x+mobileCoin.width<=width+4
+        &&mobileCoin.y>=70&&mobileCoin.y+mobileCoin.height<=height+4,'Mobile coin leaves screen');
+      await page.locator('.reward-flying-coin').waitFor({state:'detached',timeout:6500});
+      await page.locator('[data-action="home"]').first().click();
       // Reduced-motion still shows the earned reward; no flying decoration.
       await page.emulateMedia({reducedMotion:'reduce'});
       await page.locator('[data-action="reward-preview-open"]').click();
       await page.locator('[data-action="reward-demo-complete"]').click();
       assert.equal(await page.locator('.reward-preview-feedback').count(),1,'Mobile visual reward missing');
       assert.equal(await page.locator('.reward-flying-coin').count(),0,'Reduced-motion coin should not fly');
+      assert.equal((await page.locator('.reward-vault-number').innerText()).trim(),'2',
+        'Reduced motion must still award and show 2 coins');
       const card=await page.locator('.reward-preview-feedback').boundingBox();
       assert.ok(card&&card.x>=-2&&card.x+card.width<=width+2,'Mobile reward card clipped');
       const scrollOverflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
