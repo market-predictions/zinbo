@@ -444,6 +444,26 @@ lRc7bx5hAfQGy8SxdXLNbVi+fQ2fMZH1wmJBkzg3emv7M7YyTcCZFiVI9uBebV4ALca/fic6bKvjgOBj
       else if(a==='repeat-world'){startWorld(button.dataset.world);}
       else if(a==='world-progress'){profileMenuOpen=false;app.querySelector('.op1-menu')?.remove();const p=app.querySelector('#op1-progress');if(p){p.scrollIntoView({behavior:state.motionOn?'smooth':'instant',block:'center'});p.setAttribute('tabindex','-1');p.focus({preventScroll:true});}}
       else if(a==='world-profile'){profileMenuOpen=!profileMenuOpen;render();}
+
+      else if(a==='profile-edit'){
+        profileMenuOpen=false;
+        profileDraftName=preferences.displayName||'';
+        profileDraftAvatar=validProfileAvatar(preferences.avatarId);
+        profileDialogOpen=true;render();app.querySelector('#zinbo-profile-name')?.focus();
+      }
+      else if(a==='profile-avatar'&&profileDialogOpen){
+        profileDraftName=app.querySelector('#zinbo-profile-name')?.value||'';
+        profileDraftAvatar=validProfileAvatar(button.dataset.avatar);
+        render();app.querySelector('[data-avatar="'+profileDraftAvatar+'"]')?.focus();
+      }
+      else if(a==='profile-cancel'&&profileDialogOpen){closeProfileDialog();}
+      else if(a==='profile-save'&&profileDialogOpen){
+        const typed=app.querySelector('#zinbo-profile-name')?.value||'';
+        preferences.displayName=cleanProfileName(typed);
+        preferences.avatarId=validProfileAvatar(profileDraftAvatar);
+        saveLearning();closeProfileDialog();
+      }
+
       else if(a==='world-group'||a==='world-settings'||a==='parent-open'){profileMenuOpen=false;parentPanelMode=a==='world-group'?'group':'settings';parentPanelOpen=true;resetConfirmOpen=false;render();app.querySelector('.parent-close')?.focus();}
       else if(a==='close-parent'){parentPanelOpen=false;resetConfirmOpen=false;render();}
       else if(a==='confirm-clear'){resetConfirmOpen=true;render();}
@@ -480,6 +500,9 @@ lRc7bx5hAfQGy8SxdXLNbVi+fQ2fMZH1wmJBkzg3emv7M7YyTcCZFiVI9uBebV4ALca/fic6bKvjgOBj
       else if(a==='next')next();
       else if(a==='again')start(state.mode,state.series);
     }));
+    if(profileDialogOpen){
+      app.querySelector('#zinbo-profile-name')?.addEventListener('input',event=>{profileDraftName=event.target.value;});
+    }
     setupDragging();
   }
   // Native pointer events cover mouse, pen and touch. Tap and keyboard still work.
@@ -535,6 +558,15 @@ lRc7bx5hAfQGy8SxdXLNbVi+fQ2fMZH1wmJBkzg3emv7M7YyTcCZFiVI9uBebV4ALca/fic6bKvjgOBj
     });
   }
   document.addEventListener('keydown',event=>{
+    if(profileDialogOpen&&event.key==='Tab'){
+      const dialog=app.querySelector('.zinbo-profile-dialog');
+      const focusable=dialog?[...dialog.querySelectorAll('button:not([disabled]),input:not([disabled])')]:[];
+      const first=focusable[0],last=focusable[focusable.length-1];
+      if(first&&last&&((event.shiftKey&&document.activeElement===first)||(!event.shiftKey&&document.activeElement===last))){
+        event.preventDefault();(event.shiftKey?last:first).focus();
+      }
+    }
+    if(event.key==='Escape'&&profileDialogOpen){event.preventDefault();closeProfileDialog();return;}
     if(event.key==='Escape'&&parentPanelOpen){parentPanelOpen=false;resetConfirmOpen=false;render();return;}
     if(event.key==='Escape'&&profileMenuOpen){profileMenuOpen=false;render();return;}
     if(event.key==='Escape'&&state.settingsOpen){state.settingsOpen=false;render();return;}
@@ -544,7 +576,7 @@ lRc7bx5hAfQGy8SxdXLNbVi+fQ2fMZH1wmJBkzg3emv7M7YyTcCZFiVI9uBebV4ALca/fic6bKvjgOBj
     }
   });
   // Small test surface used only to verify deterministic educational logic in a browser.
-  Object.defineProperty(window,'__zinsbouwerTest',{value:Object.freeze({getOrder:()=>ORDER.map(({id,solutions,tiles,bankOrder,beginWith})=>({id,solutions,tiles,bankOrder,beginWith})),getMorph:()=>MORPH.map(({id,stem,ending,full})=>({id,stem,ending,full})),getState:()=>JSON.parse(JSON.stringify(state)),getAudioAudit:()=>audioAudit.map(x=>({...x})),getCurrentId:()=>item()?.id||null,getNextPreview:()=>state.lessonSkill?state.lessonItems.map(q=>q.id):state.seriesItems,getSeries:()=>JSON.parse(JSON.stringify(SERIES)),getCurrent:()=>JSON.parse(JSON.stringify(item())),getAdvanced:()=>JSON.parse(JSON.stringify(ADVANCED)),getLearning:()=>JSON.parse(JSON.stringify(learning)),getPlacement:()=>JSON.parse(JSON.stringify(placement)),getBasicHistory:()=>JSON.parse(JSON.stringify(basicHistory)),getPreferences:()=>({...preferences}),getCandidates:()=>JSON.parse(JSON.stringify(V43_CANDIDATES)),getEvidenceSummary:()=>evidenceSummary(),getReleasedIds:()=>SKILLS.flatMap(k=>ADVANCED[k].filter(q=>q.id.startsWith("v43-")).map(q=>q.id)),getCandidateCounts:()=>Object.fromEntries(SKILLS.map(k=>[k,V43_CANDIDATES[k].length])),getSceneCount:()=>Object.keys(SCENE_ART).length,getO4State:()=>JSON.parse(JSON.stringify(o4Data)),getO4Evidence:()=>O4_GOALS.map(g=>o4Evidence(g)),getO4Goals:()=>[...O4_GOALS],getRewardPreview:()=>({active:isRewardPreview(),coins:state.previewCoins||0,chestOpen:!!state.previewChestOpen}),getQAMode:()=>QA_PREVIEW,getQAExtraIds:()=>[...QA_EXTRA_IDS]})});
+  Object.defineProperty(window,'__zinsbouwerTest',{value:Object.freeze({getOrder:()=>ORDER.map(({id,solutions,tiles,bankOrder,beginWith})=>({id,solutions,tiles,bankOrder,beginWith})),getMorph:()=>MORPH.map(({id,stem,ending,full})=>({id,stem,ending,full})),getState:()=>JSON.parse(JSON.stringify(state)),getAudioAudit:()=>audioAudit.map(x=>({...x})),getCurrentId:()=>item()?.id||null,getNextPreview:()=>state.lessonSkill?state.lessonItems.map(q=>q.id):state.seriesItems,getSeries:()=>JSON.parse(JSON.stringify(SERIES)),getCurrent:()=>JSON.parse(JSON.stringify(item())),getAdvanced:()=>JSON.parse(JSON.stringify(ADVANCED)),getLearning:()=>JSON.parse(JSON.stringify(learning)),getPlacement:()=>JSON.parse(JSON.stringify(placement)),getBasicHistory:()=>JSON.parse(JSON.stringify(basicHistory)),getPreferences:()=>({...preferences}),getProfileAvatars:()=>PROFILE_AVATARS.map(a=>({...a})),getCandidates:()=>JSON.parse(JSON.stringify(V43_CANDIDATES)),getEvidenceSummary:()=>evidenceSummary(),getReleasedIds:()=>SKILLS.flatMap(k=>ADVANCED[k].filter(q=>q.id.startsWith("v43-")).map(q=>q.id)),getCandidateCounts:()=>Object.fromEntries(SKILLS.map(k=>[k,V43_CANDIDATES[k].length])),getSceneCount:()=>Object.keys(SCENE_ART).length,getO4State:()=>JSON.parse(JSON.stringify(o4Data)),getO4Evidence:()=>O4_GOALS.map(g=>o4Evidence(g)),getO4Goals:()=>[...O4_GOALS],getRewardPreview:()=>({active:isRewardPreview(),coins:state.previewCoins||0,chestOpen:!!state.previewChestOpen}),getQAMode:()=>QA_PREVIEW,getQAExtraIds:()=>[...QA_EXTRA_IDS]})});
   render();
 })();
 </script>
