@@ -72,25 +72,35 @@ lRc7bx5hAfQGy8SxdXLNbVi+fQ2fMZH1wmJBkzg3emv7M7YyTcCZFiVI9uBebV4ALca/fic6bKvjgOBj
     if(activeRewardFlight)settleRewardFlight(false);
   }
   function playRewardLandingSound(){
+    // A soft, short coin cascade rather than a single synthetic ping.
+    // Four slightly staggered metallic strikes create a small, bright rinkel.
     if(!state.audioOn)return;
     try{
       const AudioCtx=window.AudioContext||window.webkitAudioContext;
       if(!AudioCtx)return;
       soundContext=soundContext||new AudioCtx();
       if(soundContext.state==='suspended')soundContext.resume().catch(()=>{});
-      const at=soundContext.currentTime+.025;
-      const osc=soundContext.createOscillator(),gain=soundContext.createGain();
-      osc.type='sine';osc.frequency.setValueAtTime(880,at);
-      osc.frequency.exponentialRampToValueAtTime(1180,at+.085);
-      gain.gain.setValueAtTime(.0001,at);
-      gain.gain.exponentialRampToValueAtTime(.047,at+.025);
-      gain.gain.exponentialRampToValueAtTime(.0001,at+.3);
-      osc.connect(gain);gain.connect(soundContext.destination);
-      toneNodes.push(osc);
-      osc.onended=()=>{toneNodes=toneNodes.filter(node=>node!==osc);};
-      osc.start(at);osc.stop(at+.31);
-    }catch(_){/* No audio capability: visual landing remains. */}
+      const start=soundContext.currentTime+.025;
+      const notes=[1318.5,1568,1760,2093];
+      notes.forEach((frequency,i)=>{
+        const at=start+[0,.072,.157,.244][i];
+        // The faint inharmonic upper partial suggests small metal coins.
+        [1,2.08].forEach((partial,j)=>{
+          const osc=soundContext.createOscillator(),gain=soundContext.createGain();
+          osc.type='sine';
+          osc.frequency.setValueAtTime(frequency*partial,at);
+          gain.gain.setValueAtTime(.0001,at);
+          gain.gain.exponentialRampToValueAtTime(j===0?.031:.009,at+.013);
+          gain.gain.exponentialRampToValueAtTime(.0001,at+(j===0?.31:.19));
+          osc.connect(gain);gain.connect(soundContext.destination);
+          toneNodes.push(osc);
+          osc.onended=()=>{toneNodes=toneNodes.filter(node=>node!==osc);};
+          osc.start(at);osc.stop(at+(j===0?.32:.2));
+        });
+      });
+    }catch(_){/* No audio capability: the visual landing remains. */}
   }
+
   function animateRewardCoin(){
     if(!isRewardPreview()||state.screen!=='exercise'||!state.completed)return;
     cancelRewardFlight();
