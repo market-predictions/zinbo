@@ -158,7 +158,7 @@ for(const q of o3Items){
 }
 // The October female-voice preference was reverted after a negative listening
 // test. Verify the original browser voice order and speaking rate are preserved.
-const voiceStart=html.indexOf('  function speak(text){');
+const voiceStart=html.indexOf('  function speak(text, onFinished){');
 const voiceEnd=html.indexOf('  function celebrateAndRead(){',voiceStart);
 assert.ok(voiceStart>=0&&voiceEnd>voiceStart,'Original speech handler missing');
 assert.ok(!html.includes('function chooseDutchVoice('),'Female voice override must be removed');
@@ -186,5 +186,10 @@ assert.ok(html.includes("state.previewCoins+=state.previewLastGain;"),'Demo rewa
 assert.ok(html.includes("else if(isPilotO3()){if(!isRewardPreview())recordPilotO3();}"),'Reward preview must not write author pilot results');
 assert.ok(html.includes("if(!isAuthorPilot()){stars++;saveLearning();}"),'Normal independent rewards must be untouched');
 assert.ok(html.includes("prefers-reduced-motion: reduce"),'Reduced-motion option missing');
+assert.ok(html.includes("class=\"reward-vault-slot\""),'Visible chest landing slot missing');
+assert.ok(html.includes("duration:1800"),'Coin must no longer be a 780ms flash');
+assert.ok(html.includes("state.previewShownCoins=state.previewCoins"),'Displayed coins must settle only at landing or skip');
+assert.ok(html.includes("if(activeRewardFlight)settleRewardFlight(false)"),'Aborting flight must clean up');
+assert.ok(html.includes("speak('Goed! '+correctSentence(),()=>animateRewardCoin())"),'Speech must finish before reward flight');
 
 console.log(`PASS P0 regression: ${scripts} JS program(s), 6 modal items, 27 distractor repairs, 4 world-level choices, casing, audio, help and text labels`);
