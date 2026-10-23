@@ -14,7 +14,39 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
   const emptySkill=()=>({streak:0,independent:0,assisted:0,novel:0,reviewSuccess:0,seen:[],history:[],lastStarted:null});
   let learning=Object.fromEntries(SKILLS.map(k=>[k,emptySkill()]));
   let stars=0; // One star per independently correct sentence; saved alongside adaptive results.
-  let preferences={audioOn:true,motionOn:true,schoolGroup:null};
+
+  // Eight original, replaceable vector avatars. Persist only IDs, never artwork.
+  const PROFILE_AVATARS=[
+    {id:'smile-happy',name:'Blij'},{id:'smile-wink',name:'Knipoog'},
+    {id:'smile-grin',name:'Grote lach'},{id:'smile-cool',name:'Stoer'},
+    {id:'obj-rocket',name:'Raket'},{id:'obj-star',name:'Ster'},
+    {id:'obj-volleyball',name:'Volleybal'},{id:'obj-bolt',name:'Bliksem'}
+  ];
+  const DEFAULT_PROFILE_AVATAR='smile-happy';
+  function validProfileAvatar(id){return PROFILE_AVATARS.some(a=>a.id===id)?id:DEFAULT_PROFILE_AVATAR;}
+  function cleanProfileName(raw){
+    if(typeof raw!=='string')return '';
+    return Array.from(raw.normalize('NFC').replace(/[\u0000-\u001f\u007f-\u009f]/g,'').replace(/\s+/g,' ').trim()).slice(0,14).join('');
+  }
+  function profileLabel(){return preferences.displayName||'Mijn Zinbo';}
+  function profileAvatar(id){
+    const selected=validProfileAvatar(id);
+    const base='<circle cx="32" cy="33" r="25" fill="#BCE9FF" stroke="#0C4A89" stroke-width="2.5"/><path d="M17 19Q31 8 46 18" fill="none" stroke="#FFF" stroke-width="4" stroke-linecap="round" opacity=".7"/>';
+    const face='<circle cx="32" cy="32" r="23" fill="#FFCB52" stroke="#DA8B16" stroke-width="2.5"/><path d="M17 20Q27 10 39 17" fill="none" stroke="#FFF4C4" stroke-width="5" stroke-linecap="round"/>';
+    const svg={
+      'smile-happy':face+'<circle cx="24" cy="29" r="3.2" fill="#102F66"/><circle cx="40" cy="29" r="3.2" fill="#102F66"/><path d="M21 38Q32 50 43 38" stroke="#102F66" stroke-width="3.7" stroke-linecap="round" fill="none"/>',
+      'smile-wink':face+'<path d="M19 30Q24 25 29 30" stroke="#102F66" stroke-width="3.5" stroke-linecap="round" fill="none"/><circle cx="41" cy="29" r="3.2" fill="#102F66"/><path d="M22 39Q31 46 42 36" stroke="#102F66" stroke-width="3.7" stroke-linecap="round" fill="none"/>',
+      'smile-grin':face+'<circle cx="23" cy="28" r="3" fill="#102F66"/><circle cx="41" cy="28" r="3" fill="#102F66"/><path d="M20 38Q32 55 44 38Z" fill="#102F66"/><path d="M24 41H40" stroke="#FFF" stroke-width="3.2" stroke-linecap="round"/>',
+      'smile-cool':face+'<path d="M16 25H47L44 36Q38 40 34 33L31 33Q26 40 20 36Z" fill="#123464" stroke="#071D44" stroke-width="1.5"/><path d="M20 27L26 27" stroke="#77CBFF" stroke-width="2.5" stroke-linecap="round"/><path d="M28 44Q32 47 37 43" fill="none" stroke="#102F66" stroke-width="2.8" stroke-linecap="round"/>',
+      'obj-rocket':base+'<path d="M27 44L20 52L18 42L24 36M39 44L46 52L48 42L42 36" fill="#FF9A23" stroke="#0C4A89" stroke-width="2"/><path d="M24 44L24 27Q25 16 33 11Q41 18 42 28L42 44Z" fill="#FFF" stroke="#0C4A89" stroke-width="2.5"/><circle cx="33" cy="28" r="6" fill="#69C7FF" stroke="#0C4A89" stroke-width="2.5"/><path d="M28 44H38L34 53Z" fill="#FF9A23"/>',
+      'obj-star':base+'<path d="M32 12L38 25L52 27L42 37L45 52L32 45L19 52L22 37L12 27L26 25Z" fill="#FFD052" stroke="#E79416" stroke-width="3" stroke-linejoin="round"/><circle cx="27" cy="34" r="2" fill="#0C4A89"/><circle cx="37" cy="34" r="2" fill="#0C4A89"/><path d="M27 39Q32 44 37 39" fill="none" stroke="#0C4A89" stroke-width="2" stroke-linecap="round"/>',
+      'obj-volleyball':base+'<circle cx="32" cy="32" r="18" fill="#FFF" stroke="#0C4A89" stroke-width="2.5"/><path d="M17 29Q29 19 44 20M22 45Q23 26 32 15M32 50Q39 34 49 31M17 29Q31 31 43 45M26 16Q31 28 47 37" fill="none" stroke="#168DE1" stroke-width="3"/>',
+      'obj-bolt':base+'<path d="M33 10L16 36H30L27 54L50 27H35L40 10Z" fill="#FFCC48" stroke="#E58F13" stroke-width="3" stroke-linejoin="round"/><path d="M33 18L24 32" stroke="#FFF6BA" stroke-width="3" stroke-linecap="round"/>'
+    };
+    return '<svg class="zinbo-avatar-svg" data-avatar-id="'+selected+'" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" focusable="false" aria-hidden="true">'+svg[selected]+'</svg>';
+  }
+
+  let preferences={audioOn:true,motionOn:true,schoolGroup:null,displayName:'',avatarId:'smile-happy'};
   // A placement round is provisional. Its observations never count as mastery evidence.
   let placement={seen:[],history:[],done:false};
   let basicHistory=[];
@@ -26,6 +58,8 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
       if(raw.preferences && typeof raw.preferences==='object'){
         if(typeof raw.preferences.audioOn==='boolean')preferences.audioOn=raw.preferences.audioOn;
         if(typeof raw.preferences.motionOn==='boolean')preferences.motionOn=raw.preferences.motionOn;
+        preferences.displayName=cleanProfileName(raw.preferences.displayName);
+        preferences.avatarId=validProfileAvatar(raw.preferences.avatarId);
          if(['5','6','7','8'].includes(raw.preferences.schoolGroup))preferences.schoolGroup=raw.preferences.schoolGroup;
         if(['sport','thuis','familie'].includes(raw.preferences.lastWorld))preferences.lastWorld=raw.preferences.lastWorld;
       }
@@ -408,6 +442,29 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
   function isWorld(){return Boolean(state.worldId);}
   let parentPanelOpen=false;
   let profileMenuOpen=false;
+
+  let profileDialogOpen=false;
+  let profileDraftName='';
+  let profileDraftAvatar=DEFAULT_PROFILE_AVATAR;
+  function closeProfileDialog(){
+    profileDialogOpen=false;profileMenuOpen=false;render();
+    app.querySelector('[data-action="world-profile"]')?.focus();
+  }
+  function profileDialog(){
+    const selected=validProfileAvatar(profileDraftAvatar);
+    const opts=PROFILE_AVATARS.map(a=>'<button type="button" data-action="profile-avatar" data-avatar="'+a.id+'" aria-label="'+a.name+'" aria-pressed="'+(selected===a.id)+'" class="zinbo-profile-option '+(selected===a.id?'is-picked':'')+'">'+profileAvatar(a.id)+'<span>'+a.name+'</span>'+(selected===a.id?'<span class="zinbo-profile-picked" aria-hidden="true">✓</span>':'')+'</button>').join('');
+    return '<div class="zinbo-profile-backdrop" data-action="profile-cancel" aria-hidden="true"></div>'+
+      '<section class="zinbo-profile-dialog" role="dialog" aria-modal="true" aria-labelledby="zinbo-profile-title">'+
+      '<header class="zinbo-profile-titlebar"><div><span class="zinbo-profile-kicker">Jouw plek in Zinbo</span><h2 id="zinbo-profile-title">Mijn profiel</h2></div><button type="button" class="zinbo-profile-close" data-action="profile-cancel" aria-label="Sluit profiel aanpassen">×</button></header>'+
+      '<label for="zinbo-profile-name">Hoe wil je heten?</label>'+
+      '<input type="text" id="zinbo-profile-name" maxlength="14" autocomplete="off" placeholder="Naam of bijnaam" value="'+esc(profileDraftName)+'"/>'+
+      '<small>Gebruik gerust je roepnaam. Maximaal 14 tekens.</small>'+
+      '<div class="zinbo-profile-choice-label">Kies jouw avatar</div>'+
+      '<div class="zinbo-profile-options" role="group" aria-label="Kies een avatar">'+opts+'</div>'+
+      '<footer><button type="button" class="zinbo-profile-cancel" data-action="profile-cancel">Annuleren</button><button type="button" class="zinbo-profile-save" data-action="profile-save">Opslaan</button></footer>'+
+      '<p class="zinbo-profile-local-note">Dit profiel is alleen zichtbaar op dit apparaat. Geen account nodig.</p></section>';
+  }
+
   let resetConfirmOpen=false;
   function worldHeading(){
     const events=worldHistory();
@@ -460,8 +517,8 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
         <div class="op1-toolbar"><span class="op1-pill op1-star" aria-label="${stars} sterren">${opIcon('star',28)}<strong>${stars}</strong></span>
           <button data-action="world-group" class="op1-pill op1-group" aria-label="Oefenniveau: ${chosen}. Kennismaking ${placed} van 5.">${opIcon('graduation-cap',26)}<span class="op1-group-copy"><span>Instap</span><strong>${chosen}</strong><small>${placement.done?'Kennismaking klaar':`${placed} van 5 oefenzinnen`}</small></span><span class="op1-group-track" aria-hidden="true"><i style="width:${pct}%"></i></span></button>
           <button data-action="world-settings" class="op1-pill op1-settings">${opIcon('settings',23)} Instellingen</button>
-          <div class="op1-profile-holder"><button data-action="world-profile" class="op1-pill op1-profile" aria-haspopup="menu" aria-expanded="${profileMenuOpen}"><img src="data:image/webp;base64,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" alt=""><span>Leerling</span>${opIcon('chevron-down',19)}</button>
-          ${profileMenuOpen?`<div class="op1-menu" role="menu"><button role="menuitem" data-action="world-progress">${opIcon('chart-column',22)} Jouw voortgang</button><button role="menuitem" data-action="world-group">${opIcon('graduation-cap',22)} Oefenniveau</button><button role="menuitem" data-action="parent-open">${opIcon('settings',22)} Instellingen</button><button role="menuitem" data-action="start-placement">${opIcon('play',22)} Kennismaking</button></div>`:''}</div>
+          <div class="op1-profile-holder"><button data-action="world-profile" class="op1-pill op1-profile" aria-haspopup="menu" aria-expanded="${profileMenuOpen}"><span class="op1-profile-avatar">${profileAvatar(preferences.avatarId)}</span><span class="op1-profile-name">${esc(profileLabel())}</span>${opIcon('chevron-down',19)}</button>
+          ${profileMenuOpen?`<div class="op1-menu" role="menu"><button role="menuitem" data-action="profile-edit">${opIcon('circle-check',22)} Mijn profiel aanpassen</button><button role="menuitem" data-action="world-progress">${opIcon('chart-column',22)} Jouw voortgang</button><button role="menuitem" data-action="world-group">${opIcon('graduation-cap',22)} Oefenniveau</button><button role="menuitem" data-action="parent-open">${opIcon('settings',22)} Instellingen</button><button role="menuitem" data-action="start-placement">${opIcon('play',22)} Kennismaking</button></div>`:''}</div>
         </div>
       </header>
       <section class="op1-hero" aria-label="Welkom bij Zinsbouwer"><div class="op1-welcome"><div class="op1-welcome-top"><h1>Hoi!</h1><p>Waar wil je vandaag mee oefenen?</p><p class="op1-welcome-guide">Kies hieronder een wereld.</p></div></div><span class="op1-hero-message">Jij kunt dit!</span>
@@ -475,7 +532,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
         <button class="op1-start" ${last?`data-action="world-open" data-world="${last.id}"`:'data-action="routes"'}><span class="op1-start-icon">${opIcon('play',37)}</span><span><strong>Verder oefenen</strong><small>${last?esc(last.name):'Kies een oefening'}</small></span></button>
       </div><button class="op1-parent-tip" data-action="world-settings">${opIcon('users',22)} Voor ouders: bekijk instellingen en oefenresultaten.</button></section>
       <details class="op1-other"><summary>Andere oefenroutes</summary><div class="op1-other-buttons"><button data-action="routes">${opIcon('book-open',20)} Basisoefeningen</button><button data-action="challenge-home">${opIcon('target',20)} Nieuwe uitdaging</button><button data-action="start-placement">${opIcon('play',20)} Kennismaking</button></div></details>
-      ${parentPanelOpen?parentPanel():''}</div>`;
+      ${parentPanelOpen?parentPanel():''}${profileDialogOpen?profileDialog():''}</div>`;
   }
   function goHome(){profileMenuOpen=false;stopAudio();state.screen='home';state.mode=null;state.lessonSkill=null;state.worldId=null;render();}
   function pickMode(mode){stopAudio();state.lessonSkill=null;state.mode=mode;state.screen='series';render();}
