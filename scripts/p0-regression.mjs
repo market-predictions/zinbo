@@ -192,4 +192,18 @@ assert.ok(html.includes("state.previewShownCoins=state.previewCoins"),'Displayed
 assert.ok(html.includes("if(activeRewardFlight)settleRewardFlight(false)"),'Aborting flight must clean up');
 assert.ok(html.includes("speak('Goed! '+correctSentence(),()=>animateRewardCoin())"),'Speech must finish before reward flight');
 
+
+/* Profile customization: original artwork and safe local preferences. */
+const expectedAvatars=['smile-happy','smile-wink','smile-grin','smile-cool',
+  'obj-rocket','obj-star','obj-volleyball','obj-bolt'];
+for(const id of expectedAvatars)
+  assert.ok(html.includes("id:'"+id+"'"),'Missing native avatar '+id);
+assert.ok(html.includes("getProfileAvatars:()=>PROFILE_AVATARS"),'Avatar list accessor missing');
+assert.ok(html.includes("preferences.displayName=cleanProfileName(typed);"),'Name validation missing');
+assert.ok(html.includes("preferences.avatarId=validProfileAvatar(profileDraftAvatar);"),'Avatar ID validation missing');
+assert.ok(html.includes('${esc(profileLabel())}'),'Display name must be escaped');
+assert.ok(html.includes("profileDialogOpen?profileDialog():''"),'Profile must use the existing home surface');
+assert.ok(html.includes('version:3,skills:learning,stars,preferences,placement,basicHistory'),
+  'Existing learner progress serialization must remain in place');
+
 console.log(`PASS P0 regression: ${scripts} JS program(s), 6 modal items, 27 distractor repairs, 4 world-level choices, casing, audio, help and text labels`);
