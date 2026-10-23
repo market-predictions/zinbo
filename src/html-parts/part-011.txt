@@ -256,21 +256,35 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     for(const osc of toneNodes){try{osc.stop();}catch(_){}}
     toneNodes=[];
     if('speechSynthesis' in window){try{window.speechSynthesis.cancel();}catch(_){}}
+    if(typeof cancelRewardFlight==='function')cancelRewardFlight();
   }
   // Restore the original browser voice selection until listening tests
   // establish a preferred voice. It uses the first Dutch voice, as before.
-  function speak(text){
+  function speak(text, onFinished){
     stopAudio();
-    if(!state.audioOn)return;
+    if(!state.audioOn){if(onFinished)onFinished();return;}
     audioAudit.push({kind:'speech',text:String(text)});
-    if(!('speechSynthesis' in window))return; // never block visual learning
+    if(!('speechSynthesis' in window)){if(onFinished)onFinished();return;} // visual fallback
     try{
       const u=new SpeechSynthesisUtterance(String(text));u.lang='nl-NL';u.rate=.85;u.pitch=1;
       const voices=window.speechSynthesis.getVoices();
       const dutch=voices.find(v=>v.lang&&v.lang.toLowerCase().startsWith('nl'));
       if(dutch)u.voice=dutch;
+      if(onFinished){
+        const ticket=audioTicket;
+        let completed=false;
+        const finish=()=>{
+          if(completed||ticket!==audioTicket)return;
+          completed=true;
+          if(speechTimer!==null){clearTimeout(speechTimer);speechTimer=null;}
+          onFinished();
+        };
+        u.onend=finish;u.onerror=finish;
+        // Some embedded browsers never fire speech callbacks: fail gracefully.
+        speechTimer=setTimeout(finish,Math.min(12000,Math.max(2500,String(text).length*120)));
+      }
       window.speechSynthesis.speak(u);
-    }catch(_){ /* visible instruction always remains available */ }
+    }catch(_){if(onFinished)onFinished();/* visible instruction stays available */}
   }
 
   function celebrateAndRead(){
@@ -512,10 +526,13 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     state.completed=true;
     state.message='';state.focusPos=null;
     render();
-    if(isRewardPreview())animateRewardCoin();
     // The exercise stays on screen, including the child's finished sentence.
     focusInlineNote();
-    if(state.answerRevealed)speak(correctSentence());else celebrateAndRead();
+    if(isRewardPreview()){
+      // Reward sound and motion follow the complete spoken language model.
+      speak('Goed! '+correctSentence(),()=>animateRewardCoin());
+    }else if(state.answerRevealed)speak(correctSentence());
+    else celebrateAndRead();
   }
   function check(){
     if(state.screen!=='exercise'||state.completed||!currentComplete())return;
@@ -692,7 +709,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     const total=(isWorld()||isAdaptive())?5:state.seriesItems.length;
     const done=state.index+(state.completed?1:0);
     const pct=Math.round(done/total*100);
-    return `<div class="exercise-bar"><button class="round-tool back" data-action="home" aria-label="Naar het startscherm" title="Naar start">${uiIcon('home',38)}</button><div class="progress-wrap"><div class="progress-track" role="progressbar" aria-valuenow="${done}" aria-valuemin="0" aria-valuemax="${total}" aria-label="Zinnen afgerond"><span class="progress-fill" style="width:${pct}%"></span></div><span class="counter">${done} / ${total}</span></div><div class="bar-actions">${isRewardPreview()?`<div class="star-pill reward-preview-total" aria-label="${state.previewCoins} demo-munten"><span aria-hidden="true" class="reward-coin-symbol">✪</span><span>${state.previewCoins}</span></div>`:`<div class="star-pill" title="Een ster voor een zin die meteen goed is, zonder hint" aria-label="${stars} sterren verdiend zonder hint of herkansing"><span aria-hidden="true" class="star-symbol">★</span><span>${stars}</span></div>`}<button class="round-tool settings-button" data-action="settings" aria-label="Instellingen" aria-expanded="${state.settingsOpen}" title="Instellingen">${uiIcon('settings',35)}</button></div>${state.settingsOpen?settingsPanel():''}</div>`;
+    return `<div class="exercise-bar"><button class="round-tool back" data-action="home" aria-label="Naar het startscherm" title="Naar start">${uiIcon('home',38)}</button><div class="progress-wrap"><div class="progress-track" role="progressbar" aria-valuenow="${done}" aria-valuemin="0" aria-valuemax="${total}" aria-label="Zinnen afgerond"><span class="progress-fill" style="width:${pct}%"></span></div><span class="counter">${done} / ${total}</span></div><div class="bar-actions">${isRewardPreview()?`<div class="star-pill reward-preview-total reward-vault" role="status" aria-label="${state.previewShownCoins} demo-munten in de schatkist"><span class="reward-vault-chest" aria-hidden="true"><span class="reward-vault-lid"></span><span class="reward-vault-slot"></span><span class="reward-vault-front">★</span></span><span class="reward-vault-number">${state.previewShownCoins}</span></div>`:`<div class="star-pill" title="Een ster voor een zin die meteen goed is, zonder hint" aria-label="${stars} sterren verdiend zonder hint of herkansing"><span aria-hidden="true" class="star-symbol">★</span><span>${stars}</span></div>`}<button class="round-tool settings-button" data-action="settings" aria-label="Instellingen" aria-expanded="${state.settingsOpen}" title="Instellingen">${uiIcon('settings',35)}</button></div>${state.settingsOpen?settingsPanel():''}</div>`;
   }
   function settingsPanel(){return `<div class="settings-panel" role="group" aria-label="Instellingen"><div class="settings-heading">Instellingen <button data-action="settings" class="close-settings" aria-label="Sluit instellingen">×</button></div><button class="setting-row" data-action="sound" aria-pressed="${state.audioOn}"><span>Geluid</span><strong>${state.audioOn?'Aan':'Uit'}</strong></button><button class="setting-row" data-action="motion" aria-pressed="${state.motionOn}"><span>Beweging</span><strong>${state.motionOn?'Aan':'Uit'}</strong></button><p>★ Een ster krijg je als de zin meteen goed is, zonder hint.</p></div>`;}
   function toolbar(){return `<button class="hero-listen round-tool" data-action="speak-task" ${state.audioOn?'':'disabled'} aria-label="Lees de opdracht voor" title="Luister naar de opdracht">${uiIcon('audio',43)}</button>`;}
