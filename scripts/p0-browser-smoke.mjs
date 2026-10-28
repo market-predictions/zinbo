@@ -269,7 +269,7 @@ try {
     }
     if(width===1024){
       // Mid-size laptop: the coin must remain visible and 'Volgende' must cancel safely.
-      await page.locator('[data-action="reward-preview-open"]').click();
+      await page.evaluate(()=>window.__zinsbouwerTest.startRewardTest());
       await assertChestSilhouette();
       await page.locator('[data-action="settings"]').first().click();
       await page.locator('[data-action="sound"]').click();
@@ -287,7 +287,7 @@ try {
     }
     if(width===390){
       // A full-size coin must also stay within mobile bounds with motion enabled.
-      await page.locator('[data-action="reward-preview-open"]').click();
+      await page.evaluate(()=>window.__zinsbouwerTest.startRewardTest());
       await assertChestSilhouette();
       await page.locator('[data-action="settings"]').first().click();
       await page.locator('[data-action="sound"]').click();
@@ -302,7 +302,7 @@ try {
       await page.locator('[data-action="home"]').first().click();
       // Reduced-motion still shows the earned reward; no flying decoration.
       await page.emulateMedia({reducedMotion:'reduce'});
-      await page.locator('[data-action="reward-preview-open"]').click();
+      await page.evaluate(()=>window.__zinsbouwerTest.startRewardTest());
       await page.locator('[data-action="reward-demo-complete"]').click();
       assert.equal(await page.locator('.reward-preview-feedback').count(),1,'Mobile visual reward missing');
       assert.equal(await page.locator('.reward-flying-coin').count(),0,'Reduced-motion coin should not fly');
