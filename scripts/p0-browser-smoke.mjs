@@ -101,6 +101,41 @@ try {
       assert.ok(profileOverflow<=2,'Customized header must not overflow mobile');
     }
 
+
+    // Normal learning worlds use the chest reward, not only the author demo.
+    await page.locator('.op1-card[data-action="world-open"][data-world="sport"]').click();
+    const worldState=await page.evaluate(()=>window.__zinsbouwerTest.getState());
+    assert.equal(worldState.rewardPreview,true,'Regular learner world should get chest rewards');
+    await page.locator('[data-action="settings"]').first().click();
+    await page.locator('[data-action="sound"]').click();
+    await page.locator('[data-action="settings"]').first().click();
+    let walletStart=(await page.evaluate(()=>window.__zinsbouwerTest.getRewardPreview())).storedCoins;
+    for(let i=0;i<5;i++){
+      const q=await page.evaluate(()=>window.__zinsbouwerTest.getCurrent());
+      if(q.tiles){
+        for(const id of q.solutions[0])
+          await page.locator('[data-action="tile"][data-id="'+id+'"]').click();
+      }else{
+        await page.locator('[data-action="ending"][data-ending="'+q.ending+'"]').click();
+      }
+      await page.locator('[data-action="check"]').click();
+      assert.equal(await page.locator('.reward-preview-feedback').count(),1,'Normal world lacks feedback');
+      assert.equal((await page.evaluate(()=>window.__zinsbouwerTest.getRewardPreview())).storedCoins,
+        walletStart+(i+1)*2,'Independent answers should add two motivation coins');
+      await page.locator('[data-action="next"]').click();
+    }
+    assert.equal(await page.locator('.reward-preview-end').count(),1,'World must end with chest');
+    assert.equal(await page.locator('.reward-preview-end').innerText().then(x=>x.includes('UX-PROTOTYPE')),
+      false,'Normal world should not show demo language');
+    await page.locator('[data-action="reward-chest-open"]').click();
+    assert.equal(await page.locator('.reward-preview-found').count(),1,'World chest must open');
+    await page.locator('[data-action="home"]').first().click();
+    const storedWallet=await page.evaluate(()=>JSON.parse(localStorage.getItem('zinsbouwer-qa-360-feedback-20261019')).rewardCoins);
+    assert.equal(storedWallet,walletStart+10);
+    await page.reload({waitUntil:'load'});
+    assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('zinsbouwer-qa-360-feedback-20261019')).rewardCoins),
+      storedWallet,'Coin wallet must persist after reload');
+
     const assertChestSilhouette=async()=>{
       const v=await page.locator('.reward-vault-chest').evaluate(chest=>{
         const lid=chest.querySelector('.reward-vault-lid').getBoundingClientRect();
