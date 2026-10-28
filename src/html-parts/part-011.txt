@@ -14,6 +14,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
   const emptySkill=()=>({streak:0,independent:0,assisted:0,novel:0,reviewSuccess:0,seen:[],history:[],lastStarted:null});
   let learning=Object.fromEntries(SKILLS.map(k=>[k,emptySkill()]));
   let stars=0; // One star per independently correct sentence; saved alongside adaptive results.
+  let rewardCoins=0; // Motivation only: never used as evidence of language mastery.
 
   // Eight original, replaceable vector avatars. Persist only IDs, never artwork.
   const PROFILE_AVATARS=[
@@ -55,6 +56,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
       const raw=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');
       if(!raw||![1,2,3].includes(raw.version))return;
       stars=Math.max(0,Math.floor(Number(raw.stars)||0));
+      rewardCoins=Math.max(0,Math.min(1000000,Math.floor(Number(raw.rewardCoins)||0)));
       if(raw.preferences && typeof raw.preferences==='object'){
         if(typeof raw.preferences.audioOn==='boolean')preferences.audioOn=raw.preferences.audioOn;
         if(typeof raw.preferences.motionOn==='boolean')preferences.motionOn=raw.preferences.motionOn;
@@ -85,7 +87,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     }catch(_){} // Graceful in-memory fallback on blocked storage.
   }
   function saveLearning(){
-    try{localStorage.setItem(SAVE_KEY,JSON.stringify({version:3,skills:learning,stars,preferences,placement,basicHistory}));}catch(_){}
+    try{localStorage.setItem(SAVE_KEY,JSON.stringify({version:3,skills:learning,stars,rewardCoins,preferences,placement,basicHistory}));}catch(_){}
   }
   loadLearning();
   function isAdaptive(){return Boolean(state.lessonSkill);}
@@ -436,7 +438,8 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     const {audioOn,motionOn}=state;
     state={screen:'exercise',motionOn,settingsOpen:false,mode:items[0].tiles?'order':'morph',series:0,
       index:0,worldId:id,lessonItems:items,positions:[],selected:null,attempts:0,helpUsed:false,
-      solvedFirst:0,message:'',showHint:false,completed:false,focusPos:null,audioOn};
+      solvedFirst:0,message:'',showHint:false,completed:false,focusPos:null,audioOn,
+      rewardPreview:true,previewCoins:rewardCoins,previewShownCoins:rewardCoins,previewLastGain:0,previewChestOpen:false};
     resetItem();render();speak(taskInstruction());
   }
   function isWorld(){return Boolean(state.worldId);}
@@ -582,6 +585,10 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
       // Visual QA only: never write practice rewards or learning evidence.
       state.previewLastGain=state.attempts===0&&!state.helpUsed?2:1;
       state.previewCoins+=state.previewLastGain;
+      if(isWorld()){
+        rewardCoins=state.previewCoins;
+        saveLearning(); // Stored independently of stars and mastery evidence.
+      }
     }
     state.completed=true;
     state.message='';state.focusPos=null;
@@ -769,7 +776,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     const total=(isWorld()||isAdaptive())?5:state.seriesItems.length;
     const done=state.index+(state.completed?1:0);
     const pct=Math.round(done/total*100);
-    return `<div class="exercise-bar"><button class="round-tool back" data-action="home" aria-label="Naar het startscherm" title="Naar start">${uiIcon('home',38)}</button><div class="progress-wrap"><div class="progress-track" role="progressbar" aria-valuenow="${done}" aria-valuemin="0" aria-valuemax="${total}" aria-label="Zinnen afgerond"><span class="progress-fill" style="width:${pct}%"></span></div><span class="counter">${done} / ${total}</span></div><div class="bar-actions">${isRewardPreview()?`<div class="star-pill reward-preview-total reward-vault" role="status" aria-label="${state.previewShownCoins} demo-munten in de schatkist"><span class="reward-vault-chest" aria-hidden="true"><span class="reward-vault-lid"></span><span class="reward-vault-slot"></span><span class="reward-vault-front">★</span></span><span class="reward-vault-number">${state.previewShownCoins}</span></div>`:`<div class="star-pill" title="Een ster voor een zin die meteen goed is, zonder hint" aria-label="${stars} sterren verdiend zonder hint of herkansing"><span aria-hidden="true" class="star-symbol">★</span><span>${stars}</span></div>`}<button class="round-tool settings-button" data-action="settings" aria-label="Instellingen" aria-expanded="${state.settingsOpen}" title="Instellingen">${uiIcon('settings',35)}</button></div>${state.settingsOpen?settingsPanel():''}</div>`;
+    return `<div class="exercise-bar"><button class="round-tool back" data-action="home" aria-label="Naar het startscherm" title="Naar start">${uiIcon('home',38)}</button><div class="progress-wrap"><div class="progress-track" role="progressbar" aria-valuenow="${done}" aria-valuemin="0" aria-valuemax="${total}" aria-label="Zinnen afgerond"><span class="progress-fill" style="width:${pct}%"></span></div><span class="counter">${done} / ${total}</span></div><div class="bar-actions">${isRewardPreview()?`<div class="star-pill reward-preview-total reward-vault" role="status" aria-label="${state.previewShownCoins} munten in de schatkist"><span class="reward-vault-chest" aria-hidden="true"><span class="reward-vault-lid"></span><span class="reward-vault-slot"></span><span class="reward-vault-front">★</span></span><span class="reward-vault-number">${state.previewShownCoins}</span></div>`:`<div class="star-pill" title="Een ster voor een zin die meteen goed is, zonder hint" aria-label="${stars} sterren verdiend zonder hint of herkansing"><span aria-hidden="true" class="star-symbol">★</span><span>${stars}</span></div>`}<button class="round-tool settings-button" data-action="settings" aria-label="Instellingen" aria-expanded="${state.settingsOpen}" title="Instellingen">${uiIcon('settings',35)}</button></div>${state.settingsOpen?settingsPanel():''}</div>`;
   }
   function settingsPanel(){return `<div class="settings-panel" role="group" aria-label="Instellingen"><div class="settings-heading">Instellingen <button data-action="settings" class="close-settings" aria-label="Sluit instellingen">×</button></div><button class="setting-row" data-action="sound" aria-pressed="${state.audioOn}"><span>Geluid</span><strong>${state.audioOn?'Aan':'Uit'}</strong></button><button class="setting-row" data-action="motion" aria-pressed="${state.motionOn}"><span>Beweging</span><strong>${state.motionOn?'Aan':'Uit'}</strong></button><p>★ Een ster krijg je als de zin meteen goed is, zonder hint.</p></div>`;}
   function toolbar(){return `<button class="hero-listen round-tool" data-action="speak-task" ${state.audioOn?'':'disabled'} aria-label="Lees de opdracht voor" title="Luister naar de opdracht">${uiIcon('audio',43)}</button>`;}
