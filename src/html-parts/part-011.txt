@@ -7,7 +7,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     q.imageReviewStatus==='premium-approved'&&typeof q.imageReviewBy==='string'&&
     q.imageReviewBy.trim().length>1&&/^\d{4}-\d{2}-\d{2}$/.test(q.imageReviewAt||''));
   const releasedCandidate=q=>validCandidateShape(q)&&reviewedCandidate(q)&&
-    Boolean(V43_ART[q.art]||SCENE_ART[q.art]||EXISTING_PREMIUM_SCENES.has(q.art))&&
+    Boolean(V43_ART[q.art]||EXISTING_PREMIUM_SCENES.has(q.art))&&
     V43_RESOLUTION_PASS[q.art]===true;
   for(const skill of ['past','inversion','strong']){
     ADVANCED[skill].push(...V43_CANDIDATES[skill].filter(releasedCandidate));
