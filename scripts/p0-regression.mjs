@@ -33,6 +33,37 @@ for (const [input,first,expected] of [
 assert.ok(html.includes('tileText(tile.text,i===0)'), 'Visible slot must use normalized casing');
 assert.ok(html.includes('tileText(t.text)'), 'Unplaced tile must not reveal sentence position');
 
+// Production-world wiring: unreleased author candidates must never be selectable.
+const learnerStart=html.indexOf('  function releasedExtension(q){');
+const learnerEnd=html.indexOf('  function worldExerciseBand(q){',learnerStart);
+assert.ok(learnerStart>=0&&learnerEnd>learnerStart,'Production extension review gate missing');
+const learnerCode=html.slice(learnerStart,learnerEnd);
+assert.ok(learnerCode.includes('...O3_PILOT.filter(releasedExtension)'),
+  'O3 content not wired to normal learner pool');
+assert.ok(learnerCode.includes('...VTT_PILOT.filter(releasedExtension)'),
+  'VTT content not wired to normal learner pool');
+assert.ok(learnerCode.includes("q.reviewStatus,q.reviewBy,q.reviewAt,'human-approved'"),
+  'Missing human review evidence gate');
+assert.ok(learnerCode.includes("q.imageReviewStatus,q.imageReviewBy,q.imageReviewAt,'premium-approved'"),
+  'Missing image review evidence gate');
+const reviewPredicate=runInNewContext(
+  learnerCode.slice(0,learnerCode.indexOf('  function learnerItems(){'))+
+  '\\nreleasedExtension',
+  {V43_ART:{'scene.webp':'data:image/webp;base64,valid'},EXISTING_PREMIUM_SCENES:new Set()});
+const example={
+  id:'approval-gate-test',art:'scene.webp',reviewStatus:'candidate',
+  tiles:[{id:'subject'},{id:'verb'}],solutions:[['subject','verb']]
+};
+assert.equal(reviewPredicate(example),false,'Candidate reached learner route');
+const complete={...example,reviewStatus:'human-approved',reviewBy:'Reviewer',
+  reviewAt:'2026-10-28',imageReviewStatus:'premium-approved',
+  imageReviewBy:'Image reviewer',imageReviewAt:'2026-10-28'};
+assert.equal(reviewPredicate(complete),true,'Fully reviewed item must be eligible');
+assert.equal(reviewPredicate({...complete,imageReviewAt:null}),false,
+  'Unreviewed image reached learner route');
+assert.equal(reviewPredicate({...complete,solutions:[['missing','verb']]}),false,
+  'Invalid tile reference reached learner route');
+
 const matched = html.match(/const O3_PILOT = (\[[\s\S]*?\]);/);
 assert.ok(matched, 'O3 author items missing');
 const o3 = JSON.parse(matched[1]);
