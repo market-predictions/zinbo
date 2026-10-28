@@ -1,0 +1,45 @@
+# Zinbo — overdracht livegang, 28 oktober 2026
+
+**Status: productievoorbereiding; LIVE NOG NIET BIJGEWERKT.** De projecthouder heeft op 28 oktober 2026 expliciet gemeld dat de huidige testversie goed functioneert en dat alle toegevoegde zinnen, opgaven en afbeeldingen door een onafhankelijke deskundige didactisch zijn goedgekeurd. Dit is een **verklaring van de opdrachtgever**, niet een in de repository vastgelegde per-item expertbeoordeling. De opdrachtgever heeft daarnaast expliciet om live-publicatie gevraagd.
+
+## Canonieke bronnen en scope
+
+- Live GitHub `main`: `0f1f64e217e9aa11c88f7f1b85473154a42e0155`.
+- Laatste volledige testuitvoering: `a3fd6ffdd7b8612962b830e1ec8d75e806626490`, PR #2; CI #39993314451 SUCCESS, Cloudflare preview SUCCESS.
+- Releasevoorbereiding: `release/zinbo-vnext-20261028`, afgeleid van exact bovenstaande testcommit; geen ander deploymentkanaal dan bestaande GitHub → Cloudflare Pages.
+- Bewaar werkende avatarkeuze (4 smileys, 4 objecten), eigen naam, schatkist, muntvlucht, kort rinkelend geluid, gesproken en zichtbare instructies, bestaande reeks- en niveauselectie.
+- Doel: **alle vrijgegeven oefeningen en afbeeldingen in de normale leerlingnavigatie**; geen QA-opgavekiezers of foutieve vrijgaveteksten in een publiek kindscherm.
+- Bestaande SHA-256-integriteitsbuild moet blijven gelden; geen `Direct Upload`, extra backend of fictieve goedkeuringen.
+
+## Broninventaris van huidige testbranch
+
+| Oefenbank | Items | Vastgelegde status |
+| --- | ---: | --- |
+| Basis ORDER / MORPH / ADVANCED | 180 | bestaande referentie |
+| V4.3 extra | 180 | 153 geregistreerd als `human-approved`; 27 nog `candidate`; beeldregistratie voor 14 onvolledig |
+| O3 `omdat`/`als` | 14 | 14 `candidate`, aparte auteurspilot |
+| VTT | 15 | 15 `candidate`, aparte auteurspilot |
+| Totaal unieke bankvermeldingen | 389 | niet gelijk aan 389 vrijgegeven leerlingopgaven |
+
+**Daarnaast** zijn minstens de volgende productiemodules onvoldoende geïntegreerd:
+1. De header meldt **TESTVERSIE, geen kindversie**; `QA_PREVIEW=true` en de selectie voor 180 oefeningen staan in de authoring UI.
+2. De 14 O3- en 15 VTT-opgaven zijn aparte teststarters, niet één doorlopende, normale leerlingselectie.
+3. De beloningslogica `rewardPreview` bestaat alleen in de vijf-zinnen-UX-demo; demo-munten worden niet als echte leerlingbeloning bewaard.
+4. De onafhankelijke expertbeoordeling kan niet zonder bewijs als naam en datum worden teruggeschreven. Bestaande `releasedCandidate`-gate moet blijven functioneren.
+5. Het eerdere P0-releasecontract eist na onafhankelijke review ook een **passende observatiepilot met kinderen** en daarna formele vrijgave. Formele vrijgave is nu gevraagd, maar de kindpilot is niet aantoonbaar bevestigd.
+
+## Vrijgavevolgorde — geen ontbrekend bewijs verzinnen
+
+1. Verifieer **één reviewrecord voor de huidige inhoud**: reviewer-identiteit, datum van beoordeling en scope (de 27 gerepareerde V4.3-items, 14 O3, 15 VTT, en bijbehorende 14 open beeldmatchitems). Leg dit op het juiste bron-item vast, zonder oude ongecontroleerde goedkeuringen over te nemen.
+2. Leg vast of de afgesproken **kindpilot daadwerkelijk is uitgevoerd**, op welk versienummer, wat is waargenomen en of er openstaande didactische problemen zijn. Indien niet, organiseer die eerst.
+3. Maak op de releasebranch van de auteurspilot een **schone productie-UI**: verwijder QA-banner/diagnostische tekst/demo-knop, bied nieuwe oefenfamilies als normale keuzes aan, integreer de bestaande beloning in gewone rondes, behoud eerlijke zelfstandig/geholpenregistratie en lokale voorkeuren.
+4. Valideer inhoudsbanken en illustraties in het gewone oefenpad (niet alleen via QA-select); controleer 1366, 1024 en 390 px, audio aan/uit, tekst=spraak, bewaarde profielen en terugkerende oefenvoortgang.
+5. Voer bestaande build en regressie plus een gerichte productie-smoketest uit; update checksum op de *exacte* artefactbytes, en pas README/documentatie aan naar de echte release.
+6. Maak een niet-draft productie-PR naar `main` pas nadat de noodzakelijke bewijsstukken en de nieuwe productiechecks PASS zijn. Merge uitsluitend met exacte head-SHA en controleer daarna Cloudflare-productiedeployment op `https://zinbo.pages.dev/`.
+7. Als productiedeployment mislukt: herstel met de bestaande Git-rollbackroute, geen nieuwe infrastructuur.
+
+## Huidige releaseblokkade
+
+De gebruikersbevestiging van didactische goedkeuring is ontvangen en gerespecteerd. **Nog ontbrekend:** verifieerbare reviewer-identiteit/datum voor de bijgewerkte kandidaatregistratie, en expliciete bevestiging van de kindpilot. Productie-codeintegratie is nog werk en mag niet worden overgeslagen door de ongewijzigde QA-branch rechtstreeks te mergen. Dit document is geen alternatieve goedkeuringsroute.
+
+`node scripts/release-audit.mjs` geeft de actuele, alleen-lezen inventaris uit de vijftien bronsegmenten. De scriptuitkomst blijft fail-closed en vervangt de menselijke goedkeuring niet.
