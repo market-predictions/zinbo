@@ -377,16 +377,36 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     {id:'uitstapjes',name:'Uitstapjes',sub:'Op pad',art:'park-walk-grandma.webp',sample:'Meer plekken en activiteiten komen eraan.'}
   ];
   const ALL_LEGACY_ITEMS=[...ORDER,...MORPH,...SKILLS.flatMap(key=>ADVANCED[key])];
+  // One normal learner route. Author-only O3/VTT candidates remain inaccessible
+  // until each item has verifiable language and image review metadata.
+  function releasedExtension(q){
+    const reviewed=(status,by,at,expected)=>status===expected &&
+      typeof by==='string'&&by.trim().length>1 &&
+      typeof at==='string'&&/^\\d{4}-\\d{2}-\\d{2}$/.test(at);
+    return q&&Array.isArray(q.tiles)&&q.tiles.length>0 &&
+      Array.isArray(q.solutions)&&q.solutions.length>0 &&
+      q.solutions.every(s=>s.length===q.tiles.length &&
+        s.every(id=>q.tiles.some(t=>t.id===id))) &&
+      reviewed(q.reviewStatus,q.reviewBy,q.reviewAt,'human-approved') &&
+      reviewed(q.imageReviewStatus,q.imageReviewBy,q.imageReviewAt,'premium-approved') &&
+      Boolean(q.art&&(V43_ART[q.art]||EXISTING_PREMIUM_SCENES.has(q.art)));
+  }
+  function learnerItems(){
+    return [...ALL_LEGACY_ITEMS,...O3_PILOT.filter(releasedExtension),
+      ...VTT_PILOT.filter(releasedExtension)];
+  }
   function worldItems(id){
-    // One released collection; a candidate joins only after the existing review gate.
-    if(id==='zelf')return ALL_LEGACY_ITEMS.filter(q=>itemPerspective(q)==='ik');
+    const all=learnerItems();
+    if(id==='zelf')return all.filter(q=>itemPerspective(q)==='ik');
     const arts=WORLD_SCENES[id]||[];
-    return ALL_LEGACY_ITEMS.filter(q=>q.primaryWorld ? q.primaryWorld===id : arts.includes(q.art));
+    return all.filter(q=>q.primaryWorld ? q.primaryWorld===id : arts.includes(q.art));
   }
   // Four entry levels select demonstrably different existing exercise constructs.
   // This is a preference, never a diagnostic measure of the child's language ability.
   function worldExerciseBand(q){
     const stage=Number.isInteger(q.stage)?q.stage:0;
+    if(q.kind==='because'||q.kind==='conditional')return q.level===4?4:3;
+    if(q.kind==='vtt')return stage>=2?3:2;
     if(q.kind==='inversion'||q.kind==='strong')return stage>=2?4:stage>=1?3:2;
     if(q.kind==='tense')return stage>=2?3:stage>=1?2:1;
     return 1; // basic word order and present-tense agreement
@@ -565,9 +585,9 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
   // One short context and one concrete action; grammar rules are available via Hint.
   function taskInstruction(){
     const q=item();
-    if((isPilotO3()||isPilotO4())&&(q.kind==='because'||q.kind==='conditional'))
+    if(q.kind==='because'||q.kind==='conditional')
       return q.contextCue+' Maak met de blokjes één zin met '+(q.kind==='because'?'omdat.':'als.');
-    if((isPilotVTT()||isPilotO4())&&q.kind==='vtt')return q.contextCue;
+    if(q.kind==='vtt')return q.contextCue;
     if(q.kind==='tense'||q.kind==='strong')return q.prompt+' Kies het goede werkwoord.';
     if(state.mode==='order')return (q.beginWith?'Begin met '+q.beginWith+'. ':'')+'Maak met de blokjes een zin.';
     return 'Maak het werkwoord af. Kies wat past.';
