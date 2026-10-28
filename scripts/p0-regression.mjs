@@ -49,7 +49,8 @@ assert.ok(learnerCode.includes("q.imageReviewStatus,q.imageReviewBy,q.imageRevie
 const reviewPredicate=runInNewContext(
   learnerCode.slice(0,learnerCode.indexOf('  function learnerItems(){'))+
   '\nreleasedExtension',
-  {V43_ART:{'scene.webp':'data:image/webp;base64,valid'},EXISTING_PREMIUM_SCENES:new Set()});
+  {RELEASE_REVIEW_IDS:new Set(),V43_ART:{'scene.webp':'data:image/webp;base64,valid'},
+   SCENE_ART:{},EXISTING_PREMIUM_SCENES:new Set()});
 const example={
   id:'approval-gate-test',art:'scene.webp',reviewStatus:'candidate',
   tiles:[{id:'subject'},{id:'verb'}],solutions:[['subject','verb']]
@@ -63,6 +64,21 @@ assert.equal(reviewPredicate({...complete,imageReviewAt:null}),false,
   'Unreviewed image reached learner route');
 assert.equal(reviewPredicate({...complete,solutions:[['missing','verb']]}),false,
   'Invalid tile reference reached learner route');
+const injected=html.match(/const RELEASE_REVIEW_IDS=new Set\((\[[^;]*?\])\);/);
+assert.ok(injected,'Build must inject centrally reviewed content IDs');
+const releaseIds=new Set(JSON.parse(injected[1]));
+assert.equal(releaseIds.size,209,'Reviewed 180 V4.3 + 14 O3 + 15 VTT items');
+assert.ok(releaseIds.has('o3-omdat-01')&&releaseIds.has('vtt-001'),
+  'New language families must be centrally approved');
+const approvedFromSnapshot=runInNewContext(
+  learnerCode.slice(0,learnerCode.indexOf('  function learnerItems(){'))+
+  '\nreleasedExtension',
+  {RELEASE_REVIEW_IDS:new Set(['approval-gate-test']),
+   V43_ART:{'scene.webp':'data:image/webp;base64,valid'},
+   SCENE_ART:{},EXISTING_PREMIUM_SCENES:new Set()});
+assert.equal(approvedFromSnapshot(example),true,'Central review should release unchanged content');
+assert.equal(approvedFromSnapshot({...example,solutions:[['bad','verb']]}),false,
+  'Central review must not bypass malformed exercise shape');
 
 const matched = html.match(/const O3_PILOT = (\[[\s\S]*?\]);/);
 assert.ok(matched, 'O3 author items missing');
