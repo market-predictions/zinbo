@@ -32,6 +32,16 @@ try {
     const rect=await tagline.boundingBox();
     assert.ok(rect&&rect.x>=0&&rect.x+rect.width<=width+2,
       'Tagline must remain in viewport at '+width);
+    assert.equal(await page.locator('#qa-banner,.qa-chooser,.qa-item-notice').count(),0,
+      'Authoring controls must not appear in learner interface');
+    if(width===1366){
+      const school=await page.evaluate(()=>window.__zinsbouwerTest.getWorldItemIds('school'));
+      const home=await page.evaluate(()=>window.__zinsbouwerTest.getWorldItemIds('thuis'));
+      assert.ok(school.some(id=>id.startsWith('o3-'))||
+        home.some(id=>id.startsWith('o3-')),'O3 must be available through a normal world');
+      assert.ok(school.some(id=>id.startsWith('vtt-'))||
+        home.some(id=>id.startsWith('vtt-')),'VTT must be available through a normal world');
+    }
     const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth);
     assert.ok(overflow<=2,'Unexpected horizontal overflow at '+width+': '+overflow);
 
