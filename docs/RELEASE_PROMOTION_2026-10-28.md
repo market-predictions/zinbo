@@ -68,3 +68,15 @@ Op releasebranch `release/zinbo-vnext-20261028` is de wereldselectie uitgebreid 
 De zichtbare QA-banner, oefeningkiezer voor 180 previewitems, O3-/VTT-auteurspilotkiezers, O4-testkeuze en oefening-ID-waarschuwingen zijn uit de gewone leerlingweergave gehaald. `QA_PREVIEW` staat uit, zodat de eerdere beeldreviewuitzondering niet langer V4.3-kandidaten vrijgeeft. De bestaande browser-smoketests starten de onafgeronde auteurspilots uitsluitend via de interne testinterface; de normale vijf-opgaven-beloning blijft onderdeel van de kindroute. De productiebouw gebruikt een vernieuwde SHA-256-checksum. Deze opschoning is nog **geen** inhoudelijke vrijgave van kandidaatopgaven.
 
 De technische vrijgave blijft afhankelijk van een geslaagde browserregressie op de definitieve commit, reviewbare individuele bronregistratie voor nog niet vrijgegeven inhoud en een gecontroleerde echte productiepublicatie. De opdrachtgeververklaring dat expertbeoordeling en kindpilot zijn uitgevoerd, is ongewijzigd gerespecteerd.
+
+## Actuele beoordelingsregistratie en technische restpunten — 28 oktober 2026
+
+**Reviewer:** Rija Stok. **Beoordelingsdatum:** 2026-10-28. Deze gegevens zijn door de projecteigenaar doorgegeven. De eerdere gebruikersbevestiging dat een onafhankelijke beoordeling en kindpilot zijn uitgevoerd blijft geldig. Het bestand `docs/CONTENT_REVIEW_2026-10-28.json` legt één centraal, eigenaar-bevestigd reviewrecord vast voor exact de drie ongewijzigde inhoudsbanken: V4.3 (180), O3 (14) en VTT (15), inclusief de bijhorende afbeeldingen. De banken zijn gecontroleerd tegen de eerder geteste `a3fd6ff`-bron en SHA-256 hashes. Dit is **geen rechtstreeks ondertekend deskundigenrapport**. De historische itemregistraties onder andere namen zijn niet overschreven.
+
+`scripts/build.mjs` weigert inhoudelijke afwijkingen van deze review-snapshot en voegt alleen na geldige hashcontrole de release-ID's toe aan de normale leerlingselectie. De browsertest controleert O3 en VTT via echte oefenwerelden, zonder publieke QA-startknoppen. De bestaande individuele reviewregistraties blijven intact.
+
+**Afbeeldingen, afzonderlijke technische controle:**
+- `market-flowers.webp` en `schoolyard.webp`: 1536 × 1024 pixels geverifieerd; resolutiecontrole bijgewerkt naar PASS.
+- `pet-dog.webp`: 510 × 411 pixels; bestaande resolutiecontrole blijft FAIL. De zes V4.3-opgaven die dit beeld gebruiken blijven daarom verborgen voor kinderen. De opgegeven didactische goedkeuring vervangt geen onvoldoende afbeeldingsresolutie.
+
+**Nog niet DONE:** voor volledige publicatie met alle 389 bankitems is een voldoende scherp en inhoudelijk passend hondenbeeld noodzakelijk, gevolgd door controle van beeld-zinmatch en regressies op de nieuwe versie. Vervanging van de afbeelding wijzigt beoordeelde inhoud en vereist passende herbeoordeling. De benodigde afbeelding is niet aanwezig als geverifieerd alternatief in deze release. Houd PR #4 concept en wijzig productie niet zolang deze blokkade bestaat.
