@@ -135,6 +135,13 @@ try {
     await page.reload({waitUntil:'load'});
     assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('zinsbouwer-qa-360-feedback-20261019')).rewardCoins),
       storedWallet,'Coin wallet must persist after reload');
+    // Restore the starting sound preference before exercising older audio regressions.
+    await page.locator('.op1-card[data-action="world-open"][data-world="sport"]').click();
+    await page.locator('[data-action="settings"]').first().click();
+    await page.locator('[data-action="sound"]').click();
+    await page.locator('[data-action="settings"]').first().click();
+    await page.locator('[data-action="home"]').first().click();
+
 
     const assertChestSilhouette=async()=>{
       const v=await page.locator('.reward-vault-chest').evaluate(chest=>{
