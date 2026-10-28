@@ -43,3 +43,10 @@
 De gebruikersbevestiging van didactische goedkeuring is ontvangen en gerespecteerd. **Nog ontbrekend:** verifieerbare reviewer-identiteit/datum voor de bijgewerkte kandidaatregistratie, en expliciete bevestiging van de kindpilot. Productie-codeintegratie is nog werk en mag niet worden overgeslagen door de ongewijzigde QA-branch rechtstreeks te mergen. Dit document is geen alternatieve goedkeuringsroute.
 
 `node scripts/release-audit.mjs` geeft de actuele, alleen-lezen inventaris uit de vijftien bronsegmenten. De scriptuitkomst blijft fail-closed en vervangt de menselijke goedkeuring niet.
+
+
+## Technische voortgang releasebranch (28 oktober 2026)
+
+De bestaande schatkist- en muntcode is op deze **concept-releasebranch** aangesloten op gewone oefenrondes in de werelden. Daarmee is de beloningsbeleving niet meer alleen via de O3-demostarter te bereiken. De munten zijn uitsluitend motivatiepunten, worden naast de bestaande sterren in `SAVE_KEY` opgeslagen en veranderen niet de didactische zelfstandigheidsscores. De bestaande O3-auteurspilot blijft afzonderlijk. De kist verschijnt na vijf wereldopgaven, en de teller wordt in de vluchtuitvoering pas bij de landing visueel verhoogd. De browsertest bouwt nu vijf normale wereldopgaven en controleert muntentelling, kistopening en herladen.
+
+**Nog niet afgerond:** alle kandidaatinhoud inhoudelijk en visueel formeel vrijgeven, de O3/VTT-kandidaten in de normale leerlingnavigatie opnemen, QA-banners en QA-selectors verwijderen, de nieuwe kindpilot bevestigen, en productiedeployment verifiëren. Dus geen merge totdat deze punten zijn afgevinkt.
