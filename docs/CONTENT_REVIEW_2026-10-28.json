@@ -1,0 +1,40 @@
+{
+  "schema": "zinbo.content-review.v1",
+  "reviewer": {
+    "name": "Rija Stok",
+    "date": "2026-10-28"
+  },
+  "provenance": {
+    "recordedFrom": "Project owner statement in ChatGPT, 2026-10-28",
+    "status": "owner-attested independent expert review",
+    "signedExpertRecord": "not supplied"
+  },
+  "scope": {
+    "included": [
+      "V4.3 exercises and corresponding images",
+      "O3 (omdat/als) exercises and corresponding images",
+      "VTT exercises and corresponding images"
+    ],
+    "reviewedTestSourceCommit": "a3fd6ffdd7b8612962b830e1ec8d75e806626490",
+    "note": "Reference commit reflects the test version reported in project handover; a separately signed exact-version statement has not been supplied"
+  },
+  "banks": {
+    "v43": {
+      "items": 180,
+      "sha256": "13f458bd8c43700be392d81b4588324bf085ea16df4afd509b5887939e50b99e"
+    },
+    "o3": {
+      "items": 14,
+      "sha256": "ac9758119164d0f1d5e3b7ca9e0f0c3f90f6ab65884e2544f2f198a4153b2d82"
+    },
+    "vtt": {
+      "items": 15,
+      "sha256": "189247cd1dae439717c026bab67b6a941b84d54f9d34f5c2e756fa3dae1f55ab"
+    }
+  },
+  "childPilot": {
+    "ownerConfirmed": true,
+    "report": "not supplied"
+  },
+  "notes": "This attestation belongs only to the exact content-bank hashes. A content change requires a new reviewed version; existing item review metadata is not overwritten."
+}
