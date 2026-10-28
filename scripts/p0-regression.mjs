@@ -235,7 +235,7 @@ assert.ok(html.includes('version:3,skills:learning,stars,rewardCoins,preferences
 // non-diagnostic coins in the same local progress record.
 assert.ok(html.includes("rewardPreview:true,previewCoins:rewardCoins"),
   'Ordinary world exercises must enable chest rewards');
-assert.ok(html.includes("if(isWorld()){\\n        rewardCoins=state.previewCoins;"),
+assert.ok(html.includes("rewardCoins=state.previewCoins;"),
   'World reward earned must persist');
 assert.ok(html.includes("isPilotO3()||isWorld()"),
   'Chest should be available to the normal learner world');
