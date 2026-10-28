@@ -43,7 +43,7 @@ lRc7bx5hAfQGy8SxdXLNbVi+fQ2fMZH1wmJBkzg3emv7M7YyTcCZFiVI9uBebV4ALca/fic6bKvjgOBj
   function rewardSuccessMarkup(){
     if(!isRewardPreview()||!state.completed)return '';
     const independent=state.previewLastGain===2;
-    return `<div class="reward-preview-feedback" role="status">${rewardBot()}<div class="reward-preview-words"><strong>${independent?'Yes, gelukt!':'Mooi volgehouden!'}</strong><small>${independent?'Helemaal zelf gemaakt':'Goed opnieuw opgebouwd'}</small><div class="reward-preview-coin" aria-hidden="true">✪</div><small>+${state.previewLastGain} demo-munt${state.previewLastGain===2?'en':''}</small></div></div>`;
+    return `<div class="reward-preview-feedback" role="status">${rewardBot()}<div class="reward-preview-words"><strong>${independent?'Yes, gelukt!':'Mooi volgehouden!'}</strong><small>${independent?'Helemaal zelf gemaakt':'Goed opnieuw opgebouwd'}</small><div class="reward-preview-coin" aria-hidden="true">✪</div><small>+${state.previewLastGain} munt${state.previewLastGain===2?'en':''}</small></div></div>`;
   }
 
   // Animated reward exists only in the QA prototype; real learning evidence is untouched.
@@ -60,7 +60,7 @@ lRc7bx5hAfQGy8SxdXLNbVi+fQ2fMZH1wmJBkzg3emv7M7YyTcCZFiVI9uBebV4ALca/fic6bKvjgOBj
     state.previewShownCoins=state.previewCoins;
     const vault=app.querySelector('.reward-vault'),amount=app.querySelector('.reward-vault-number');
     if(amount)amount.textContent=String(state.previewShownCoins);
-    if(vault)vault.setAttribute('aria-label',state.previewShownCoins+' demo-munten in de schatkist');
+    if(vault)vault.setAttribute('aria-label',state.previewShownCoins+' munten in de schatkist');
     if(landed&&vault){
       vault.classList.remove('reward-vault-received');
       void vault.offsetWidth;
@@ -171,19 +171,24 @@ lRc7bx5hAfQGy8SxdXLNbVi+fQ2fMZH1wmJBkzg3emv7M7YyTcCZFiVI9uBebV4ALca/fic6bKvjgOBj
     }catch(_){/* Browser audio optional; visual reward still works. */}
   }
 
+
   function rewardPreviewEnd(){
     const opened=state.previewChestOpen;
+    const demo=isPilotO3();
+    const top=demo?'<span class="reward-preview-badge">VISUEEL UX-PROTOTYPE · geen kindrelease</span>':'<span class="reward-preview-badge">Vijf zinnen afgerond!</span>';
+    const prize=demo
+      ?'<div class="reward-preview-found"><span class="reward-found-symbol" aria-hidden="true">🚀</span><strong>Ruimteraket</strong><small>Conceptvondst · nog niet opgeslagen</small></div>'
+      :'<div class="reward-preview-found"><span class="reward-found-symbol" aria-hidden="true">✪</span><strong>Jouw munten!</strong><small>Mooi geoefend. Ze blijven op dit apparaat bewaard.</small></div>';
     return `<section class="panel reward-preview-end">
-      <span class="reward-preview-badge">VISUEEL UX-PROTOTYPE · geen kindrelease</span>
-      <h1>${opened?'Jouw vondst!':'Je schatkist is klaar!'}</h1>
-      <p>${opened?'Vijf oefenzinnen afgerond. Bewaar je vondst in de toekomstige werkplaats.':'Vijf zinnen gemaakt. Tijd om de schatkist te openen.'}</p>
-      ${opened?`<div class="reward-preview-found"><span class="reward-found-symbol" aria-hidden="true">🚀</span><strong>Ruimteraket</strong><small>Conceptvondst · nog niet opgeslagen</small></div>`:`<div class="reward-chest" aria-label="Gesloten schatkist"><div class="reward-chest-lid"></div><div class="reward-chest-box"></div><div class="reward-chest-lock">★</div></div>`}
-      <div class="reward-preview-badge">✪ ${state.previewCoins} munten in deze demo · geen echte punten</div>
+      ${top}
+      <h1>${opened?(demo?'Jouw vondst!':'Goed gedaan!'):'Je schatkist is klaar!'}</h1>
+      <p>${opened?'Vijf oefenzinnen afgerond. Kijk wat je hebt verdiend!':'Vijf zinnen gemaakt. Tijd om de schatkist te openen.'}</p>
+      ${opened?prize:`<div class="reward-chest" aria-label="Gesloten schatkist"><div class="reward-chest-lid"></div><div class="reward-chest-box"></div><div class="reward-chest-lock">★</div></div>`}
+      <div class="reward-preview-badge">✪ ${state.previewCoins} munten ${demo?'in deze demo':'verzameld'}</div>
       <div class="actions">${opened?`<button class="primary" data-action="reward-preview-again">Nog vijf oefenzinnen</button>`:`<button class="primary" data-action="reward-chest-open">Open de schatkist</button>`}
       <button class="secondary" data-action="home">Terug naar Zinbo</button></div>
     </section>`;
   }
-
   function exercise(){
     const q=item(),morph=state.mode==='morph';
     const title=(q.kind==='tense'||q.kind==='strong')?'Kies het werkwoord':morph?'Maak het werkwoord af':'Maak de zin.';
@@ -244,7 +249,7 @@ lRc7bx5hAfQGy8SxdXLNbVi+fQ2fMZH1wmJBkzg3emv7M7YyTcCZFiVI9uBebV4ALca/fic6bKvjgOBj
     if(Array.isArray(stored))o3PilotHistory=stored.filter(x=>x&&typeof x.id==='string').slice(-200);
   }catch(_){}
   function isPilotO3(){return state.lessonSkill==='o3-pilot';}
-  function isRewardPreview(){return Boolean(state.rewardPreview && isPilotO3());}
+  function isRewardPreview(){return Boolean(state.rewardPreview && (isPilotO3()||isWorld()));}
   function isAuthorPilot(){return isPilotVTT()||isPilotO3()||isPilotO4();}
   function recordPilotO3(){
     const q=item();const independent=state.attempts===0&&!state.helpUsed&&!state.pilotAttemptedError&&!state.pilotUsedHelp;
@@ -429,7 +434,7 @@ lRc7bx5hAfQGy8SxdXLNbVi+fQ2fMZH1wmJBkzg3emv7M7YyTcCZFiVI9uBebV4ALca/fic6bKvjgOBj
       else if(a==='o4-start'){startPilotO4();}
       else if(a==='o3-pilot-open'){startPilotO3(app.querySelector('#o3-pilot-picker')?.value);}
       else if(a==='reward-preview-open'){startPilotO3('o3-omdat-01',true);}
-      else if(a==='reward-preview-again'){startPilotO3('o3-omdat-01',true);}
+      else if(a==='reward-preview-again'){if(isWorld())startWorld(state.worldId);else startPilotO3('o3-omdat-01',true);}
       else if(a==='reward-chest-open'&&isRewardPreview()&&state.screen==='end'&&!state.previewChestOpen){stopAudio();state.previewChestOpen=true;render();playRewardChestSound();}
       else if(a==='reward-demo-complete'&&isRewardPreview()&&state.screen==='exercise'&&!state.completed){state.positions=item().solutions[0].slice();check();}
       else if(a==='o3-pilot-again'){startPilotO3(O3_PILOT[Math.floor(Math.random()*O3_PILOT.length)].id);}
@@ -586,7 +591,7 @@ lRc7bx5hAfQGy8SxdXLNbVi+fQ2fMZH1wmJBkzg3emv7M7YyTcCZFiVI9uBebV4ALca/fic6bKvjgOBj
     }
   });
   // Small test surface used only to verify deterministic educational logic in a browser.
-  Object.defineProperty(window,'__zinsbouwerTest',{value:Object.freeze({getOrder:()=>ORDER.map(({id,solutions,tiles,bankOrder,beginWith})=>({id,solutions,tiles,bankOrder,beginWith})),getMorph:()=>MORPH.map(({id,stem,ending,full})=>({id,stem,ending,full})),getState:()=>JSON.parse(JSON.stringify(state)),getAudioAudit:()=>audioAudit.map(x=>({...x})),getCurrentId:()=>item()?.id||null,getNextPreview:()=>state.lessonSkill?state.lessonItems.map(q=>q.id):state.seriesItems,getSeries:()=>JSON.parse(JSON.stringify(SERIES)),getCurrent:()=>JSON.parse(JSON.stringify(item())),getAdvanced:()=>JSON.parse(JSON.stringify(ADVANCED)),getLearning:()=>JSON.parse(JSON.stringify(learning)),getPlacement:()=>JSON.parse(JSON.stringify(placement)),getBasicHistory:()=>JSON.parse(JSON.stringify(basicHistory)),getPreferences:()=>({...preferences}),getProfileAvatars:()=>PROFILE_AVATARS.map(a=>({...a})),getCandidates:()=>JSON.parse(JSON.stringify(V43_CANDIDATES)),getEvidenceSummary:()=>evidenceSummary(),getReleasedIds:()=>SKILLS.flatMap(k=>ADVANCED[k].filter(q=>q.id.startsWith("v43-")).map(q=>q.id)),getCandidateCounts:()=>Object.fromEntries(SKILLS.map(k=>[k,V43_CANDIDATES[k].length])),getSceneCount:()=>Object.keys(SCENE_ART).length,getO4State:()=>JSON.parse(JSON.stringify(o4Data)),getO4Evidence:()=>O4_GOALS.map(g=>o4Evidence(g)),getO4Goals:()=>[...O4_GOALS],getRewardPreview:()=>({active:isRewardPreview(),coins:state.previewCoins||0,chestOpen:!!state.previewChestOpen}),getQAMode:()=>QA_PREVIEW,getQAExtraIds:()=>[...QA_EXTRA_IDS]})});
+  Object.defineProperty(window,'__zinsbouwerTest',{value:Object.freeze({getOrder:()=>ORDER.map(({id,solutions,tiles,bankOrder,beginWith})=>({id,solutions,tiles,bankOrder,beginWith})),getMorph:()=>MORPH.map(({id,stem,ending,full})=>({id,stem,ending,full})),getState:()=>JSON.parse(JSON.stringify(state)),getAudioAudit:()=>audioAudit.map(x=>({...x})),getCurrentId:()=>item()?.id||null,getNextPreview:()=>state.lessonSkill?state.lessonItems.map(q=>q.id):state.seriesItems,getSeries:()=>JSON.parse(JSON.stringify(SERIES)),getCurrent:()=>JSON.parse(JSON.stringify(item())),getAdvanced:()=>JSON.parse(JSON.stringify(ADVANCED)),getLearning:()=>JSON.parse(JSON.stringify(learning)),getPlacement:()=>JSON.parse(JSON.stringify(placement)),getBasicHistory:()=>JSON.parse(JSON.stringify(basicHistory)),getPreferences:()=>({...preferences}),getProfileAvatars:()=>PROFILE_AVATARS.map(a=>({...a})),getCandidates:()=>JSON.parse(JSON.stringify(V43_CANDIDATES)),getEvidenceSummary:()=>evidenceSummary(),getReleasedIds:()=>SKILLS.flatMap(k=>ADVANCED[k].filter(q=>q.id.startsWith("v43-")).map(q=>q.id)),getCandidateCounts:()=>Object.fromEntries(SKILLS.map(k=>[k,V43_CANDIDATES[k].length])),getSceneCount:()=>Object.keys(SCENE_ART).length,getO4State:()=>JSON.parse(JSON.stringify(o4Data)),getO4Evidence:()=>O4_GOALS.map(g=>o4Evidence(g)),getO4Goals:()=>[...O4_GOALS],getRewardPreview:()=>({active:isRewardPreview(),coins:state.previewCoins||0,storedCoins:rewardCoins,chestOpen:!!state.previewChestOpen}),getQAMode:()=>QA_PREVIEW,getQAExtraIds:()=>[...QA_EXTRA_IDS]})});
   render();
 })();
 </script>
