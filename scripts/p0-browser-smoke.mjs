@@ -214,8 +214,7 @@ try {
         'Assisted completion should not receive the independent-success message');
       // The child must read exactly the same text that the speaker reads.
       await page.locator('[data-action="home"]').first().click();
-      await page.locator('#o3-pilot-picker').selectOption('o3-omdat-01');
-      await page.locator('[data-action="o3-pilot-open"]').click();
+      await page.evaluate(()=>window.__zinsbouwerTest.startPilotO3Test());
       const visible=await page.locator('.instruction-card span').innerText();
       const spoken=await page.evaluate(()=>window.__zinsbouwerTest.getAudioAudit().filter(x=>x.kind==='speech').at(-1)?.text);
       assert.equal(visible,spoken,'O3 screen and audio instruction must be identical');
@@ -225,15 +224,14 @@ try {
       assert.equal(repeated,visible,'Audio replay must repeat the visible instruction');
 
       await page.locator('[data-action="home"]').first().click();
-      await page.locator('#vtt-pilot-picker').selectOption('vtt-001');
-      await page.locator('[data-action="vtt-pilot-open"]').click();
+      await page.evaluate(()=>window.__zinsbouwerTest.startPilotVTTTest());
       const vttVisible=await page.locator('.instruction-card span').innerText();
       const vttSpoken=await page.evaluate(()=>window.__zinsbouwerTest.getAudioAudit().filter(x=>x.kind==='speech').at(-1)?.text);
       assert.equal(vttVisible,vttSpoken,'VTT text must match audio');
 
       // Reward prototype is a QA extension of the REAL O3 exercise; no learning points.
       await page.locator('[data-action="home"]').first().click();
-      await page.locator('[data-action="reward-preview-open"]').click();
+      await page.evaluate(()=>window.__zinsbouwerTest.startRewardTest());
       assert.equal((await page.evaluate(()=>window.__zinsbouwerTest.getRewardPreview())).active,true);
       // QA: disable voice so the test can sample the animation deterministically.
       await page.locator('[data-action="settings"]').first().click();
