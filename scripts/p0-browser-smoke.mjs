@@ -164,8 +164,7 @@ try {
         await page.locator('.world-parent-dialog [data-action="o4-level"][data-level="'+level+'"]').click();
         await page.locator('.parent-close').click();
         await page.locator('.op1-card[data-action="world-open"][data-world="sport"]').click();
-        const label=await page.locator('.qa-item-id').innerText();
-        const id=label.match(/Oefening-ID:\s*([^\s·]+)/)?.[1];
+        const id=await page.evaluate(()=>window.__zinsbouwerTest.getCurrentId());
         assert.ok(id&&byId.has(id),'Unknown sport exercise: '+id);
         assert.equal(band(byId.get(id)),level,'World level '+level+' chose wrong construct: '+id);
         assert.equal(await page.locator('[data-action="speak-task"].instruction-card').isEnabled(),true,
