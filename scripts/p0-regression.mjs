@@ -48,7 +48,7 @@ assert.ok(learnerCode.includes("q.imageReviewStatus,q.imageReviewBy,q.imageRevie
   'Missing image review evidence gate');
 const reviewPredicate=runInNewContext(
   learnerCode.slice(0,learnerCode.indexOf('  function learnerItems(){'))+
-  '\\nreleasedExtension',
+  '\nreleasedExtension',
   {V43_ART:{'scene.webp':'data:image/webp;base64,valid'},EXISTING_PREMIUM_SCENES:new Set()});
 const example={
   id:'approval-gate-test',art:'scene.webp',reviewStatus:'candidate',
