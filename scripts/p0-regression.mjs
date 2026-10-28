@@ -117,6 +117,13 @@ assert.ok(html.includes("state.answerRevealed?'Je hebt de zin opnieuw gemaakt.':
 const candidateMatch = html.match(/const V43_CANDIDATES = (\{[\s\S]*?\});/);
 assert.ok(candidateMatch, 'V4.3 exercise candidate bank missing');
 const candidateBank = JSON.parse(candidateMatch[1]);
+const resolutionMatch=html.match(/const V43_RESOLUTION_PASS = (\{[\s\S]*?\});/);
+assert.ok(resolutionMatch,'Missing image-resolution quality map');
+const resolutions=JSON.parse(resolutionMatch[1]);
+assert.equal(resolutions['market-flowers.webp'],true,'1536x1024 flower image must pass');
+assert.equal(resolutions['schoolyard.webp'],true,'1536x1024 schoolyard image must pass');
+assert.equal(resolutions['pet-dog.webp'],false,'510x411 dog image must stay blocked');
+
 const expectedPastForms = {
   'v43-p01':'aaide', 'v43-p03':'voetbalde', 'v43-p04':'kookte',
   'v43-d1-01':'leende', 'v43-d1-02':'zwom', 'v43-d1-03':'zong',
