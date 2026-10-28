@@ -228,7 +228,17 @@ assert.ok(html.includes("preferences.displayName=cleanProfileName(typed);"),'Nam
 assert.ok(html.includes("preferences.avatarId=validProfileAvatar(profileDraftAvatar);"),'Avatar ID validation missing');
 assert.ok(html.includes('${esc(profileLabel())}'),'Display name must be escaped');
 assert.ok(html.includes("profileDialogOpen?profileDialog():''"),'Profile must use the existing home surface');
-assert.ok(html.includes('version:3,skills:learning,stars,preferences,placement,basicHistory'),
+assert.ok(html.includes('version:3,skills:learning,stars,rewardCoins,preferences,placement,basicHistory'),
   'Existing learner progress serialization must remain in place');
 
+// Ordinary world rounds share the successful QA chest animation and persist
+// non-diagnostic coins in the same local progress record.
+assert.ok(html.includes("rewardPreview:true,previewCoins:rewardCoins"),
+  'Ordinary world exercises must enable chest rewards');
+assert.ok(html.includes("if(isWorld()){\\n        rewardCoins=state.previewCoins;"),
+  'World reward earned must persist');
+assert.ok(html.includes("isPilotO3()||isWorld()"),
+  'Chest should be available to the normal learner world');
+assert.ok(html.includes("rewardCoins=Math.max(0,Math.min("),
+  'Stored coins must be bounded');
 console.log(`PASS P0 regression: ${scripts} JS program(s), 6 modal items, 27 distractor repairs, 4 world-level choices, casing, audio, help and text labels`);
