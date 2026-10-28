@@ -26,7 +26,8 @@ try {
     const page=await context.newPage();
     page.on('pageerror',e=>errors.push(width+': '+e.message));
     await page.goto(url,{waitUntil:'load'});
-    await page.locator('.op1-brand span').waitFor();
+    try {await page.locator('.op1-brand span').waitFor({timeout:10000});}
+    catch(error){throw Error('Zinbo failed to start at '+width+'px: '+errors.join(' | ')+'; '+error.message);}
     const tagline=page.locator('.op1-brand span');
     assert.equal(await tagline.isVisible(),true,'Tagline must be visible at '+width);
     const rect=await tagline.boundingBox();
