@@ -47,9 +47,12 @@ function embeddedJSON(source,token){
   throw Error('Incomplete bank: '+token);
 }
 const source=html.toString('utf8');
-const dogMatch=source.match(/"pet-dog\\.webp":"(data:image\\/webp;base64,([A-Za-z0-9+/=]+))"/);
-if(!dogMatch)throw Error('Dog illustration missing from V43_ART');
-const dogBytes=Buffer.from(dogMatch[2],'base64');
+const dogPrefix='"pet-dog.webp":"data:image/webp;base64,';
+const dogStart=source.indexOf(dogPrefix);
+if(dogStart<0)throw Error('Dog illustration missing from V43_ART');
+const dogEnd=source.indexOf('"',dogStart+dogPrefix.length);
+if(dogEnd<0)throw Error('Dog WebP data is incomplete');
+const dogBytes=Buffer.from(source.slice(dogStart+dogPrefix.length,dogEnd),'base64');
 if(createHash('sha256').update(dogBytes).digest('hex')!=='b083fafc89ee16ba6558f9cd086e8291b1c636e977b176a14cdfad544fb414ee')
   throw Error('The petting-dog illustration differs from the reviewed release artwork');
 if(dogBytes.toString('ascii',0,4)!=='RIFF')throw Error('Petting-dog illustration must be WebP');
