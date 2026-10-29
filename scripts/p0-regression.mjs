@@ -122,7 +122,16 @@ assert.ok(resolutionMatch,'Missing image-resolution quality map');
 const resolutions=JSON.parse(resolutionMatch[1]);
 assert.equal(resolutions['market-flowers.webp'],true,'1536x1024 flower image must pass');
 assert.equal(resolutions['schoolyard.webp'],true,'1536x1024 schoolyard image must pass');
-assert.equal(resolutions['pet-dog.webp'],false,'510x411 dog image must stay blocked');
+assert.equal(resolutions['pet-dog.webp'],true,'Reviewed replacement dog scene should pass image resolution');
+const dogData = html.match(/"pet-dog\\.webp":"data:image\\/webp;base64,([A-Za-z0-9+/=]+)"/);
+assert.ok(dogData,'Embedded dog image missing');
+const dogBytes=Buffer.from(dogData[1],'base64');
+assert.equal(dogBytes.toString('ascii',0,4),'RIFF','Dog image must be WebP');
+const dogVp8=dogBytes.indexOf(Buffer.from('VP8 '));
+assert.ok(dogVp8>=12,'Dog image needs a VP8 WebP frame');
+const dogWidth=dogBytes.readUInt16LE(dogVp8+8+6)&0x3fff;
+const dogHeight=dogBytes.readUInt16LE(dogVp8+8+8)&0x3fff;
+assert.ok(dogWidth>=1536&&dogHeight>=1024,'Dog image lacks required 1536 x 1024 resolution');
 
 const expectedPastForms = {
   'v43-p01':'aaide', 'v43-p03':'voetbalde', 'v43-p04':'kookte',
