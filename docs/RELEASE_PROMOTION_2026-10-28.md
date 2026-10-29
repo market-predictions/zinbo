@@ -80,3 +80,12 @@ De technische vrijgave blijft afhankelijk van een geslaagde browserregressie op 
 - `pet-dog.webp`: 510 × 411 pixels; bestaande resolutiecontrole blijft FAIL. De zes V4.3-opgaven die dit beeld gebruiken blijven daarom verborgen voor kinderen. De opgegeven didactische goedkeuring vervangt geen onvoldoende afbeeldingsresolutie.
 
 **Nog niet DONE:** voor volledige publicatie met alle 389 bankitems is een voldoende scherp en inhoudelijk passend hondenbeeld noodzakelijk, gevolgd door controle van beeld-zinmatch en regressies op de nieuwe versie. Vervanging van de afbeelding wijzigt beoordeelde inhoud en vereist passende herbeoordeling. De benodigde afbeelding is niet aanwezig als geverifieerd alternatief in deze release. Houd PR #4 concept en wijzig productie niet zolang deze blokkade bestaat.
+
+
+## 29 oktober 2026 — herstel hondenillustratie
+
+De 1536 × 1024 WebP-vervanging voor `pet-dog.webp` toont een jongen die de hond aait. De zes betrokken V4.3-opgaven zijn via de bestaande leerroute gekoppeld. De afbeeldingsbytes hebben SHA-256 `b083fafc89ee16ba6558f9cd086e8291b1c636e977b176a14cdfad544fb414ee`; de build controleert hash en afmetingen onafhankelijk van de bestaande inhoudsbank-hashes.
+
+Het nieuwe beeld is door de implementerende assistent op beeld-zinmatch gecontroleerd. De onafhankelijke beoordeling van Rija Stok van 28 oktober geldt niet als afzonderlijk bewijs dat deze nieuwe afbeelding is herbeoordeeld. Die goedkeuring wordt niet verzonnen.
+
+De aanvullende browserregressie controleert alle zes opgaven in de normale familiewereld. Voor publicatie blijven de definitieve CI, PR-merge en verificatie van de Cloudflare-productie vereist. Oudere secties beschrijven de toenmalige historische situatie.
