@@ -36,6 +36,18 @@ try {
     assert.equal(await page.locator('#qa-banner,.qa-chooser,.qa-item-notice').count(),0,
       'Authoring controls must not appear in learner interface');
     if(width===1366){
+      const inventory=await page.evaluate(()=>{
+        const api=window.__zinsbouwerTest;
+        const worlds=['sport','thuis','familie','school','uitstapjes','zelf'];
+        return {
+          releasedV43:api.getReleasedIds(),
+          worldIds:worlds.flatMap(w=>api.getWorldItemIds(w))
+        };
+      });
+      assert.equal(new Set(inventory.releasedV43).size,180,
+        'All 180 reviewed V4.3 exercises must be released');
+      assert.equal(new Set(inventory.worldIds).size,389,
+        'All 389 unique approved exercises must be discoverable in normal worlds');
       const family=await page.evaluate(()=>window.__zinsbouwerTest.getWorldItemIds('familie'));
       for(const dogId of ['v43-p01-ik-nu','v43-p01-and-nu','v43-p01-ik-past',
                           'v43-p01-and-past','v43-i01-past','v43-i01-present']){
