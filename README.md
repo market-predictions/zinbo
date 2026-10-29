@@ -1,30 +1,29 @@
-# Zinbo — oefenen met taal en zinnen
+# Zinbo — zelfstandig zinnen oefenen
 
-De officiële GitHub-bron van Zinbo (voorheen Zinsbouwer).
+Zinbo is een Nederlandstalige leeromgeving voor kinderen met taalontwikkelingsproblemen. De app gebruikt de bestaande statische HTML-oefenmotor en bewaart de voortgang lokaal in de browser.
 
-## Huidige status
+## Leerlingversie
 
-- **V4.6.2 auteurspilot**, technisch getest; **geen** vrijgegeven kindrelease.
-- Neutrale niveaus 1–4, adaptieve grammaticale oefeningen, VTT, `omdat` en `als`.
-- De bestaande illustraties, audio en interface blijven ongewijzigd.
-- Geen backend of externe runtime nodig; voortgang wordt in de browser bewaard.
-- Niet alle kandidaatopgaven zijn onafhankelijk didactisch vrijgegeven.
+- Oefenwerelden met een instelbaar startniveau (1–4) en herhaling van bestaande taalvaardigheden.
+- De inhoudsbank omvat 180 basisopgaven, 180 V4.3-opgaven, 14 O3-opgaven (omdat/als) en 15 VTT-opgaven: **389 opgavevermeldingen**. Een vermelding is alleen beschikbaar wanneer de bestaande inhouds- en beeldvrijgavepoorten slagen.
+- Profiel met eigen naam en acht avatars, met bewaren en herstel van de keuze.
+- Schatkist, munten en feedback na een normale vijfopgavenronde; beloningen staan los van taalbeheersing.
+- Hoorbare instructies, met voorkeur voor een Nederlandse `nl-NL`-spraakstem in plaats van `nl-BE`. De daadwerkelijke spraakkwaliteit hangt af van de geïnstalleerde browserstemmen.
+- Geen backend, advertenties of externe runtime-afhankelijkheden.
 
-## Publicatie
+## Publicatie en controle
 
-Cloudflare Pages is bedoeld als **Git-gekoppelde** stagingomgeving. Publiceer niet via Direct Upload.
+De enige productieroute is **GitHub `main` → Cloudflare Pages → https://zinbo.pages.dev/**. Vooraf controleren we de releasebranch via pull request, GitHub Actions en een Cloudflare-branchpreview; geen Direct Upload.
 
-- Repository: `market-predictions/zinbo`
-- Production branch: `main`
-- Framework preset: `None`
-- Build command: `node scripts/build.mjs`
-- Build output: `public`
-- Gewenste projectnaam: `zinbo` (`https://zinbo.pages.dev`, indien beschikbaar)
+- Build: `node scripts/build.mjs` → `public/index.html`
+- Tekstcontrole: `node scripts/p0-text-audit.mjs --strict`
+- Regressies: `node scripts/p0-regression.mjs`
+- Chromium: `node scripts/p0-browser-smoke.mjs` (Playwright beschikbaar in CI)
 
-De V4.6.2-release zit in `src/html-parts/` als vijftien genummerde tekstsegmenten, uitsluitend vanwege de uploadlimiet van de GitHub-koppeling. Het kleine standaard Node-script voegt ze **byte voor byte** samen tot `public/index.html` en controleert de SHA-256. Dit is geen tweede applicatie of deploymentroute.
+De HTML-bron is technisch in vijftien delen opgeslagen onder `src/html-parts/` vanwege de bestandsgroottelimiet van de GitHub-koppeling. `scripts/build.mjs` herstelt het productiebestand en controleert een gepinde SHA-256, de vrijgegeven inhoudsbanken en de vervangende hondenillustratie.
 
-Lokaal controleren: `node scripts/build.mjs` en `public/index.html` openen.
+De bijbehorende releaseverantwoording staat in `docs/RELEASE_PROMOTION_2026-10-28.md` en `docs/CONTENT_REVIEW_2026-10-28.json`. Een nieuwe afbeelding is niet automatisch opnieuw onafhankelijk beoordeeld.
+
+**Let op:** lokale voortgang en voorkeuren zijn gekoppeld aan de browser en herkomst (domain). Gegevens van een branchpreview komen niet automatisch mee naar de productiepagina. De bestaande lokale opslagsleutel is om compatibiliteitsredenen behouden.
 
 Zie [Cloudflare-inrichting](docs/CLOUDFLARE_PAGES.md).
-
-**Let op:** de publieke testsite gebruikt een andere browser-opslagoorsprong dan de eerdere offline HTML. Voortgang verhuist niet automatisch. `noindex` is geen toegangsbeveiliging; gebruik geen persoonsgegevens van kinderen voor deze publieke test.
