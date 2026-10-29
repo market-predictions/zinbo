@@ -36,6 +36,11 @@ try {
     assert.equal(await page.locator('#qa-banner,.qa-chooser,.qa-item-notice').count(),0,
       'Authoring controls must not appear in learner interface');
     if(width===1366){
+      const family=await page.evaluate(()=>window.__zinsbouwerTest.getWorldItemIds('familie'));
+      for(const dogId of ['v43-p01-ik-nu','v43-p01-and-nu','v43-p01-ik-past',
+                          'v43-p01-and-past','v43-i01-past','v43-i01-present']){
+        assert.ok(family.includes(dogId),'Reviewed petting-dog exercise not in learner world: '+dogId);
+      }
       const school=await page.evaluate(()=>window.__zinsbouwerTest.getWorldItemIds('school'));
       const home=await page.evaluate(()=>window.__zinsbouwerTest.getWorldItemIds('thuis'));
       assert.ok(school.some(id=>id.startsWith('o3-'))||
