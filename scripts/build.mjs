@@ -16,7 +16,7 @@ if (filenames.length !== 15) {
 const parts = await Promise.all(filenames.map(name => readFile(new URL(name, sourceDir))));
 const html = Buffer.concat(parts);
 const checksum = createHash('sha256').update(html).digest('hex');
-const expected = 'b355b16b3ee9820c5dc30784024efa701ddbe8d52f8b03af3183bb5658fe4d14';
+const expected = 'f30594c9224e4207a09fce2be68b7b8fef880ed64983d2390d1ca6635c57e8bc';
 
 if (checksum !== expected) {
   throw new Error('Zinbo HTML checksum mismatch: refusing to deploy a changed or incomplete artifact');
@@ -47,6 +47,17 @@ function embeddedJSON(source,token){
   throw Error('Incomplete bank: '+token);
 }
 const source=html.toString('utf8');
+const dogMatch=source.match(/"pet-dog\\.webp":"(data:image\\/webp;base64,([A-Za-z0-9+/=]+))"/);
+if(!dogMatch)throw Error('Dog illustration missing from V43_ART');
+const dogBytes=Buffer.from(dogMatch[2],'base64');
+if(createHash('sha256').update(dogBytes).digest('hex')!=='b083fafc89ee16ba6558f9cd086e8291b1c636e977b176a14cdfad544fb414ee')
+  throw Error('The petting-dog illustration differs from the reviewed release artwork');
+if(dogBytes.toString('ascii',0,4)!=='RIFF')throw Error('Petting-dog illustration must be WebP');
+const vp8=dogBytes.indexOf(Buffer.from('VP8 '));
+if(vp8<12 || (dogBytes.readUInt16LE(vp8+14)&0x3fff)!==1536 ||
+            (dogBytes.readUInt16LE(vp8+16)&0x3fff)!==1024)
+  throw Error('Petting-dog illustration must be 1536x1024 WebP');
+
 const evidence=JSON.parse(await readFile(new URL('../docs/CONTENT_REVIEW_2026-10-28.json',import.meta.url),'utf8'));
 if(evidence.schema!=='zinbo.content-review.v1'||
    !evidence.reviewer?.name?.trim()||
