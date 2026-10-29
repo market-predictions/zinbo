@@ -303,8 +303,8 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     if('speechSynthesis' in window){try{window.speechSynthesis.cancel();}catch(_){}}
     if(typeof cancelRewardFlight==='function')cancelRewardFlight();
   }
-  // Restore the original browser voice selection until listening tests
-  // establish a preferred voice. It uses the first Dutch voice, as before.
+  // Prefer a Netherlands Dutch voice; do not accidentally select a Flemish
+  // nl-BE voice merely because it is listed first by the browser.
   function speak(text, onFinished){
     stopAudio();
     if(!state.audioOn){if(onFinished)onFinished();return;}
@@ -313,7 +313,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     try{
       const u=new SpeechSynthesisUtterance(String(text));u.lang='nl-NL';u.rate=.85;u.pitch=1;
       const voices=window.speechSynthesis.getVoices();
-      const dutch=voices.find(v=>v.lang&&v.lang.toLowerCase().startsWith('nl'));
+      const dutch=voices.find(v=>String(v.lang||'').toLowerCase()==='nl-nl');
       if(dutch)u.voice=dutch;
       if(onFinished){
         const ticket=audioTicket;
