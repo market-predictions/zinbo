@@ -230,8 +230,8 @@ assert.ok(voiceStart>=0&&voiceEnd>voiceStart,'Original speech handler missing');
 assert.ok(!html.includes('function chooseDutchVoice('),'Female voice override must be removed');
 const spokenUtterances=[];
 const availableVoices=[
-  {name:'Previously used Dutch voice',lang:'nl-NL',localService:true},
-  {name:'New female voice',lang:'nl-NL',localService:true},
+  {name:'Flemish voice',lang:'nl-BE',localService:true},
+  {name:'Netherlands Dutch voice',lang:'nl-NL',localService:true},
   {name:'Another language',lang:'en-US',localService:true}];
 function FakeUtterance(text){this.text=text;}
 const speechContext={
@@ -240,8 +240,8 @@ const speechContext={
 };
 runInNewContext(html.slice(voiceStart,voiceEnd)+'\nspeak("Goed gedaan!")',speechContext);
 assert.equal(spokenUtterances.length,1);
-assert.equal(spokenUtterances[0].voice.name,'Previously used Dutch voice',
-  'Return to original first available Dutch voice');
+assert.equal(spokenUtterances[0].voice.name,'Netherlands Dutch voice',
+  'Prefer nl-NL over the first available Flemish nl-BE voice');
 assert.equal(spokenUtterances[0].rate,.85,'Restore original speech rate');
 
 // Reward prototype must stay a non-persistent author-only UI on the real exercise.
