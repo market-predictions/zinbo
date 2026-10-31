@@ -702,7 +702,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
         :'Kijk naar '+q.subject+'. Eén persoon.';
       }
     }else{
-      if((isPilotO3()||isPilotO4())&&(q.kind==='conditional'||q.kind==='because')){
+      if(q.kind==='conditional'||q.kind==='because'){
         const best=q.solutions.reduce((winner,sol)=>!winner||sol.filter((id,i)=>state.positions[i]!==id).length < winner.filter((id,i)=>state.positions[i]!==id).length?sol:winner,null);
         const wrong=best.findIndex((id,i)=>state.positions[i]!==id);
         state.focusPos=wrong;
@@ -712,13 +712,17 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
         render();focusInlineNote();speak(state.message);return;
       }
       const verbIndex=state.positions.findIndex(id=>q.tiles.find(t=>t.id===id)?.role==='verb');
+      const requiredVerbIndex=commonVerbSlot(q); // No hardcoded V2 for items with different valid orders.
       const solutions=q.solutions.filter(sol=>!q.beginWith||sol[0]===q.solutions[0][0]);
       const best=[...solutions].sort((a,b)=>a.filter((id,i)=>state.positions[i]!==id).length-b.filter((id,i)=>state.positions[i]!==id).length)[0];
       const difference=best.findIndex((id,i)=>state.positions[i]!==id);
       if(q.beginWith&&state.positions[0]!==q.solutions[0][0]){
         state.focusPos=0;state.message=state.attempts>=2?'Begin met '+q.beginWith+'.':'Kijk naar plek 1. Waar begin je mee?';
-      }else if(verbIndex!==1){
-        state.focusPos=1;state.message=state.attempts>=2?'Zet '+q.tiles.find(t=>t.role==='verb').text+' op plek 2.':'Kijk naar het oranje werkwoord. Staat het op plek 2?';
+      }else if(requiredVerbIndex>=0&&verbIndex!==requiredVerbIndex){
+        state.focusPos=requiredVerbIndex;
+        state.message=state.attempts>=2
+          ?'Zet '+q.tiles.find(t=>t.role==='verb').text+' op plek '+(requiredVerbIndex+1)+'.'
+          :'Kijk naar het oranje werkwoord. Hoort het op plek '+(requiredVerbIndex+1)+'?';
       }else{
         state.focusPos=difference;
         state.message=state.attempts>=2
