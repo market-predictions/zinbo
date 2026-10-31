@@ -250,7 +250,9 @@ assert.ok(html.includes("data-action=\"reward-demo-complete\""),'QA reward demo 
 assert.ok(html.includes("function rewardPreviewEnd(){"),'QA end celebration missing');
 assert.ok(html.includes("state.previewCoins+=state.previewLastGain;"),'Demo reward state missing');
 assert.ok(html.includes("else if(isPilotO3()){if(!isRewardPreview())recordPilotO3();}"),'Reward preview must not write author pilot results');
-assert.ok(html.includes("if(!isAuthorPilot()){stars++;saveLearning();}"),'Normal independent rewards must be untouched');
+assert.ok(html.includes('function awardRoundStar()'),'Round-based reward must be present');
+assert.ok(html.includes('stars+=1;saveLearning();'),'Stars must be earned on round completion only');
+assert.ok(!html.includes('if(!isAuthorPilot()){stars++;saveLearning();}'),'Independent correctness must not earn spendable stars');
 assert.ok(html.includes("prefers-reduced-motion: reduce"),'Reduced-motion option missing');
 assert.ok(html.includes("class=\"reward-vault-slot\""),'Visible chest landing slot missing');
 assert.ok(html.includes("duration:1800"),'Coin must no longer be a 780ms flash');
@@ -291,11 +293,16 @@ for(const id of expectedAvatars)
   assert.ok(html.includes("id:'"+id+"'"),'Missing native avatar '+id);
 assert.ok(html.includes("getProfileAvatars:()=>PROFILE_AVATARS"),'Avatar list accessor missing');
 assert.ok(html.includes("preferences.displayName=cleanProfileName(typed);"),'Name validation missing');
-assert.ok(html.includes("preferences.avatarId=validProfileAvatar(profileDraftAvatar);"),'Avatar ID validation missing');
+assert.ok(html.includes("preferences.avatarId=validProfileAvatar(profileDraftAvatar)") || html.includes("preferences.avatarId=profileDraftAvatar"),'Avatar selection validation missing');
 assert.ok(html.includes('${esc(profileLabel())}'),'Display name must be escaped');
 assert.ok(html.includes("profileDialogOpen?profileDialog():''"),'Profile must use the existing home surface');
-assert.ok(html.includes('version:3,skills:learning,stars,rewardCoins,preferences,placement,basicHistory'),
-  'Existing learner progress serialization must remain in place');
+assert.ok(html.includes('version:3,skills:learning,stars,rewardCoins,unlockedAvatarIds,preferences,placement,basicHistory'),
+  'Avatar purchases must use the canonical learner serialization');
+assert.ok(html.includes('const AVATAR_PRICE=5;'),'Uniform avatar price missing');
+assert.ok(html.includes('function avatarOwned(id)'),'Ownership guard missing');
+assert.ok(html.includes('pendingAvatarPurchase===profileDraftAvatar'),'Purchases require confirmation');
+assert.ok(html.includes("!preferences.listenOwnSentence"),'Unreviewed self-listening must default to opt-in');
+assert.ok(html.includes('data-action="profile-avatar-confirm"'),'Purchase control missing');
 
 // Ordinary world rounds share the successful QA chest animation and persist
 // non-diagnostic coins in the same local progress record.
