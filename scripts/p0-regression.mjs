@@ -316,4 +316,26 @@ assert.ok(html.includes("if(state.index>=4){awardRoundStar();"),
 assert.ok(html.includes('data-action="listen-preview-toggle"'),
   'Self-audio pilot must be gated by an explicit setting');
 
+
+/* Every order hint must derive its position from the authored valid solutions. */
+assert.ok(html.includes('function commonVerbSlot(q)'),'Missing shared-verb-position detector');
+assert.ok(html.includes("const requiredVerbIndex=commonVerbSlot(q)"),
+  'Wrong-answer feedback must not assume verb position 2');
+assert.ok(html.includes("state.showHint&&i===commonVerbSlot(q)"),
+  'Hint highlight must follow the actual allowed verb position');
+assert.ok(!html.includes("'Het oranje werkwoord staat op plek 2.'"),
+  'Never ship a generic fixed-position hint');
+assert.ok(!html.includes("else if(verbIndex!==1)"),
+  'Never force second slot after an incorrect answer');
+assert.ok(html.includes("if(q.kind==='conditional'||q.kind==='because'){"),
+  'Complex clause feedback must work in normal worlds, not only QA pilots');
+assert.ok(html.includes("if(q.kind==='vtt')"),
+  'All VTT exercises need help-verb and participle guidance');
+assert.ok(html.includes('function builtSentenceListenButton()'),
+  'Sentence-level listen action must exist');
+assert.ok(html.includes('class="sentence-review"'),
+  'Sentence replay control must be rendered beside its sentence');
+assert.ok(!html.includes("}</div>\${preferences.listenOwnSentence&&!state.completed?"),
+  'Replay must not remain in the bottom controls');
+
 console.log(`PASS P0 regression: ${scripts} JS program(s), 6 modal items, 27 distractor repairs, 4 world-level choices, casing, audio, help and text labels`);
