@@ -69,7 +69,7 @@ try {
       const hints=await page.evaluate(()=>window.__zinsbouwerTest.getHintAudit());
       assert.equal(hints.length,166,'All 166 zinsbouw exercises must be scanned');
       for(const entry of hints){
-        const exact=entry.hint.match(/Het oranje werkwoord staat op plek (\\d+)\\./);
+        const exact=entry.hint.match(/Het oranje werkwoord staat op plek (\d+)\./);
         const expected=entry.verbPositions.map(pos=>pos.length===1?pos[0]-1:-1);
         if(exact){
           assert.ok(expected.length>0&&expected.every(pos=>pos===Number(exact[1])-1),
