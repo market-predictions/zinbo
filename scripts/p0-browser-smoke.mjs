@@ -297,7 +297,7 @@ try {
           await page.locator('.reward-flying-coin').waitFor({state:'visible'});
           const opening=await page.locator('.reward-flying-coin').boundingBox();
           assert.ok(opening&&opening.y>=46&&opening.y+opening.height<=height-12,'Coin starts outside viewport');
-          assert.equal((await page.locator('.reward-vault-number').innerText()).trim(),'0/5','Do not show gain before landing');
+          assert.equal((await page.locator('.reward-vault-number').innerText()).trim(),'0','Do not show gain before landing');
           await page.waitForTimeout(850);
           const travelling=await page.locator('.reward-flying-coin').boundingBox();
           assert.ok(travelling&&travelling.x>=4&&travelling.x+travelling.width<=width+4
