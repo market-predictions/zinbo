@@ -1,5 +1,7 @@
 # Zinbo — Visuele richting beloningsbeleving (ontwerpstudie v0.2)
 
+> **Historisch ontwerp (22 oktober 2026).** De actuele gekozen beloningsrichting is vastgelegd in [UX_AVATARS_2026-10-31.md](UX_AVATARS_2026-10-31.md): één spendabele sterrenteller, vier gratis en acht ontgrendelbare avatars, geen werkplaatsgalerij, geen tweede muntenwinkel of mascotte-uitbreiding. Beschouw onderstaande uitbreidingsideeën niet langer als huidige roadmap.
+
 **Status:** ontwerpvoorstel, niet geïmplementeerd of didactisch vrijgegeven.  
 **Datum:** 22 oktober 2026.  
 **Context:** visuele verfijning na de eerste beloningsstudie en tien kritische ontwerprondes.  
