@@ -303,7 +303,7 @@ try {
           assert.ok(travelling&&travelling.x>=4&&travelling.x+travelling.width<=width+4
             &&travelling.y>=46&&travelling.y+travelling.height<=height+4,'Coin escapes viewport mid-flight');
           await page.locator('.reward-flying-coin').waitFor({state:'detached',timeout:6500});
-          assert.equal((await page.locator('.reward-vault-number').innerText()).trim(),'2/5','Coin should land and count');
+          assert.equal((await page.locator('.reward-vault-number').innerText()).trim(),'2','Coin should land and count');
           assert.equal(await page.locator('.reward-vault-received').count(),1,'Chest must react to landing');
         }
         assert.equal(await page.locator('.reward-preview-feedback').count(),1,'Missing success reaction');
