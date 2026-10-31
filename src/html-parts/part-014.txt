@@ -59,8 +59,8 @@ lRc7bx5hAfQGy8SxdXLNbVi+fQ2fMZH1wmJBkzg3emv7M7YyTcCZFiVI9uBebV4ALca/fic6bKvjgOBj
     // The award was recorded once by finishItem; only its display waits for landing.
     state.previewShownCoins=state.previewCoins;
     const vault=app.querySelector('.reward-vault'),amount=app.querySelector('.reward-vault-number');
-    if(amount)amount.textContent=String(state.previewShownCoins);
-    if(vault)vault.setAttribute('aria-label',state.previewShownCoins+' munten in de schatkist');
+    if(amount)amount.textContent=String(state.previewShownCoins)+'/5';
+    if(vault)vault.setAttribute('aria-label',state.previewShownCoins+' van vijf zinnen in deze oefenronde');
     if(landed&&vault){
       vault.classList.remove('reward-vault-received');
       void vault.offsetWidth;
@@ -178,13 +178,13 @@ lRc7bx5hAfQGy8SxdXLNbVi+fQ2fMZH1wmJBkzg3emv7M7YyTcCZFiVI9uBebV4ALca/fic6bKvjgOBj
     const top=demo?'<span class="reward-preview-badge">VISUEEL UX-PROTOTYPE · geen kindrelease</span>':'<span class="reward-preview-badge">Vijf zinnen afgerond!</span>';
     const prize=demo
       ?'<div class="reward-preview-found"><span class="reward-found-symbol" aria-hidden="true">🚀</span><strong>Ruimteraket</strong><small>Conceptvondst · nog niet opgeslagen</small></div>'
-      :'<div class="reward-preview-found"><span class="reward-found-symbol" aria-hidden="true">✪</span><strong>Jouw munten!</strong><small>Mooi geoefend. Ze blijven op dit apparaat bewaard.</small></div>';
+      :'<div class="reward-preview-found"><span class="reward-found-symbol" aria-hidden="true">★</span><strong>1 ster verdiend!</strong><small>Spaar sterren en ontgrendel een nieuwe avatar.</small></div>';
     return `<section class="panel reward-preview-end">
       ${top}
       <h1>${opened?(demo?'Jouw vondst!':'Goed gedaan!'):'Je schatkist is klaar!'}</h1>
       <p>${opened?'Vijf oefenzinnen afgerond. Kijk wat je hebt verdiend!':'Vijf zinnen gemaakt. Tijd om de schatkist te openen.'}</p>
       ${opened?prize:`<div class="reward-chest" aria-label="Gesloten schatkist"><div class="reward-chest-lid"></div><div class="reward-chest-box"></div><div class="reward-chest-lock">★</div></div>`}
-      <div class="reward-preview-badge">✪ ${state.previewCoins} munten ${demo?'in deze demo':'verzameld'}</div>
+      <div class="reward-preview-badge">${demo?'✪ '+state.previewCoins+' demonstratiemunten':'★ '+stars+' sterren beschikbaar'}</div>
       <div class="actions">${opened?`<button class="primary" data-action="reward-preview-again">Nog vijf oefenzinnen</button>`:`<button class="primary" data-action="reward-chest-open">Open de schatkist</button>`}
       <button class="secondary" data-action="home">Terug naar Zinbo</button></div>
     </section>`;
@@ -193,10 +193,20 @@ lRc7bx5hAfQGy8SxdXLNbVi+fQ2fMZH1wmJBkzg3emv7M7YyTcCZFiVI9uBebV4ALca/fic6bKvjgOBj
     const q=item(),morph=state.mode==='morph';
     const title=(q.kind==='tense'||q.kind==='strong')?'Kies het werkwoord':morph?'Maak het werkwoord af':'Maak de zin.';
     const subtitle=esc(taskInstruction());
-    const controls=`<div class="actions premium-actions"><button class="secondary reset-action" data-action="reset" ${state.completed?'disabled':''}>${uiIcon('replay',36)} <span>Opnieuw</span></button><div class="action-middle"><button class="secondary hint-action" data-action="hint" aria-pressed="${state.showHint}" ${state.completed?'disabled':''}>${uiIcon('bulb',34)} <span>Hint</span></button>${state.attempts>=2&&!state.completed?'<button class="secondary answer-action" data-action="answer">Laat zien</button>':''}</div><button class="primary check-action" data-action="${state.completed?'next':'check'}" ${!state.completed&&!currentComplete()?'disabled':''}>${uiIcon('check',37)} <span>${state.completed?(state.index===4?'Afronden':'Volgende'):'Controleer'}</span></button></div>`;
+    const controls=`<div class="actions premium-actions"><button class="secondary reset-action" data-action="reset" ${state.completed?'disabled':''}>${uiIcon('replay',36)} <span>Opnieuw</span></button><div class="action-middle"><button class="secondary hint-action" data-action="hint" aria-pressed="${state.showHint}" ${state.completed?'disabled':''}>${uiIcon('bulb',34)} <span>Hint</span></button>${state.attempts>=2&&!state.completed?'<button class="secondary answer-action" data-action="answer">Laat zien</button>':''}</div>${preferences.listenOwnSentence&&!state.completed?`<button class="secondary self-listen-action" data-action="speak-built" ${currentComplete()&&state.audioOn?'':'disabled'} aria-label="Luister naar mijn gemaakte zin">${uiIcon('audio',28)} <span>Mijn zin horen</span></button>`:''}<button class="primary check-action" data-action="${state.completed?'next':'check'}" ${!state.completed&&!currentComplete()?'disabled':''}>${uiIcon('check',37)} <span>${state.completed?(state.index===4?'Afronden':'Volgende'):'Controleer'}</span></button></div>`;
     return `<section class="panel exercise">${topBar()}<div class="exercise-inner"><div class="activity-intro"><div class="activity-title"><div class="hero-title-line">${toolbar()}<h2>${title}</h2></div><button class="instruction-card" data-action="speak-task" ${state.audioOn?'':'disabled'} aria-label="Herhaal de opdracht">${uiIcon('audio',34)} <span>${subtitle}</span></button></div>${scene(q)}</div>${rewardSuccessMarkup()}<div class="work-area">${morph?morphBody(q):orderBody(q)}</div>${controls}${isRewardPreview()&&!state.completed?`<div class="reward-prototype-tools"><span class="reward-preview-label">QA · geen echte munten</span><button class="reward-demo-trigger" data-action="reward-demo-complete">Toon visuele beloning</button></div>`:isRewardPreview()?`<div class="reward-prototype-tools"><span class="reward-preview-label">QA · geen echte munten</span></div>`:""}</div></section>`;
   }
   function correctSentence(){const q=item();return state.mode==='order'?sentence(q,state.positions):q.full;}
+  function speakBuiltSentence(){
+    if(state.screen!=='exercise'||state.completed||!currentComplete()||!state.audioOn||!preferences.listenOwnSentence)return;
+    const q=item();
+    // Replay the child's own sequence/form, never the approved answer model.
+    let spoken='';
+    if(state.mode==='order')spoken=sentence(q,state.positions);
+    else if(q.kind==='tense'||q.kind==='strong')spoken=[q.subject,state.selected,q.tail].filter(Boolean).join(' ');
+    else spoken=[q.subject,(q.stem||'')+(state.selected||''),q.tail].filter(Boolean).join(' ');
+    if(spoken.trim())speak(spoken);
+  }
 
   function speakOwnPrompt(){speak('Wil je iets over jezelf vertellen? Zeg één zin over iets dat je graag doet. Je mag ook passen.');}
   function ownVoicePrompt(){return `<div class="voice-optional"><strong>Jouw zin (als je wilt)</strong><p>Vertel hardop één ding dat jij graag doet. Je mag ook overslaan. We luisteren niet mee en bewaren niets.</p><button type="button" class="secondary" data-action="own-prompt" ${state.audioOn?'':'disabled'}>Luister naar de vraag</button></div>`;}
@@ -453,7 +463,7 @@ lRc7bx5hAfQGy8SxdXLNbVi+fQ2fMZH1wmJBkzg3emv7M7YyTcCZFiVI9uBebV4ALca/fic6bKvjgOBj
       else if(a==='world-profile'){profileMenuOpen=!profileMenuOpen;render();}
 
       else if(a==='profile-edit'){
-        profileMenuOpen=false;
+        profileMenuOpen=false;pendingAvatarPurchase=null;
         profileDraftName=preferences.displayName||'';
         profileDraftAvatar=validProfileAvatar(preferences.avatarId);
         profileDialogOpen=true;render();app.querySelector('#zinbo-profile-name')?.focus();
@@ -461,13 +471,27 @@ lRc7bx5hAfQGy8SxdXLNbVi+fQ2fMZH1wmJBkzg3emv7M7YyTcCZFiVI9uBebV4ALca/fic6bKvjgOBj
       else if(a==='profile-avatar'&&profileDialogOpen){
         profileDraftName=app.querySelector('#zinbo-profile-name')?.value||'';
         profileDraftAvatar=validProfileAvatar(button.dataset.avatar);
+        pendingAvatarPurchase=null;
         render();app.querySelector('[data-avatar="'+profileDraftAvatar+'"]')?.focus();
       }
-      else if(a==='profile-cancel'&&profileDialogOpen){closeProfileDialog();}
+      else if(a==='profile-avatar-choose'&&profileDialogOpen&&avatarOwned(profileDraftAvatar)){
+        preferences.avatarId=validProfileAvatar(profileDraftAvatar);saveLearning();render();
+      }
+      else if(a==='profile-avatar-buy'&&profileDialogOpen&&!avatarOwned(profileDraftAvatar)&&stars>=AVATAR_PRICE){pendingAvatarPurchase=profileDraftAvatar;render();}
+      else if(a==='profile-avatar-cancel-buy'&&profileDialogOpen){pendingAvatarPurchase=null;render();}
+      else if(a==='profile-avatar-confirm'&&profileDialogOpen&&pendingAvatarPurchase===profileDraftAvatar){
+        if(!avatarOwned(profileDraftAvatar)&&stars>=AVATAR_PRICE){
+          stars-=AVATAR_PRICE;
+          unlockedAvatarIds.push(profileDraftAvatar);
+          preferences.avatarId=profileDraftAvatar;
+          saveLearning();
+        }
+        pendingAvatarPurchase=null;render();
+      }
+      else if(a==='profile-cancel'&&profileDialogOpen){pendingAvatarPurchase=null;closeProfileDialog();}
       else if(a==='profile-save'&&profileDialogOpen){
         const typed=app.querySelector('#zinbo-profile-name')?.value||'';
         preferences.displayName=cleanProfileName(typed);
-        preferences.avatarId=validProfileAvatar(profileDraftAvatar);
         saveLearning();closeProfileDialog();
       }
 
@@ -482,7 +506,7 @@ lRc7bx5hAfQGy8SxdXLNbVi+fQ2fMZH1wmJBkzg3emv7M7YyTcCZFiVI9uBebV4ALca/fic6bKvjgOBj
        else if(a==='school-group'){preferences.schoolGroup=button.dataset.group||null;saveLearning();render();const parent=app.querySelector('details.landing-parent');if(parent)parent.open=true;}
        else if(a==='start-skill')startSkill(button.dataset.skill);
       else if(a==='repeat-skill')startSkill(state.lessonSkill);
-      else if(a==='clear-learning'){parentPanelOpen=false;resetConfirmOpen=false;learning=Object.fromEntries(SKILLS.map(k=>[k,emptySkill()]));placement={seen:[],history:[],done:false};basicHistory=[];stars=0;completedSeries={order:new Set(),morph:new Set()};saveLearning();render();}
+      else if(a==='clear-learning'){parentPanelOpen=false;resetConfirmOpen=false;learning=Object.fromEntries(SKILLS.map(k=>[k,emptySkill()]));placement={seen:[],history:[],done:false};basicHistory=[];completedSeries={order:new Set(),morph:new Set()};saveLearning();render();}
       else if(a==='start-order')pickMode('order');
       else if(a==='start-morph')pickMode('morph');
       else if(a==='home')goHome();
@@ -497,6 +521,8 @@ lRc7bx5hAfQGy8SxdXLNbVi+fQ2fMZH1wmJBkzg3emv7M7YyTcCZFiVI9uBebV4ALca/fic6bKvjgOBj
       else if(a==='settings'){state.settingsOpen=!state.settingsOpen;render();}
       else if(a==='motion'){state.motionOn=!state.motionOn;preferences.motionOn=state.motionOn;saveLearning();render();}
       else if(a==='sound'){state.audioOn=!state.audioOn;preferences.audioOn=state.audioOn;saveLearning();stopAudio();render();if(state.audioOn)speak('Geluid aan.');}
+      else if(a==='listen-preview-toggle'){preferences.listenOwnSentence=!preferences.listenOwnSentence;saveLearning();render();}
+      else if(a==='speak-built')speakBuiltSentence();
       else if(a==='speak-task')speak(taskInstruction());
       else if(a==='speak-feedback')speak(state.message);
       else if(a==='hear-tile'){const tile=item().tiles.find(t=>t.id===button.dataset.id);if(tile)speak(tile.text);}
