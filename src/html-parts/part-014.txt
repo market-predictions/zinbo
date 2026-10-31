@@ -59,7 +59,7 @@ lRc7bx5hAfQGy8SxdXLNbVi+fQ2fMZH1wmJBkzg3emv7M7YyTcCZFiVI9uBebV4ALca/fic6bKvjgOBj
     // The award was recorded once by finishItem; only its display waits for landing.
     state.previewShownCoins=state.previewCoins;
     const vault=app.querySelector('.reward-vault'),amount=app.querySelector('.reward-vault-number');
-    if(amount)amount.textContent=String(state.previewShownCoins)+'/5';
+    if(amount)amount.textContent=isWorld()?String(state.previewShownCoins)+'/5':String(state.previewShownCoins);
     if(vault)vault.setAttribute('aria-label',state.previewShownCoins+' van vijf zinnen in deze oefenronde');
     if(landed&&vault){
       vault.classList.remove('reward-vault-received');
