@@ -23,18 +23,52 @@ lRc7bx5hAfQGy8SxdXLNbVi+fQ2fMZH1wmJBkzg3emv7M7YyTcCZFiVI9uBebV4ALca/fic6bKvjgOBj
     }).join('');
     const pool=q.bankOrder.map(id=>q.tiles.find(t=>t.id===id)).filter(t=>!used.has(t.id))
       .map(t=>`<div class="tile-wrap"><button class="tile ${t.role==='verb'?'verb':''}" data-action="tile" data-draggable="tile" data-id="${t.id}" aria-label="Plaats of sleep ${esc(tileText(t.text))}">${esc(tileText(t.text))}</button><button class="hear-tile" data-action="hear-tile" data-id="${t.id}" aria-label="Luister naar ${esc(t.text)}" ${state.audioOn?'':'disabled'}>${uiIcon('audio')}</button></div>`).join('');
-    return `${q.beginWith?`<div class="start-rule">Begin met <strong>${esc(q.beginWith)}</strong>.</div>`:''}<div class="work-label">Zet de stukjes op hun plek</div><div class="slots" data-count="${q.tiles.length}" style="--slot-count:${q.tiles.length}" aria-label="Zinsbalk">${slots}</div><div class="feedback-space">${localFeedback()}</div>${state.completed?'':currentComplete()?`<div class="child-instruction">${state.message?'Je kunt een stukje verplaatsen.':'Je kunt de zin nog veranderen.'}</div>`:`<div class="child-instruction">Sleep een stukje, of tik erop.</div><div class="bank">${pool}</div>`}`;
+    return `${q.beginWith?`<div class="start-rule">Begin met <strong>${esc(q.beginWith)}</strong>.</div>`:''}<div class="work-label">Zet de stukjes op hun plek</div><div class="slots" data-count="${q.tiles.length}" style="--slot-count:${q.tiles.length}" aria-label="Zinsbalk">${slots}</div>${builtSentenceListenButton()}<div class="feedback-space">${localFeedback()}</div>${state.completed?'':currentComplete()?`<div class="child-instruction">${state.message?'Je kunt een stukje verplaatsen.':'Je kunt de zin nog veranderen.'}</div>`:`<div class="child-instruction">Sleep een stukje, of tik erop.</div><div class="bank">${pool}</div>`}`;
   }
   function tenseBody(q){
     const selected=state.selected;
-    return `<div class="work-label">Maak de zin af</div><div class="stem-line"><div class="wordbox">${esc(q.subject)}</div><div class="wordbox stem ${selected===null?'':'chosen'}" data-ending-slot="true">${selected===null?'?':esc(selected)}</div><div class="wordbox">${esc(q.tail)}</div></div><div class="feedback-space">${localFeedback()}</div>${state.completed?'':`<div class="child-instruction">Kies het woord dat past.</div><div class="choice-row">${(state.choiceOrder||q.choices).map(v=>`<button class="ending ${selected===v?'selected':''}" data-action="ending" data-draggable="ending" data-ending="${esc(v)}" aria-pressed="${selected===v}">${esc(v)}</button>`).join('')}</div>`}`;
+    return `<div class="work-label">Maak de zin af</div><div class="stem-line"><div class="wordbox">${esc(q.subject)}</div><div class="wordbox stem ${selected===null?'':'chosen'}" data-ending-slot="true">${selected===null?'?':esc(selected)}</div><div class="wordbox">${esc(q.tail)}</div></div>${builtSentenceListenButton()}<div class="feedback-space">${localFeedback()}</div>${state.completed?'':`<div class="child-instruction">Kies het woord dat past.</div><div class="choice-row">${(state.choiceOrder||q.choices).map(v=>`<button class="ending ${selected===v?'selected':''}" data-action="ending" data-draggable="ending" data-ending="${esc(v)}" aria-pressed="${selected===v}">${esc(v)}</button>`).join('')}</div>`}`;
   }
   function morphBody(q){
     if(q.kind==='tense'||q.kind==='strong')return tenseBody(q);
     const endings=[{v:'',label:'geen einde'},{v:'t',label:'-t'},{v:'en',label:'-en'}];
-    return `<div class="work-label">De zin</div><div class="stem-line"><div class="wordbox">${esc(q.subject)}</div><div class="wordbox stem">${esc(q.stem)}</div><div class="wordbox suffix ${state.selected===null?'needs-attention':'chosen'}" data-ending-slot="true">${state.selected===null?'?':(state.selected===''?'—':esc(state.selected))}</div><div class="wordbox">${esc(q.tail)}</div></div><div class="feedback-space">${localFeedback()}</div>${state.completed?'':`<div class="child-instruction">${currentComplete()?'Je kunt nog veranderen.':'Kies een einde.'}</div><div class="choice-row">${endings.map(e=>`<button class="ending ${state.selected===e.v?'selected':''}" data-action="ending" data-draggable="ending" data-ending="${e.v}" aria-pressed="${state.selected===e.v}">${esc(e.label)}</button>`).join('')}</div>`}`;
+    return `<div class="work-label">De zin</div><div class="stem-line"><div class="wordbox">${esc(q.subject)}</div><div class="wordbox stem">${esc(q.stem)}</div><div class="wordbox suffix ${state.selected===null?'needs-attention':'chosen'}" data-ending-slot="true">${state.selected===null?'?':(state.selected===''?'—':esc(state.selected))}</div><div class="wordbox">${esc(q.tail)}</div></div>${builtSentenceListenButton()}<div class="feedback-space">${localFeedback()}</div>${state.completed?'':`<div class="child-instruction">${currentComplete()?'Je kunt nog veranderen.':'Kies een einde.'}</div><div class="choice-row">${endings.map(e=>`<button class="ending ${state.selected===e.v?'selected':''}" data-action="ending" data-draggable="ending" data-ending="${e.v}" aria-pressed="${state.selected===e.v}">${esc(e.label)}</button>`).join('')}</div>`}`;
   }
-  function hintText(q){if((isPilotO3()||isPilotO4())&&(q.kind==='conditional'||q.kind==='because'))return q.kind==='conditional'?'Begint de zin met als? Zet dan in het tweede stukje het werkwoord vóór ik.':'Na omdat komt de reden. '+(q.solutions.length>1?'De twee werkwoorden staan achteraan. In deze zin mogen ze wisselen.':'Het werkwoord staat achteraan.');if((isPilotVTT()||isPilotO4())&&q.kind==='vtt')return 'Gebruik heb of ben, of heeft of is. Het voltooid deelwoord staat achteraan. Met deze hint oefen je nog niet zelfstandig.';if(q.kind==='tense'||q.kind==='strong')return q.when==='Nu'?'Nu: het gebeurt op dit moment.':'Gisteren: het gebeurde al. Luister naar de twee woorden.';return state.mode==='order'?'Het oranje werkwoord staat op plek 2.':q.count==='many'?'Het gaat over meer personen. Denk aan: wij werk-en.':q.count==='i'?'De zin gaat over ik. Denk aan: ik werk.':'Het gaat over één persoon. Denk aan: Sam werk-t.';}
+
+  // A positional hint is allowed only when every valid solution agrees.
+  function commonVerbSlot(q){
+    if(!Array.isArray(q.tiles)||!Array.isArray(q.solutions)||!q.solutions.length)return -1;
+    const verbs=q.tiles.filter(tile=>tile.role==='verb');
+    if(verbs.length!==1)return -1;
+    const slots=q.solutions.map(solution=>solution.indexOf(verbs[0].id));
+    return slots[0]>=0&&slots.every(index=>index===slots[0])?slots[0]:-1;
+  }
+  function hintText(q){
+    // The grammar kind, not the active pilot screen, controls the hint.
+    if(q.kind==='because')
+      return q.tiles.some(t=>t.role==='verb-tail')
+        ?'Na omdat komt de reden. De twee werkwoorden horen aan het einde van dit stukje. Hun volgorde mag hier wisselen.'
+        :'Na omdat komt de reden. Het werkwoord van de reden staat aan het einde van dat stukje.';
+    if(q.kind==='conditional')
+      return 'Begint de zin met als? Dan komt in het tweede stukje het werkwoord vóór het onderwerp. Je kunt ook met het andere stukje beginnen.';
+    if(q.kind==='vtt')
+      return 'Kies het hulpwerkwoord bij het onderwerp. Het voltooid deelwoord staat achteraan.';
+    if(q.kind==='tense'||q.kind==='strong')
+      return q.when==='Nu'?'Nu: het gebeurt op dit moment.':'Gisteren: het gebeurde al. Luister naar de twee woorden.';
+    if(Array.isArray(q.solutions)&&Array.isArray(q.tiles)){
+      const slot=commonVerbSlot(q);
+      return slot>=0?'Het oranje werkwoord staat op plek '+(slot+1)+'.':'Kijk waar het oranje werkwoord past in deze zin.';
+    }
+    return q.count==='many'?'Het gaat over meer personen. Denk aan: wij werk-en.'
+      :q.count==='i'?'De zin gaat over ik. Denk aan: ik werk.'
+      :'Het gaat over één persoon. Denk aan: Sam werk-t.';
+  }
+  function builtSentenceListenButton(){
+    if(!preferences.listenOwnSentence||state.completed)return '';
+    return '<div class="sentence-review"><button type="button" class="secondary self-listen-action" data-action="speak-built" '+
+      (currentComplete()&&state.audioOn?'':'disabled')+
+      ' aria-label="Luister naar mijn gemaakte zin">'+uiIcon('audio',26)+' <span>Mijn zin horen</span></button></div>';
+  }
 
 
   // Only a visual QA overlay on top of the actual exercise and validator.
@@ -193,7 +227,7 @@ lRc7bx5hAfQGy8SxdXLNbVi+fQ2fMZH1wmJBkzg3emv7M7YyTcCZFiVI9uBebV4ALca/fic6bKvjgOBj
     const q=item(),morph=state.mode==='morph';
     const title=(q.kind==='tense'||q.kind==='strong')?'Kies het werkwoord':morph?'Maak het werkwoord af':'Maak de zin.';
     const subtitle=esc(taskInstruction());
-    const controls=`<div class="actions premium-actions"><button class="secondary reset-action" data-action="reset" ${state.completed?'disabled':''}>${uiIcon('replay',36)} <span>Opnieuw</span></button><div class="action-middle"><button class="secondary hint-action" data-action="hint" aria-pressed="${state.showHint}" ${state.completed?'disabled':''}>${uiIcon('bulb',34)} <span>Hint</span></button>${state.attempts>=2&&!state.completed?'<button class="secondary answer-action" data-action="answer">Laat zien</button>':''}</div>${preferences.listenOwnSentence&&!state.completed?`<button class="secondary self-listen-action" data-action="speak-built" ${currentComplete()&&state.audioOn?'':'disabled'} aria-label="Luister naar mijn gemaakte zin">${uiIcon('audio',28)} <span>Mijn zin horen</span></button>`:''}<button class="primary check-action" data-action="${state.completed?'next':'check'}" ${!state.completed&&!currentComplete()?'disabled':''}>${uiIcon('check',37)} <span>${state.completed?(state.index===4?'Afronden':'Volgende'):'Controleer'}</span></button></div>`;
+    const controls=`<div class="actions premium-actions"><button class="secondary reset-action" data-action="reset" ${state.completed?'disabled':''}>${uiIcon('replay',36)} <span>Opnieuw</span></button><div class="action-middle"><button class="secondary hint-action" data-action="hint" aria-pressed="${state.showHint}" ${state.completed?'disabled':''}>${uiIcon('bulb',34)} <span>Hint</span></button>${state.attempts>=2&&!state.completed?'<button class="secondary answer-action" data-action="answer">Laat zien</button>':''}</div><button class="primary check-action" data-action="${state.completed?'next':'check'}" ${!state.completed&&!currentComplete()?'disabled':''}>${uiIcon('check',37)} <span>${state.completed?(state.index===4?'Afronden':'Volgende'):'Controleer'}</span></button></div>`;
     return `<section class="panel exercise">${topBar()}<div class="exercise-inner"><div class="activity-intro"><div class="activity-title"><div class="hero-title-line">${toolbar()}<h2>${title}</h2></div><button class="instruction-card" data-action="speak-task" ${state.audioOn?'':'disabled'} aria-label="Herhaal de opdracht">${uiIcon('audio',34)} <span>${subtitle}</span></button></div>${scene(q)}</div>${rewardSuccessMarkup()}<div class="work-area">${morph?morphBody(q):orderBody(q)}</div>${controls}${isRewardPreview()&&!state.completed?`<div class="reward-prototype-tools"><span class="reward-preview-label">QA · geen echte munten</span><button class="reward-demo-trigger" data-action="reward-demo-complete">Toon visuele beloning</button></div>`:isRewardPreview()?`<div class="reward-prototype-tools"><span class="reward-preview-label">QA · geen echte munten</span></div>`:""}</div></section>`;
   }
   function correctSentence(){const q=item();return state.mode==='order'?sentence(q,state.positions):q.full;}
