@@ -64,6 +64,35 @@ try {
     assert.ok(overflow<=2,'Unexpected horizontal overflow at '+width+': '+overflow);
 
 
+
+    if(width===1366){
+      const hints=await page.evaluate(()=>window.__zinsbouwerTest.getHintAudit());
+      assert.equal(hints.length,166,'All 166 zinsbouw exercises must be scanned');
+      for(const entry of hints){
+        const exact=entry.hint.match(/Het oranje werkwoord staat op plek (\\d+)\\./);
+        const expected=entry.verbPositions.map(pos=>pos.length===1?pos[0]-1:-1);
+        if(exact){
+          assert.ok(expected.length>0&&expected.every(pos=>pos===Number(exact[1])-1),
+            'Misleading positional hint for '+entry.id+': '+entry.hint);
+          assert.equal(entry.expectedSlot,Number(exact[1])-1);
+        }else if(entry.expectedSlot<0){
+          assert.ok(!/oranje werkwoord staat op plek/i.test(entry.hint),
+            'Ambiguous verb position may not become an exact hint: '+entry.id);
+        }
+        if(entry.kind==='because'){
+          assert.ok(entry.hint.includes('omdat'),'Because-item needs a subordinate-clause hint: '+entry.id);
+          assert.ok(!/plek 2/.test(entry.hint),'Because-item cannot assert V2: '+entry.id);
+        }
+        if(entry.kind==='conditional')
+          assert.ok(entry.hint.includes('als'),'Conditional item must cover both valid clause orders: '+entry.id);
+        if(entry.kind==='vtt')
+          assert.ok(entry.hint.includes('voltooid deelwoord'),'VTT needs participle guidance: '+entry.id);
+      }
+      assert.equal(hints.filter(x=>x.kind==='because').length,12);
+      assert.equal(hints.filter(x=>x.kind==='conditional').length,2);
+      assert.equal(hints.filter(x=>x.kind==='vtt').length,15);
+    }
+
     // Four starter smileys, eight flat premium vectors; one canonical profile dialog.
     const openProfile=async()=>{
       await page.locator('.op1-star[data-action="profile-edit"]').click();
@@ -147,10 +176,47 @@ try {
       assert.ok(profileOverflow<=2,'Customized header must not overflow mobile');
     }
 
+
+    // Replay stays adjacent to the constructed sentence across desktop and mobile.
+    await page.evaluate(()=>{
+      const key='zinsbouwer-qa-360-feedback-20261019';
+      const prior=JSON.parse(localStorage.getItem(key)||'null')||{version:3,preferences:{}};
+      prior.preferences=prior.preferences||{};
+      prior.preferences.listenOwnSentence=true;
+      prior.preferences.audioOn=true;
+      localStorage.setItem(key,JSON.stringify(prior));
+    });
+    await page.reload({waitUntil:'load'});
     // Normal learning worlds use the chest reward, not only the author demo.
     await page.locator('.op1-card[data-action="world-open"][data-world="sport"]').click();
     const worldState=await page.evaluate(()=>window.__zinsbouwerTest.getState());
     assert.equal(worldState.rewardPreview,true,'Regular learner world should get chest rewards');
+
+    const replay=page.locator('.work-area .sentence-review [data-action="speak-built"]');
+    assert.equal(await replay.count(),1,'Self-replay should sit in the sentence work area');
+    assert.equal(await replay.isDisabled(),true,'Self-replay requires a completed sentence');
+    const geometry=await page.evaluate(()=>{
+      const row=document.querySelector('.work-area .slots,.work-area .stem-line');
+      const btn=document.querySelector('.work-area .sentence-review');
+      const a=row?.getBoundingClientRect(),b=btn?.getBoundingClientRect();
+      return a&&b?{gap:b.top-a.bottom,left:b.left,right:b.right}:null;
+    });
+    assert.ok(geometry&&geometry.gap>=-3&&geometry.gap<=44,
+      'Replay control must be directly below the sentence: '+JSON.stringify(geometry));
+    assert.ok(geometry.left>=-2&&geometry.right<=width+2,'Replay clipped at '+width);
+    const replayItem=await page.evaluate(()=>window.__zinsbouwerTest.getCurrent());
+    if(replayItem.tiles){
+      for(const id of replayItem.solutions[0])
+        await page.locator('[data-action="tile"][data-id="'+id+'"]').click();
+    }else{
+      await page.locator('[data-action="ending"][data-ending="'+replayItem.ending+'"]').click();
+    }
+    assert.equal(await replay.isEnabled(),true,'Replay must enable for a complete answer');
+    await replay.click();
+    assert.equal((await page.evaluate(()=>window.__zinsbouwerTest.getState())).completed,false,
+      'Self-replay must not submit the answer');
+    await page.locator('[data-action="reset"]').click();
+
     await page.locator('[data-action="settings"]').first().click();
     await page.locator('[data-action="sound"]').click();
     await page.locator('[data-action="settings"]').first().click();
