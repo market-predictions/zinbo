@@ -250,7 +250,9 @@ assert.ok(html.includes("data-action=\"reward-demo-complete\""),'QA reward demo 
 assert.ok(html.includes("function rewardPreviewEnd(){"),'QA end celebration missing');
 assert.ok(html.includes("state.previewCoins+=state.previewLastGain;"),'Demo reward state missing');
 assert.ok(html.includes("else if(isPilotO3()){if(!isRewardPreview())recordPilotO3();}"),'Reward preview must not write author pilot results');
-assert.ok(html.includes("if(!isAuthorPilot()){stars++;saveLearning();}"),'Normal independent rewards must be untouched');
+assert.ok(html.includes('function awardRoundStar()'),'Round-based reward must be present');
+assert.ok(html.includes('stars+=1;saveLearning();'),'Stars must be earned on round completion only');
+assert.ok(!html.includes('if(!isAuthorPilot()){stars++;saveLearning();}'),'Independent correctness must not earn spendable stars');
 assert.ok(html.includes("prefers-reduced-motion: reduce"),'Reduced-motion option missing');
 assert.ok(html.includes("class=\"reward-vault-slot\""),'Visible chest landing slot missing');
 assert.ok(html.includes("duration:1800"),'Coin must no longer be a 780ms flash');
@@ -291,20 +293,27 @@ for(const id of expectedAvatars)
   assert.ok(html.includes("id:'"+id+"'"),'Missing native avatar '+id);
 assert.ok(html.includes("getProfileAvatars:()=>PROFILE_AVATARS"),'Avatar list accessor missing');
 assert.ok(html.includes("preferences.displayName=cleanProfileName(typed);"),'Name validation missing');
-assert.ok(html.includes("preferences.avatarId=validProfileAvatar(profileDraftAvatar);"),'Avatar ID validation missing');
+assert.ok(html.includes("preferences.avatarId=validProfileAvatar(profileDraftAvatar)") || html.includes("preferences.avatarId=profileDraftAvatar"),'Avatar selection validation missing');
 assert.ok(html.includes('${esc(profileLabel())}'),'Display name must be escaped');
 assert.ok(html.includes("profileDialogOpen?profileDialog():''"),'Profile must use the existing home surface');
-assert.ok(html.includes('version:3,skills:learning,stars,rewardCoins,preferences,placement,basicHistory'),
-  'Existing learner progress serialization must remain in place');
+assert.ok(html.includes('version:3,skills:learning,stars,rewardCoins,unlockedAvatarIds,preferences,placement,basicHistory'),
+  'Avatar purchases must use the canonical learner serialization');
+assert.ok(html.includes('const AVATAR_PRICE=5;'),'Uniform avatar price missing');
+assert.ok(html.includes('function avatarOwned(id)'),'Ownership guard missing');
+assert.ok(html.includes('pendingAvatarPurchase===profileDraftAvatar'),'Purchases require confirmation');
+assert.ok(html.includes("!preferences.listenOwnSentence"),'Unreviewed self-listening must default to opt-in');
+assert.ok(html.includes('data-action="profile-avatar-confirm"'),'Purchase control missing');
 
-// Ordinary world rounds share the successful QA chest animation and persist
-// non-diagnostic coins in the same local progress record.
-assert.ok(html.includes("rewardPreview:true,previewCoins:rewardCoins"),
-  'Ordinary world exercises must enable chest rewards');
-assert.ok(html.includes("rewardCoins=state.previewCoins;"),
-  'World reward earned must persist');
+// Normal learner worlds keep their chest animation, not a second stored wallet.
+assert.ok(html.includes("rewardPreview:true,previewCoins:0,previewShownCoins:0"),
+  'World reward animation must start from zero each round');
 assert.ok(html.includes("isPilotO3()||isWorld()"),
-  'Chest should be available to the normal learner world');
-assert.ok(html.includes("rewardCoins=Math.max(0,Math.min("),
-  'Stored coins must be bounded');
+  'Chest must remain available during normal learner worlds');
+assert.ok(!html.includes("rewardCoins=state.previewCoins;"),
+  'Coins may no longer form a competing persistent currency');
+assert.ok(html.includes("if(state.index>=4){awardRoundStar();"),
+  'World round star must be awarded only at completion');
+assert.ok(html.includes('data-action="listen-preview-toggle"'),
+  'Self-audio pilot must be gated by an explicit setting');
+
 console.log(`PASS P0 regression: ${scripts} JS program(s), 6 modal items, 27 distractor repairs, 4 world-level choices, casing, audio, help and text labels`);

@@ -11,6 +11,10 @@ Zinbo is een Nederlandstalige leeromgeving voor kinderen met taalontwikkelingspr
 - Hoorbare instructies, met voorkeur voor een Nederlandse `nl-NL`-spraakstem in plaats van `nl-BE`. De daadwerkelijke spraakkwaliteit hangt af van de geïnstalleerde browserstemmen.
 - Geen backend, advertenties of externe runtime-afhankelijkheden.
 
+## Avatarbibliotheek en rustigere navigatie
+
+Vier gratis smileys en acht ontgrendelbare avatars maken sterren besteedbaar (één vaste prijs van vijf sterren). Een nieuwe ster wordt verdiend na een volledige reguliere ronde van vijf oefeningen, onafhankelijk van fouten of hulp; de bestaande beoordeling van zelfstandigheid verandert niet. Bestaande sterren en eerder gebruikte avatar-ID's blijven behouden. De aparte Instellingen-knop uit de bovenbalk is verwijderd, het profielmenu bevat ook Voor ouders, en Verder oefenen is een compacte actie naast de volgende uitdaging. De schatkist blijft een visuele rondemijlpaal, niet een tweede valuta. **Mijn zin terugluisteren** is een optionele begeleide proef, standaard uit totdat het didactisch is getoetst. Technisch contract: [UX_AVATARS_2026-10-31.md](docs/UX_AVATARS_2026-10-31.md).
+
 ## Publicatie en controle
 
 De enige productieroute is **GitHub `main` → Cloudflare Pages → https://zinbo.pages.dev/**. Vooraf controleren we de releasebranch via pull request, GitHub Actions en een Cloudflare-branchpreview; geen Direct Upload.

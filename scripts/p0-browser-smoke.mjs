@@ -63,72 +63,89 @@ try {
     const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth);
     assert.ok(overflow<=2,'Unexpected horizontal overflow at '+width+': '+overflow);
 
-    // Profile edits are scoped to the existing browser preferences, not a new account.
+
+    // Four starter smileys, eight flat premium vectors; one canonical profile dialog.
     const openProfile=async()=>{
-      await page.locator('[data-action="world-profile"]').click();
-      await page.locator('[data-action="profile-edit"]').click();
-      assert.equal(await page.locator('.zinbo-profile-option').count(),8,
-        'Exactly eight native Zinbo avatars');
+      await page.locator('.op1-star[data-action="profile-edit"]').click();
+      assert.ok((await page.locator('.zinbo-avatar-tile').count())>=12,
+        'Four free and eight unlockable avatars must be visible');
       assert.equal(await page.locator('.zinbo-profile-dialog[role="dialog"]').count(),1);
+      assert.ok((await page.locator('.zinbo-avatar-grid').count())>=2);
     };
     await openProfile();
     const prefBefore=await page.evaluate(()=>window.__zinsbouwerTest.getPreferences());
     await page.locator('#zinbo-profile-name').fill('Niet opslaan');
-    await page.locator('[data-action="profile-avatar"][data-avatar="obj-bolt"]').click();
+    await page.locator('[data-action="profile-avatar"][data-avatar="smile-wink"]').click();
     await page.locator('[data-action="profile-cancel"]').last().click();
     assert.equal((await page.evaluate(()=>window.__zinsbouwerTest.getPreferences())).displayName,
       prefBefore.displayName,'Cancel must not save the nickname');
     await openProfile();
     await page.locator('#zinbo-profile-name').fill('Sam');
-    await page.locator('[data-action="profile-avatar"][data-avatar="obj-rocket"]').click();
+    await page.locator('[data-action="profile-avatar"][data-avatar="smile-cool"]').click();
+    await page.locator('[data-action="profile-avatar-choose"]').click();
     await page.locator('[data-action="profile-save"]').click();
     assert.equal((await page.locator('.op1-profile-name').innerText()).trim(),'Sam');
-    assert.equal(await page.locator('.op1-profile-avatar svg[data-avatar-id="obj-rocket"]').count(),1);
-    const saved=await page.evaluate(()=>{
-      const o=JSON.parse(localStorage.getItem('zinsbouwer-qa-360-feedback-20261019'));
-      return {name:o.preferences.displayName,avatar:o.preferences.avatarId,stars:o.stars,skills:o.skills};
-    });
-    assert.equal(saved.name,'Sam');assert.equal(saved.avatar,'obj-rocket');
+    assert.equal(await page.locator('.op1-profile-avatar svg[data-avatar-id="smile-cool"]').count(),1);
+    let saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('zinsbouwer-qa-360-feedback-20261019')));
+    assert.equal(saved.preferences.displayName,'Sam');
+    assert.equal(saved.preferences.avatarId,'smile-cool');
     await page.reload({waitUntil:'load'});
-    assert.equal((await page.locator('.op1-profile-name').innerText()).trim(),'Sam',
-      'Name must survive reload');
-    assert.equal(await page.locator('.op1-profile-avatar svg[data-avatar-id="obj-rocket"]').count(),1,
-      'Avatar must survive reload');
+    assert.equal((await page.locator('.op1-profile-name').innerText()).trim(),'Sam');
+    assert.equal(await page.locator('.op1-profile-avatar svg[data-avatar-id="smile-cool"]').count(),1,
+      'Selected avatar must survive reload');
     if(width===1366){
+      // A previous release's vector-avatar ID must never be lost.
       await page.evaluate(()=>{
         const key='zinsbouwer-qa-360-feedback-20261019';
-        const o=JSON.parse(localStorage.getItem(key));o.preferences.avatarId='invalid';
+        const o=JSON.parse(localStorage.getItem(key));
+        o.preferences.avatarId='obj-rocket';
+        o.stars=10;
         localStorage.setItem(key,JSON.stringify(o));
       });
       await page.reload({waitUntil:'load'});
-      assert.equal(await page.locator('.op1-profile-avatar svg[data-avatar-id="smile-happy"]').count(),1,
-        'Invalid avatar ID must fall back');
+      assert.equal(await page.locator('svg[data-avatar-id="obj-rocket"]').count(),1);
       await openProfile();
+      assert.equal(await page.locator('.zinbo-avatar-tile[data-avatar="obj-rocket"]').count(),1,
+        'Older chosen avatars remain owned');
+      await page.locator('[data-action="profile-avatar"][data-avatar="premium-explorer"]').click();
+      assert.equal(await page.locator('[data-action="profile-avatar-buy"]').count(),1);
+      await page.locator('[data-action="profile-avatar-buy"]').click();
+      assert.equal(await page.locator('[data-action="profile-avatar-confirm"]').count(),1);
+      await page.locator('[data-action="profile-avatar-confirm"]').click();
+      saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('zinsbouwer-qa-360-feedback-20261019')));
+      assert.equal(saved.stars,5,'Buying a premium avatar costs exactly five stars');
+      assert.ok(saved.unlockedAvatarIds.includes('premium-explorer'));
+      assert.ok(saved.unlockedAvatarIds.includes('obj-rocket'),'Historical avatar remains available');
+      assert.equal(saved.preferences.avatarId,'premium-explorer');
+      await page.locator('[data-action="profile-save"]').click();
+      await page.reload({waitUntil:'load'});
+      assert.equal(await page.locator('.op1-profile-avatar svg[data-avatar-id="premium-explorer"]').count(),1);
+      await openProfile();
+      await page.locator('[data-action="profile-avatar"][data-avatar="premium-explorer"]').click();
+      assert.equal(await page.locator('[data-action="profile-avatar-confirm"]').count(),0,'Ownership must be idempotent');
       await page.locator('#zinbo-profile-name').fill('Ada < Zoe');
       await page.locator('[data-action="profile-save"]').click();
-      assert.equal((await page.locator('.op1-profile-name').innerText()).trim(),'Ada < Zoe',
-        'Escaped name should appear literally');
-      assert.equal(await page.locator('.op1-profile-name img').count(),0,
-        'Name must not inject markup');
+      assert.equal((await page.locator('.op1-profile-name').innerText()).trim(),'Ada < Zoe');
+      assert.equal(await page.locator('.op1-profile-name img').count(),0,'Name must be escaped');
       const after=await page.evaluate(()=>JSON.parse(localStorage.getItem('zinsbouwer-qa-360-feedback-20261019')));
-      assert.equal(after.stars,saved.stars,'Profile must preserve stars');
-      assert.deepEqual(after.skills,saved.skills,'Profile must preserve learning evidence');
+      assert.equal(after.stars,5);
+      assert.deepEqual(after.skills,saved.skills,'Avatar actions must not modify learning evidence');
     }
     if(width===390){
       await openProfile();
       const bounds=await page.locator('.zinbo-profile-dialog').boundingBox();
       assert.ok(bounds&&bounds.x>=-2&&bounds.x+bounds.width<=width+2,
-        'Profile editor must fit narrow viewport');
+        'Avatar library must fit narrow viewport');
       await page.locator('#zinbo-profile-name').fill('Youssef');
       await page.locator('[data-action="profile-avatar"][data-avatar="smile-wink"]').click();
       assert.equal(await page.locator('#zinbo-profile-name').inputValue(),'Youssef',
-        'Changing avatar must retain uncommitted name');
+        'Avatar preview must retain uncommitted name');
+      await page.locator('[data-action="profile-avatar-choose"]').click();
       await page.locator('[data-action="profile-save"]').click();
       assert.equal((await page.locator('.op1-profile-name').innerText()).trim(),'Youssef');
       const profileOverflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
       assert.ok(profileOverflow<=2,'Customized header must not overflow mobile');
     }
-
 
     // Normal learning worlds use the chest reward, not only the author demo.
     await page.locator('.op1-card[data-action="world-open"][data-world="sport"]').click();
@@ -137,7 +154,11 @@ try {
     await page.locator('[data-action="settings"]').first().click();
     await page.locator('[data-action="sound"]').click();
     await page.locator('[data-action="settings"]').first().click();
-    let walletStart=(await page.evaluate(()=>window.__zinsbouwerTest.getRewardPreview())).storedCoins;
+
+    const balancesBefore=await page.evaluate(()=>{
+      const o=JSON.parse(localStorage.getItem('zinsbouwer-qa-360-feedback-20261019'));
+      return {stars:o.stars,coins:o.rewardCoins};
+    });
     for(let i=0;i<5;i++){
       const q=await page.evaluate(()=>window.__zinsbouwerTest.getCurrent());
       if(q.tiles){
@@ -147,22 +168,25 @@ try {
         await page.locator('[data-action="ending"][data-ending="'+q.ending+'"]').click();
       }
       await page.locator('[data-action="check"]').click();
-      assert.equal(await page.locator('.reward-preview-feedback').count(),1,'Normal world lacks feedback');
-      assert.equal((await page.evaluate(()=>window.__zinsbouwerTest.getRewardPreview())).storedCoins,
-        walletStart+(i+1)*2,'Independent answers should add two motivation coins');
+      assert.equal(await page.locator('.reward-preview-feedback').count(),1,'World lacks feedback');
+      const earned=await page.evaluate(()=>window.__zinsbouwerTest.getRewardPreview());
+      assert.equal(earned.coins,i+1,'Chest visually counts five completed sentences');
+      assert.equal(earned.storedCoins,balancesBefore.coins,'No second spendable currency should be awarded');
       await page.locator('[data-action="next"]').click();
     }
     assert.equal(await page.locator('.reward-preview-end').count(),1,'World must end with chest');
-    assert.equal(await page.locator('.reward-preview-end').innerText().then(x=>x.includes('UX-PROTOTYPE')),
-      false,'Normal world should not show demo language');
+    const balancesAfter=await page.evaluate(()=>{
+      const o=JSON.parse(localStorage.getItem('zinsbouwer-qa-360-feedback-20261019'));
+      return {stars:o.stars,coins:o.rewardCoins};
+    });
+    assert.equal(balancesAfter.stars,balancesBefore.stars+1,'Five completed exercises earn one star');
+    assert.equal(balancesAfter.coins,balancesBefore.coins,'Legacy coin counter is no longer a wallet');
     await page.locator('[data-action="reward-chest-open"]').click();
     assert.equal(await page.locator('.reward-preview-found').count(),1,'World chest must open');
     await page.locator('[data-action="home"]').first().click();
-    const storedWallet=await page.evaluate(()=>JSON.parse(localStorage.getItem('zinsbouwer-qa-360-feedback-20261019')).rewardCoins);
-    assert.equal(storedWallet,walletStart+10);
     await page.reload({waitUntil:'load'});
-    assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('zinsbouwer-qa-360-feedback-20261019')).rewardCoins),
-      storedWallet,'Coin wallet must persist after reload');
+    assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('zinsbouwer-qa-360-feedback-20261019')).stars),
+      balancesAfter.stars,'Earned star must persist after reload');
     // Restore the starting sound preference before exercising older audio regressions.
     await page.locator('.op1-card[data-action="world-open"][data-world="sport"]').click();
     await page.locator('[data-action="settings"]').first().click();
