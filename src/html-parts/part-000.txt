@@ -1007,6 +1007,21 @@ body.no-motion.reward-preview-mode .reward-vault-received{animation:none!importa
 .zinbo-avatar-footer .zinbo-profile-save{padding:10px 18px}
 .zinbo-avatar-dialog .zinbo-profile-local-note{font-size:12px;margin:9px 0 0}
 .self-listen-action{display:inline-flex;align-items:center;gap:8px;min-height:50px;white-space:nowrap}
+
+/* Self-replay is a sentence-level action, not a bottom exercise action. */
+.sentence-review{display:flex;justify-content:flex-end;margin:8px 8px 0;min-height:50px}
+.sentence-review .self-listen-action{
+  min-height:50px;border:2px solid #b9daf4;background:#ecf8ff;color:#116cb0;
+  border-radius:19px;padding:9px 18px;font-size:clamp(16px,1.25vw,19px);
+  font-weight:850;box-shadow:0 3px 10px #19334c12;white-space:normal;cursor:pointer
+}
+.sentence-review .self-listen-action:disabled{color:#6d9bb9;background:#f1f8fc;opacity:.72;cursor:not-allowed}
+.sentence-review .self-listen-action:focus-visible{outline:3px solid #168de1;outline-offset:3px}
+@media(max-width:700px){
+  .sentence-review{justify-content:flex-end;margin:8px 1px 0}
+  .sentence-review .self-listen-action{min-height:46px;padding:8px 13px;font-size:16px}
+}
+
 @media(max-width:950px){
  .zinbo-avatar-layout{grid-template-columns:minmax(0,1fr) 215px}
  .zinbo-avatar-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
