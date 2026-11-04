@@ -24,6 +24,7 @@ try{
       for(let i=0;i<5;i++){
         const q=await page.evaluate(()=>state.round[state.index]);
         assert.equal(q.level,level,'Wrong level in generated round');
+        await page.waitForFunction(()=>{const image=document.getElementById("scene");return image&&image.complete&&image.naturalWidth>=1000;},null,{timeout:10000});
         assert.ok(await page.locator('#scene').evaluate(img=>img.complete&&img.naturalWidth>=1000),'Missing picture '+q.id);
         if(i===0){
           const wrong=q.choices.find(x=>x!==q.answer);
