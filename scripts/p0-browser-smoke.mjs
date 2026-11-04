@@ -436,3 +436,6 @@ try {
   assert.deepEqual(errors,[],'No uncaught JS errors in Chromium');
   console.log('PASS Chromium smoke: 1366/1024/390, levels, audio, assisted answer, reward flow, mobile reduced motion');
 } finally { await browser.close(); }
+
+// Test the independent prepositions trial without changing production learner flows.
+await import('./voorzetsels-browser-smoke.mjs');
