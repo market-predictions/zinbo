@@ -1,0 +1,356 @@
+[
+  {
+    "id": "p1-01",
+    "level": 1,
+    "art": "grandma-reading.webp",
+    "before": "Oma zit",
+    "after": "de bank.",
+    "answer": "op",
+    "choices": [
+      "op",
+      "onder"
+    ],
+    "hint": "Kijk waar oma zit.",
+    "focus": "plek"
+  },
+  {
+    "id": "p1-02",
+    "level": 1,
+    "art": "kitchen-cooking-v2.webp",
+    "before": "Sara kookt",
+    "after": "de keuken.",
+    "answer": "in",
+    "choices": [
+      "buiten",
+      "in"
+    ],
+    "hint": "Kijk waar Sara aan het koken is.",
+    "focus": "plek"
+  },
+  {
+    "id": "p1-03",
+    "level": 1,
+    "art": "sam-friend-dog-soccer.webp",
+    "before": "De jongens voetballen",
+    "after": "het park.",
+    "answer": "in",
+    "choices": [
+      "naast",
+      "in"
+    ],
+    "hint": "Kijk waar de jongens voetballen.",
+    "focus": "plek"
+  },
+  {
+    "id": "p1-04",
+    "level": 1,
+    "art": "classroom-reading.webp",
+    "before": "De leerling leest",
+    "after": "de klas.",
+    "answer": "in",
+    "choices": [
+      "in",
+      "buiten"
+    ],
+    "hint": "Kijk waar de leerling zit.",
+    "focus": "plek"
+  },
+  {
+    "id": "p1-05",
+    "level": 1,
+    "art": "pool-swimming.webp",
+    "before": "Sam zwemt",
+    "after": "het zwembad.",
+    "answer": "in",
+    "choices": [
+      "naast",
+      "in"
+    ],
+    "hint": "Kijk waar Sam zwemt.",
+    "focus": "plek"
+  },
+  {
+    "id": "p1-06",
+    "level": 1,
+    "art": "schoolyard.webp",
+    "before": "De kinderen spelen",
+    "after": "het schoolplein.",
+    "answer": "op",
+    "choices": [
+      "op",
+      "naast"
+    ],
+    "hint": "Kijk op welke plek de kinderen spelen.",
+    "focus": "plek"
+  },
+  {
+    "id": "p2-01",
+    "level": 2,
+    "art": "drawing-together.webp",
+    "before": "De kinderen zitten",
+    "after": "elkaar.",
+    "answer": "naast",
+    "choices": [
+      "achter",
+      "naast",
+      "voor"
+    ],
+    "hint": "Kijk hoe de kinderen ten opzichte van elkaar zitten.",
+    "focus": "positie"
+  },
+  {
+    "id": "p2-02",
+    "level": 2,
+    "art": "school-walking-v2.webp",
+    "before": "Sara loopt",
+    "after": "de school.",
+    "answer": "voor",
+    "choices": [
+      "achter",
+      "voor",
+      "boven"
+    ],
+    "hint": "Zie je Sara aan de voorkant van het schoolgebouw?",
+    "focus": "positie"
+  },
+  {
+    "id": "p2-03",
+    "level": 2,
+    "art": "museum-looking.webp",
+    "before": "Sara staat",
+    "after": "het schilderij.",
+    "answer": "voor",
+    "choices": [
+      "achter",
+      "onder",
+      "voor"
+    ],
+    "hint": "Kijk waar Sara staat ten opzichte van het schilderij.",
+    "focus": "positie"
+  },
+  {
+    "id": "p2-04",
+    "level": 2,
+    "art": "sara-parcel.webp",
+    "before": "Sara staat",
+    "after": "oma.",
+    "answer": "tegenover",
+    "choices": [
+      "achter",
+      "tegenover",
+      "onder"
+    ],
+    "hint": "Sara en oma staan met hun gezichten naar elkaar.",
+    "focus": "positie"
+  },
+  {
+    "id": "p2-05",
+    "level": 2,
+    "art": "park-walk-grandma.webp",
+    "before": "De bank staat",
+    "after": "het pad.",
+    "answer": "naast",
+    "choices": [
+      "naast",
+      "op",
+      "onder"
+    ],
+    "hint": "Kijk naar de bank rechts op het plaatje.",
+    "focus": "positie"
+  },
+  {
+    "id": "p2-06",
+    "level": 2,
+    "art": "station-trip.webp",
+    "before": "Sara staat",
+    "after": "de bushalte.",
+    "answer": "bij",
+    "choices": [
+      "bij",
+      "onder",
+      "boven"
+    ],
+    "hint": "Kijk waar Sara op de bus wacht.",
+    "focus": "positie"
+  },
+  {
+    "id": "p3-01",
+    "level": 3,
+    "art": "bike-to-school.webp",
+    "before": "Het kind fietst",
+    "after": "school.",
+    "answer": "naar",
+    "choices": [
+      "van",
+      "naar",
+      "door"
+    ],
+    "hint": "Kijk waar het kind naartoe fietst.",
+    "focus": "richting"
+  },
+  {
+    "id": "p3-02",
+    "level": 3,
+    "art": "park-walk-grandma.webp",
+    "before": "Oma wandelt",
+    "after": "het water.",
+    "answer": "langs",
+    "choices": [
+      "door",
+      "langs",
+      "over"
+    ],
+    "hint": "Oma loopt op het pad dat naast het water ligt.",
+    "focus": "route"
+  },
+  {
+    "id": "p3-03",
+    "level": 3,
+    "art": "dog-run.webp",
+    "before": "De hond rent",
+    "after": "het gras.",
+    "answer": "over",
+    "choices": [
+      "onder",
+      "over",
+      "achter"
+    ],
+    "hint": "Kijk waarover de hond rent.",
+    "focus": "route"
+  },
+  {
+    "id": "p3-04",
+    "level": 3,
+    "art": "sara-parcel.webp",
+    "before": "Sara geeft een pakje",
+    "after": "oma.",
+    "answer": "aan",
+    "choices": [
+      "aan",
+      "van",
+      "uit"
+    ],
+    "hint": "Sara geeft iets aan een ander persoon.",
+    "focus": "ontvanger"
+  },
+  {
+    "id": "p3-05",
+    "level": 3,
+    "art": "garden-work.webp",
+    "before": "De jongen werkt",
+    "after": "een hark.",
+    "answer": "met",
+    "choices": [
+      "zonder",
+      "met",
+      "onder"
+    ],
+    "hint": "Kijk wat de jongen gebruikt om te werken.",
+    "focus": "middel"
+  },
+  {
+    "id": "p3-06",
+    "level": 3,
+    "art": "town-lookout-v2.webp",
+    "before": "Sam kijkt",
+    "after": "de stad.",
+    "answer": "naar",
+    "choices": [
+      "door",
+      "naar",
+      "onder"
+    ],
+    "hint": "Kijk in welke richting Sam kijkt.",
+    "focus": "richting"
+  },
+  {
+    "id": "p4-01",
+    "level": 4,
+    "art": "station-trip.webp",
+    "before": "Sara wacht",
+    "after": "de bus.",
+    "answer": "op",
+    "choices": [
+      "op",
+      "met",
+      "naar"
+    ],
+    "hint": "Welk woord hoort bij wachten als je op iets wacht?",
+    "focus": "vaste-combinatie"
+  },
+  {
+    "id": "p4-02",
+    "level": 4,
+    "art": "family-talk-v2.webp",
+    "before": "Sara praat",
+    "after": "oma.",
+    "answer": "met",
+    "choices": [
+      "over",
+      "met",
+      "naar"
+    ],
+    "hint": "Sara en oma voeren samen een gesprek.",
+    "focus": "vaste-combinatie"
+  },
+  {
+    "id": "p4-03",
+    "level": 4,
+    "art": "museum-looking.webp",
+    "before": "Sara kijkt",
+    "after": "het schilderij.",
+    "answer": "naar",
+    "choices": [
+      "over",
+      "naar",
+      "met"
+    ],
+    "hint": "Welk woord hoort bij kijken naar iets?",
+    "focus": "vaste-combinatie"
+  },
+  {
+    "id": "p4-04",
+    "level": 4,
+    "art": "garden-work.webp",
+    "before": "De jongen zorgt",
+    "after": "de planten.",
+    "answer": "voor",
+    "choices": [
+      "voor",
+      "met",
+      "van"
+    ],
+    "hint": "Hij verzorgt de planten in zijn tuin.",
+    "focus": "vaste-combinatie"
+  },
+  {
+    "id": "p4-05",
+    "level": 4,
+    "art": "sam-friend-dog-soccer.webp",
+    "before": "Sam voetbalt",
+    "after": "zijn vriend.",
+    "answer": "met",
+    "choices": [
+      "met",
+      "naar",
+      "onder"
+    ],
+    "hint": "Sam voetbalt samen met iemand.",
+    "focus": "vaste-combinatie"
+  },
+  {
+    "id": "p4-06",
+    "level": 4,
+    "art": "family-talk-v2.webp",
+    "before": "Oma luistert",
+    "after": "Sara.",
+    "answer": "naar",
+    "choices": [
+      "aan",
+      "naar",
+      "met"
+    ],
+    "hint": "Sara vertelt iets en oma luistert.",
+    "focus": "vaste-combinatie"
+  }
+]
