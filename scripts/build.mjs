@@ -89,3 +89,6 @@ const built=source.replace(marker,'const RELEASE_REVIEW_IDS=new Set('+JSON.strin
 await mkdir(publicDir,{recursive:true});
 await writeFile(new URL('index.html',publicDir),built,'utf8');
 console.log('Zinbo P0 candidate artifact validated:',Buffer.byteLength(built,'utf8'),'bytes; reviewed bank items:',ids.length);
+
+// Add the isolated test page only to this experiment branch, after the pinned release build.
+await import('./build-voorzetsels-preview.mjs');
