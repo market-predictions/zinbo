@@ -116,9 +116,14 @@ Per PR: wat veranderd is, schermafbeeldingen vóór/na op drie formaten, CI-stat
 
 | Fase | Status |
 | --- | --- |
-| 0 | [PR #10](https://github.com/market-predictions/zinbo/pull/10) concept geopend; code en tests aangepast; CI en screenshots nog niet uitgevoerd of gevalideerd |
-| 1 | open |
-| 2 | open |
-| 3 | open |
-| 4 | open |
-| 5 | voorstel, wacht op eigenaar |
+| 0 | [PR #10](https://github.com/market-predictions/zinbo/pull/10) — QA-fouten afgeschermd; CI groen, preview beschikbaar; eigenaarreview open |
+| 1 | [PR #11](https://github.com/market-predictions/zinbo/pull/11) — broncode en afbeeldingen gesplitst; CI groen; eigenaarreview open |
+| 2 | [PR #12](https://github.com/market-predictions/zinbo/pull/12) — design tokens, Nunito, CSS-audit; CI groen; eigenaarreview open |
+| 3 | [PR #13](https://github.com/market-predictions/zinbo/pull/13) — oefenschermen volgens mockups A–D en rolmarkeringen; CI groen; eigenaarreview open |
+| 4 | [PR #14](https://github.com/market-predictions/zinbo/pull/14) — start/einde volgens mockups E–G; mobiele screenshotbevindingen gecorrigeerd; laatste CI en visuele review nog af te ronden |
+| 5 | Niet gestart; alleen uitvoeren na expliciet akkoord eigenaar |
+
+De PRs volgen op elkaar en zijn nog **niet** geïntegreerd in `main`.
+De preview van de gezamenlijke wijzigingen staat op
+https://design-phase-4-start-end-red.zinbo.pages.dev/ .
+De zeven mockups zijn visuele specificaties; de didactische rolcodering en feedback moeten nog door een logopedist worden beoordeeld.
