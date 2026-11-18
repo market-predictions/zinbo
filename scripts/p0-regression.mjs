@@ -5,6 +5,17 @@ import { Script, runInNewContext } from 'node:vm';
 
 const html = await readFile(new URL('../public/index.html', import.meta.url), 'utf8');
 const css = await readFile(new URL('../public/styles.css', import.meta.url), 'utf8');
+// Release gate: the redesign must not silently remove live privacy/security
+// response headers when it adds long-lived static asset caching.
+const headers = await readFile(new URL('../public/_headers', import.meta.url), 'utf8');
+for (const required of [
+  'X-Robots-Tag: noindex, nofollow',
+  'X-Content-Type-Options: nosniff',
+  'Referrer-Policy: strict-origin-when-cross-origin',
+  '/index.html', 'Cache-Control: no-cache',
+  '/art/*', '/fonts/*', '/styles.css'
+]) assert.ok(headers.includes(required), 'Missing production header: '+required);
+
 
 // Compile embedded JavaScript: catch unterminated templates, malformed regexes
 // and accidental source-segment corruption before publication.
