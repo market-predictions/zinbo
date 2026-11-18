@@ -458,6 +458,28 @@ try {
       const scrollOverflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
       assert.ok(scrollOverflow<=2,'Reward visual horizontal overflow at 390: '+scrollOverflow);
     }
+    // Visual QA regression: selected verb endings must not combine an
+    // external outline with the former raised bottom border/shadow.
+    // Exercise the real child route, at every supported viewport.
+    const choicePage=await context.newPage();
+    choicePage.on('pageerror',e=>errors.push(width+' choice-state: '+e.message));
+    await choicePage.goto(url,{waitUntil:'load'});
+    await choicePage.locator('.op1-other summary').click();
+    await choicePage.locator('.op1-other [data-action="challenge-home"]').click();
+    await choicePage.locator('[data-action="start-skill"][data-skill="past"]').click();
+    const option=choicePage.locator('.choice-row .ending').first();
+    await option.click();
+    const visuals=await choicePage.locator('.choice-row .ending.selected').evaluate(el=>{
+      const css=getComputedStyle(el);
+      return {top:css.borderTopWidth,bottom:css.borderBottomWidth,
+        topColor:css.borderTopColor,bottomColor:css.borderBottomColor,
+        shadow:css.boxShadow,outline:css.outlineStyle};
+    });
+    assert.equal(visuals.top,visuals.bottom,'Selected ending must have an even border');
+    assert.equal(visuals.topColor,visuals.bottomColor,'Selected ending must use a unified border color');
+    assert.equal(visuals.shadow,'none','Selected ending must not show the old bottom shadow');
+    assert.equal(visuals.outline,'none','Selected ending must not show a second, detached outline');
+    await choicePage.close();
     await context.close();
   }
   assert.deepEqual(errors,[],'No uncaught JS errors in Chromium');
