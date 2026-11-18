@@ -274,7 +274,7 @@
     app.querySelectorAll('[data-action]').forEach(button=>button.addEventListener('click',()=>{
       if(button===suppressDragClick.button && Date.now()<suppressDragClick.until)return;
       const a=button.dataset.action;
-      if(a==='o4-level'){const n=Number(button.dataset.level);if([1,2,3,4].includes(n)){o4Data.level=n;saveO4();render();}}
+      if(a==='o4-level'){const value=button.dataset.level;const n=Number(value);if(value==='auto'||[1,2,3,4].includes(n)){o4Data.level=value==='auto'?null:n;saveO4();render();}}
       else if(a==='o4-start'){startPilotO4();}
       else if(a==='o3-pilot-open'){startPilotO3(app.querySelector('#o3-pilot-picker')?.value);}
       else if(a==='reward-preview-open'){startPilotO3('o3-omdat-01',true);}
@@ -348,7 +348,7 @@
        else if(a==='school-group'){preferences.schoolGroup=button.dataset.group||null;saveLearning();render();const parent=app.querySelector('details.landing-parent');if(parent)parent.open=true;}
        else if(a==='start-skill')startSkill(button.dataset.skill);
       else if(a==='repeat-skill')startSkill(state.lessonSkill);
-      else if(a==='clear-learning'){parentPanelOpen=false;resetConfirmOpen=false;learning=Object.fromEntries(SKILLS.map(k=>[k,emptySkill()]));placement={seen:[],history:[],done:false};basicHistory=[];completedSeries={order:new Set(),morph:new Set()};saveLearning();render();}
+      else if(a==='clear-learning'){parentPanelOpen=false;resetConfirmOpen=false;learning=Object.fromEntries(SKILLS.map(k=>[k,emptySkill()]));placement={seen:[],history:[],done:false,recommendedLevel:null};basicHistory=[];completedSeries={order:new Set(),morph:new Set()};saveLearning();render();}
       else if(a==='start-order')pickMode('order');
       else if(a==='start-morph')pickMode('morph');
       else if(a==='home')goHome();
