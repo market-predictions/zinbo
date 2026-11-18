@@ -18,16 +18,45 @@
 
   function speakOwnPrompt(){speak('Wil je iets over jezelf vertellen? Zeg één zin over iets dat je graag doet. Je mag ook passen.');}
   function ownVoicePrompt(){return `<div class="voice-optional"><strong>Jouw zin (als je wilt)</strong><p>Vertel hardop één ding dat jij graag doet. Je mag ook overslaan. We luisteren niet mee en bewaren niets.</p><button type="button" class="secondary" data-action="own-prompt" ${state.audioOn?'':'disabled'}>Luister naar de vraag</button></div>`;}
+  function roundEnd(action,label,extra=''){
+    const review=Array.isArray(state.roundReview)?state.roundReview:[];
+    const independent=review.filter(entry=>entry.independent).length;
+    const assisted=review.length-independent;
+    const items=review.map((entry,i)=>\`<li class="zbv4-review-row">
+      <span class="zbv4-review-symbol \${entry.independent?'is-self':'is-assisted'}" aria-hidden="true">\${entry.independent?'✓':'◈'}</span>
+      <span class="zbv4-review-sentence">\${esc(entry.sentence)}</span>
+      <span class="zbv4-review-label">\${entry.independent?'Zelf':'Met hulp'}</span>
+      <button type="button" class="zbv4-review-listen" data-action="speak-summary" data-index="\${entry.index}" \${state.audioOn?'':'disabled'} aria-label="Luister naar zin \${i+1}">\${uiIcon('audio',20)}</button>
+    </li>\`).join('');
+    const message=review.length
+      ?independent+' '+(independent===1?'zin deed':'zinnen deed')+' je zelfstandig. '+(assisted?assisted+' '+(assisted===1?'zin maakte':'zinnen maakte')+' je met hulp.':'Goed gedaan!')
+      :'Goed geoefend!';
+    return \`<section class="panel success zbv4-end">
+      <header class="zbv4-end-brand">Zinbo</header>
+      <div class="zbv4-end-layout">
+        <div class="zbv4-end-celebration"><div class="zbv4-end-star" aria-hidden="true">★</div>
+        <h1>Ronde klaar!</h1><p>Je verdiende een ster. Je hebt er nu \${stars}.</p></div>
+        <div class="zbv4-review-card"><h2>Jouw \${review.length===5?'vijf':review.length} zinnen</h2>
+        <ol class="zbv4-review-list">\${items}</ol>
+        <p class="zbv4-review-summary">\${message}</p></div>
+      </div>
+      <div class="zbv4-end-actions">
+        <button class="secondary" data-action="home">Naar start</button>
+        <button class="primary" data-action="\${action}" \${extra}>\${label} \${uiIcon('chevron-right',22)}</button>
+      </div>
+      <details class="zbv4-end-optional"><summary>Wil je nog iets vertellen?</summary>\${ownVoicePrompt()}</details>
+    </section>\`;
+  }
   function end(){
     if(isRewardPreview())return rewardPreviewEnd();
     if(isPilotO4())return `<section class="panel success"><div class="checkicon" aria-hidden="true">★</div><h1>O4-oefenronde afgerond</h1><p>Vijf oefenzinnen, met ondersteuning waar nodig. Nog geen officiële taalniveau-uitspraak.</p><div class="actions"><button class="secondary" data-action="home">Terug naar de werelden</button><button class="primary" data-action="o4-start">Nog vijf adaptieve zinnen</button></div></section>`;
     if(isPilotO3())return `<section class="panel success"><div class="checkicon" aria-hidden="true">★</div><h1>O3-pilot afgerond</h1><p>Vijf proefzinnen geoefend, nog niet vrijgegeven.</p><div class="actions"><button class="secondary" data-action="home">Terug naar de leerwereld</button><button class="primary" data-action="o3-pilot-again">Nog vijf proefzinnen</button></div></section>`;
     if(isPilotVTT())return `<section class="panel success"><div class="checkicon" aria-hidden="true">★</div><h1>VTT-pilot afgerond</h1><p>Je hebt vijf proefzinnen gemaakt. Ze blijven kandidaatmateriaal.</p><div class="actions"><button class="secondary" data-action="home">Terug naar de leerwereld</button><button class="primary" data-action="vtt-pilot-again">Nog vijf proefzinnen</button></div></section>`;
-    if(isWorld())return `<section class="panel success"><div class="checkicon" aria-hidden="true">★</div><h1>Goed geoefend!</h1><p>Je hebt vijf zinnen gemaakt. Wil je nog verder?</p>${ownVoicePrompt()}<div class="actions"><button class="secondary" data-action="home">Terug naar de leerwereld</button><button class="primary" data-action="repeat-world" data-world="${state.worldId}">Nog vijf zinnen →</button></div></section>`;
+    if(isWorld())return roundEnd('repeat-world','Nog een ronde','data-world="'+state.worldId+'"');
     if(isPlacement())return `<section class="panel success"><div class="checkicon" aria-hidden="true">★</div><h1>Goed geprobeerd!</h1><p>Dit was een kennismaking, geen toets. Kies een oefening die je leuk vindt.</p><div class="actions"><button class="primary" data-action="home">Kies een oefening →</button></div></section>`;
-    if(isAdaptive())return `<section class="panel success"><div class="checkicon" aria-hidden="true">★</div><h1>Goed geoefend!</h1><p>Je kunt verder oefenen wanneer je wilt.</p>${ownVoicePrompt()}<div class="actions"><button class="secondary" data-action="home">Stoppen</button><button class="secondary" data-action="challenge-home">Andere uitdaging</button><button class="primary" data-action="repeat-skill">Nog vijf zinnen →</button></div></section>`;
+    if(isAdaptive())return roundEnd('repeat-skill','Nog een ronde');
     const hasNext=state.series<3;
-    return `<section class="panel success"><div class="checkicon" aria-hidden="true">★</div><h1>Goed geoefend!</h1><p>Vijf zinnen gedaan. Wil je nog een serie?</p>${ownVoicePrompt()}<div class="actions"><button class="secondary" data-action="home">Stoppen</button><button class="secondary" data-action="series">Andere serie</button><button class="primary" data-action="${hasNext?'next-series':'series'}">${hasNext?'Volgende serie →':'Kies een serie →'}</button></div></section>`;
+    return roundEnd(hasNext?'next-series':'series','Nog een ronde');
   }
 
 
@@ -224,7 +253,7 @@
     baseLayout(content);
     let target = null;
     if(action){
-      if(state.screen==='end') target=app.querySelector('[data-action="repeat-skill"]')||app.querySelector('[data-action="next-series"]')||app.querySelector('[data-action="series"]');
+      if(state.screen==='end') target=app.querySelector('.zbv4-end-actions .primary')||app.querySelector('[data-action="repeat-skill"]')||app.querySelector('[data-action="next-series"]')||app.querySelector('[data-action="series"]');
       else if(state.screen==='challenge-menu')target=app.querySelector('[data-action="start-skill"]');
       else if(state.screen==='home')target=app.querySelector('[data-action="start-order"]');
       else if(state.screen==='series')target=app.querySelector('[data-action="pick-series"]');
@@ -340,6 +369,7 @@
       else if(a==='answer')showAnswer();
        else if(a==='own-prompt')speakOwnPrompt();
        else if(a==='speak-correct'&&state.completed)speak(correctSentence());
+        else if(a==='speak-summary'&&state.screen==='end'&&state.audioOn){const entry=(state.roundReview||[]).find(x=>x.index===Number(button.dataset.index));if(entry)speak(entry.sentence);}
       else if(a==='next')next();
       else if(a==='again')start(state.mode,state.series);
     }));
