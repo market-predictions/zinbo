@@ -2,7 +2,7 @@
     const q=item(),morph=state.mode==='morph';
     const subtitle=esc(taskInstruction());
     const controls=`<div class="actions premium-actions zbv2-actions"><button class="secondary reset-action" data-action="reset" ${state.completed?'disabled':''}>${uiIcon('replay',28)} <span>Opnieuw</span></button><div class="action-middle"><button class="secondary hint-action" data-action="hint" aria-pressed="${state.showHint}" ${state.completed?'disabled':''}>${uiIcon('bulb',28)} <span>Hint</span></button>${state.attempts>=2&&!state.completed?'<button class="secondary answer-action" data-action="answer">Laat zien</button>':''}</div><button class="primary check-action" data-action="${state.completed?'next':'check'}" ${!state.completed&&!currentComplete()?'disabled':''}>${uiIcon('check',28)} <span>${state.completed?(state.index===4?'Afronden':'Volgende'):'Controleer'}</span></button></div>`;
-    return `<section class="panel zbv2-exercise">${topBar()}<div class="zbv2-exercise-body"><div class="zbv2-task-panel"><button class="instruction-card" data-action="speak-task" ${state.audioOn?'':'disabled'} aria-label="Herhaal de opdracht"><span class="zbv2-listen-icon">${uiIcon('audio',32)}</span><span class="zbv2-task-text">${subtitle}</span></button>${scene(q)}</div>${rewardSuccessMarkup()}<div class="work-area zbv2-work-area">${morph?morphBody(q):orderBody(q)}</div>${controls}${isRewardPreview()&&!state.completed?`<div class="reward-prototype-tools"><span class="reward-preview-label">QA · geen echte munten</span><button class="reward-demo-trigger" data-action="reward-demo-complete">Toon visuele beloning</button></div>`:isRewardPreview()?`<div class="reward-prototype-tools"><span class="reward-preview-label">QA · geen echte munten</span></div>`:""}</div></section>`;
+    return `<section class="panel zbv2-exercise">${topBar()}<div class="zbv2-exercise-body"><div class="zbv2-task-panel ${SCENE_ART[q.art]||V43_ART[q.art]?'has-art':'no-art'}"><button class="instruction-card" data-action="speak-task" ${state.audioOn?'':'disabled'} aria-label="Herhaal de opdracht"><span class="zbv2-listen-icon">${uiIcon('audio',32)}</span><span class="zbv2-task-text">${subtitle}</span></button>${scene(q)}</div>${rewardSuccessMarkup()}<div class="work-area zbv2-work-area">${morph?morphBody(q):orderBody(q)}</div>${controls}${isRewardPreview()&&!state.completed?`<div class="reward-prototype-tools"><span class="reward-preview-label">QA · geen echte munten</span><button class="reward-demo-trigger" data-action="reward-demo-complete">Toon visuele beloning</button></div>`:isRewardPreview()?`<div class="reward-prototype-tools"><span class="reward-preview-label">QA · geen echte munten</span></div>`:""}</div></section>`;
   }
   function correctSentence(){const q=item();return state.mode==='order'?sentence(q,state.positions):q.full;}
   function speakBuiltSentence(){
@@ -238,7 +238,10 @@
     </section>`;
   }
 
+  let lastRenderedScreen=null;
   function render(){
+    const didChangeScreen=state.screen!==lastRenderedScreen;
+    lastRenderedScreen=state.screen;
     document.body.classList.toggle('in-exercise',state.screen==='exercise');
     document.body.classList.toggle('in-landing',state.screen!=='exercise');
     document.body.classList.toggle('in-world',state.screen==='home');
@@ -251,6 +254,7 @@
     let content=state.screen==='home'?worldDashboard():state.screen==='routes'?home():state.screen==='series'?seriesScreen():state.screen==='challenge-menu'?challengeHome():state.screen==='exercise'?exercise():end();
 
     baseLayout(content);
+    if(didChangeScreen)window.scrollTo(0,0);
     let target = null;
     if(action){
       if(state.screen==='end') target=app.querySelector('.zbv4-end-actions .primary')||app.querySelector('[data-action="repeat-skill"]')||app.querySelector('[data-action="next-series"]')||app.querySelector('[data-action="series"]');
