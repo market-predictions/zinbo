@@ -10,6 +10,8 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -25,3 +27,16 @@ jobs:
           npx playwright install chromium
       - name: Browser smoke test
         run: node scripts/p0-browser-smoke.mjs
+      - name: Capture phase-0 before/after at three viewports
+        if: github.event_name == 'pull_request'
+        run: |
+          git worktree add --detach "$RUNNER_TEMP/zinbo-phase0-baseline" origin/main
+          (cd "$RUNNER_TEMP/zinbo-phase0-baseline" && node scripts/build.mjs)
+          node scripts/phase0-screenshots.mjs "$RUNNER_TEMP/zinbo-phase0-baseline/public/index.html" public/index.html artifacts/phase-0
+      - name: Publish phase-0 screenshots
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase0-before-after-screenshots
+          path: artifacts/phase-0
+          if-no-files-found: warn
