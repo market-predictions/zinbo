@@ -294,6 +294,15 @@ try {
       assert.ok(v.left>=0&&v.right<=width+2,'Mini chest must fit the viewport');
     };
     if(width===1366) {
+      // Fase 5: parent can switch back from a manual level to automatic.
+      await page.locator('[data-action="world-profile"]').click();
+      await page.locator('.op1-menu [data-action="world-group"]').click();
+      await page.locator('.world-parent-dialog [data-level="3"]').click();
+      assert.equal(await page.locator('.world-parent-dialog [data-level="3"]').getAttribute('aria-pressed'),'true');
+      await page.locator('.world-parent-dialog [data-level="auto"]').click();
+      assert.equal(await page.locator('.world-parent-dialog [data-level="auto"]').getAttribute('aria-pressed'),'true');
+      assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('zinsbouwer-o4-adaptive-qa-20261019')).level),null);
+      await page.locator('.parent-close').click();
       const first=async level=>{
         await page.locator('[data-action="world-profile"]').click();
         await page.locator('.op1-menu [data-action="world-group"]').click();
