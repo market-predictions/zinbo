@@ -114,18 +114,21 @@ De eigenaar heeft in de Control-chat expliciet akkoord gegeven voor uitvoering v
 
 Per PR: wat veranderd is, schermafbeeldingen vóór/na op drie formaten, CI-status, de meetwaarden uit fase 2 (zodra van toepassing), en een lijst open vragen voor de eigenaar. Houd `docs/HANDOFF_REDESIGN_V1.md` bij met een statusregel per fase onderaan.
 
-## Status
+## Status — productiepublicatie 19 november 2026
 
-| Fase | Status |
+De eigenaar heeft de geïntegreerde fase-5-preview visueel en functioneel beoordeeld en expliciet opdracht gegeven om deze te promoveren naar `https://zinbo.pages.dev/`. Alle fasen 0–5 zijn via [PR #15](https://github.com/market-predictions/zinbo/pull/15) opgenomen in `main`; GitHub heeft de onderliggende PR's #10–#14 automatisch als geïntegreerd gemarkeerd.
+
+| Fase | Uitkomst |
 | --- | --- |
-| 0 | [PR #10](https://github.com/market-predictions/zinbo/pull/10) — QA-fouten afgeschermd; CI groen, preview beschikbaar; eigenaarreview open |
-| 1 | [PR #11](https://github.com/market-predictions/zinbo/pull/11) — broncode en afbeeldingen gesplitst; CI groen; eigenaarreview open |
-| 2 | [PR #12](https://github.com/market-predictions/zinbo/pull/12) — design tokens, Nunito, CSS-audit; CI groen; eigenaarreview open |
-| 3 | [PR #13](https://github.com/market-predictions/zinbo/pull/13) — oefenschermen volgens mockups A–D en rolmarkeringen; CI groen; eigenaarreview open |
-| 4 | [PR #14](https://github.com/market-predictions/zinbo/pull/14) — start/einde volgens mockups E–G; mobiele screenshotbevindingen gecorrigeerd; laatste CI en visuele review nog af te ronden |
-| 5 | [PR #15](https://github.com/market-predictions/zinbo/pull/15) — eigenaarakkoord ontvangen; didactische selectie aangepast; nieuwe CI en onafhankelijke didactische beoordeling vereist |
+| 0 | [PR #10](https://github.com/market-predictions/zinbo/pull/10) — kinderroute zonder QA-bediening, tekstcorrecties, responsive fix; opgenomen in productie |
+| 1 | [PR #11](https://github.com/market-predictions/zinbo/pull/11) — echte bronnen, contentbestanden en losse illustraties; opgenomen in productie |
+| 2 | [PR #12](https://github.com/market-predictions/zinbo/pull/12) — ontwerptokens, Nunito en opgeschoonde styles; opgenomen in productie |
+| 3 | [PR #13](https://github.com/market-predictions/zinbo/pull/13) — oefenschermen en grammaticale rolmarkeringen; opgenomen in productie |
+| 4 | [PR #14](https://github.com/market-predictions/zinbo/pull/14) — start- en eindschermen, mobiele revisies, feitelijke ronde-terugblik; opgenomen in productie |
+| 5 | [PR #15](https://github.com/market-predictions/zinbo/pull/15) — kennismakingsadvies en gevarieerde vijfopgavenrondes; opgenomen in productie |
 
-De PRs volgen op elkaar en zijn nog **niet** geïntegreerd in `main`.
-De preview van de gezamenlijke wijzigingen staat op
-https://design-phase-4-start-end-red.zinbo.pages.dev/ .
-De zeven mockups zijn visuele specificaties; de didactische rolcodering en feedback moeten nog door een logopedist worden beoordeeld.
+**Releasebewijs:** GitHub-merge `2cad3111eb70423b108d000104afa49136a19170` (volledig identieke bronboom als de geslaagde PR-preview); [GitHub Actions-productiecheck](https://github.com/market-predictions/zinbo/actions/runs/44421396595) geslaagd; Cloudflare Pages gaf voor dezelfde mergecommit **Deploy successful** ([deploymentlog](https://dash.cloudflare.com/?to=/298041aeb67ef87334b86934b4e34c8c/pages/view/zinbo/7d22e1dc-ab00-4ff5-8fb9-a039c219d7ec)). De oorspronkelijke beveiligings- en privacyheaders bleven behouden naast de nieuwe cachingregels.
+
+**Didactische status:** de oefenselectie en visuele markeringen zijn implementaties voor begeleid oefenen, geen klinische beoordeling of bewijs van leereffect. Onafhankelijke logopedische validatie van de nieuwe adaptieve heuristiek, feedback en inhoud blijft aanbevolen en is niet als voltooid aangemerkt.
+
+**Terugvalreferentie:** pre-release `main` was commit `baa3b323872965a31898a425401164fab92e1fe9`. Een eventuele terugdraaiing loopt via een gecontroleerde PR/revert en tests, niet via een ongerichte force-push.
