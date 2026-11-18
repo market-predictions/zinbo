@@ -400,6 +400,7 @@
   const SCENE_ART = {"bike-to-school.webp":"./art/bike-to-school.webp","dog-run.webp":"./art/dog-run.webp","drawing-together.webp":"./art/drawing-together.webp","garden-work.webp":"./art/garden-work.webp","grandma-reading.webp":"./art/grandma-reading.webp","kids-dancing.webp":"./art/kids-dancing.webp","park-walk-grandma.webp":"./art/park-walk-grandma.webp","sam-friend-dog-soccer.webp":"./art/sam-friend-dog-soccer.webp","sam-soccer.webp":"./art/sam-soccer.webp","sara-parcel.webp":"./art/sara-parcel.webp"};
   function scene(q){
     const url=SCENE_ART[q.art]||V43_ART[q.art];
+    if(!url)return '';
     return `<div class="scene scene-wide zbv2-scene"><img class="scene-art" src="${url}" alt="${esc(q.alt||'Afbeelding bij de oefening.')}" draggable="false"/></div>`;
   }
 
