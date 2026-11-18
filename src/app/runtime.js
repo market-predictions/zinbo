@@ -109,7 +109,7 @@
 
   let preferences={audioOn:true,motionOn:true,roleColorsOn:true,schoolGroup:null,displayName:'',avatarId:'smile-happy',listenOwnSentence:false};
   // A placement round is provisional. Its observations never count as mastery evidence.
-  let placement={seen:[],history:[],done:false};
+  let placement={seen:[],history:[],done:false,recommendedLevel:null};
   let basicHistory=[];
   function loadLearning(){
     try {
@@ -135,7 +135,8 @@
       if(raw.placement && typeof raw.placement==='object'){
         placement={seen:Array.isArray(raw.placement.seen)?raw.placement.seen.filter(x=>typeof x==='string').slice(-100):[],
           history:Array.isArray(raw.placement.history)?raw.placement.history.filter(x=>x&&typeof x.id==='string').slice(-60):[],
-          done:Boolean(raw.placement.done)};
+          done:Boolean(raw.placement.done),
+          recommendedLevel:[1,2,3].includes(raw.placement.recommendedLevel)?raw.placement.recommendedLevel:null};
       }
       for(const skill of SKILLS){
         const x=raw.skills?.[skill];if(!x)continue;
@@ -240,6 +241,17 @@
     const chosen=shuffleItems(available.length?available:rest)[0];
     return {...chosen,placementSkill:skill};
   }
+  // A five-item kennismaking can suggest an accessible starting point, not diagnose TOS
+  // or establish level 4. A recommendation requires evidence in multiple constructs.
+  function placementRecommendation(results){
+    if(!Array.isArray(results)||results.length<5)return null;
+    const successes=results.filter(r=>r.independent&&r.attempts===0&&!r.helpUsed);
+    const skills=new Set(successes.map(r=>r.placementSkill).filter(Boolean));
+    const supportedStage=successes.filter(r=>r.stage>=1).length;
+    if(successes.length>=4&&skills.size>=3&&supportedStage>=1)return 3;
+    if(successes.length>=3&&skills.size>=2)return 2;
+    return 1;
+  }
   function startPlacement(){
     stopAudio();
     const {audioOn,motionOn}=state;
@@ -251,11 +263,14 @@
   function recordPlacementResult(){
     const q=item(),independent=state.attempts===0&&!state.helpUsed;
     const proof={id:q.id,day:todayKey(),focus:state.mode==='order'?'volgorde':'vorm',perspective:itemPerspective(q),evidenceFamily:evidenceFamily(q),scene:q.art,independent,
-      helpUsed:state.helpUsed,attempts:state.attempts,family:itemFamily(q),stage:q.stage};
+      helpUsed:state.helpUsed,attempts:state.attempts,family:itemFamily(q),stage:q.stage,placementSkill:q.placementSkill};
     state.placementResults.push(proof);
     placement.history.push(proof);placement.history=placement.history.slice(-60);
     placement.seen=Array.from(new Set([...placement.seen,q.id])).slice(-100);
-    if(state.index===4)placement.done=true;
+    if(state.index===4){
+      placement.done=true;
+      placement.recommendedLevel=placementRecommendation(state.placementResults);
+    }
     saveLearning();
   }
   let challengeRequested=false;
@@ -492,25 +507,49 @@
     return new Set(worldHistory().filter(h=>allowed.has(h.id)).map(h=>h.id));
   }
   function worldCount(){return WORLD_INFO.filter(w=>worldIsPlayable(w.id)).length;}
+  // Manual level selection takes precedence. Automatic progression is local and
+  // evidence-based: four different, independent exercises in at least two
+  // contexts and on two days before advancing by one construct level.
+  // It remains a practice preference, not a clinical ability measurement.
+  function worldAutomaticLevel(id){
+    let level=placement.done&&[1,2,3].includes(placement.recommendedLevel)
+      ?placement.recommendedLevel:1;
+    const byId=new Map(worldItems(id).map(q=>[q.id,q]));
+    const history=worldHistory().filter(h=>h.evidenceVersion===3&&byId.has(h.id)).slice(-90);
+    for(;level<4;level++){
+      const atLevel=history.filter(h=>worldExerciseBand(byId.get(h.id))===level).slice(-16);
+      const strong=atLevel.filter(h=>h.independent);
+      if(strong.length<4||strong.length/Math.max(1,atLevel.length)<.7)break;
+      if(new Set(strong.map(h=>h.id)).size<4||
+         new Set(strong.map(h=>h.day)).size<2||
+         new Set(strong.map(h=>h.scene).filter(Boolean)).size<2)break;
+    }
+    return level;
+  }
+  function worldSelectedLevel(id){
+    return [1,2,3,4].includes(o4Data.level)?o4Data.level:worldAutomaticLevel(id);
+  }
   function selectWorldItems(id){
     const pool=worldItems(id);
     const prior=new Set(worldHistory().map(h=>h.id));
     const recent=worldHistory().slice(-15),recentArts=new Set(recent.map(h=>h.scene).filter(Boolean));
-    const chosen=[];
-    const target=[1,2,3,4].includes(o4Data.level)?o4Data.level:1;
-    // Select by grammatical construct, not merely by the 0-2 content-stage label.
-    // Placement observations stay separate from this manually chosen starting focus.
+    const chosen=[],target=worldSelectedLevel(id);
+    const family=q=>evidenceFamily(q)||itemFamily(q);
     while(chosen.length<5){
       const options=pool.filter(q=>!chosen.some(p=>p.id===q.id));
       if(!options.length)break;
+      // Strict two-per-family cap whenever sufficient distinct material exists.
+      // Keep a five-item round possible when the reviewed pool lacks diversity.
+      const varied=options.filter(q=>chosen.filter(x=>family(x)===family(q)).length<2);
+      const choices=varied.length?varied:options;
       const score=q=>{
         const sameScene=chosen.filter(x=>x.art===q.art).length;
-        const sameFamily=chosen.filter(x=>(evidenceFamily(x)||itemFamily(x))===(evidenceFamily(q)||itemFamily(q))).length;
-        return Math.abs(worldExerciseBand(q)-target)*180 +
-          (prior.has(q.id)?20:0) + sameScene*45 + sameFamily*25 +
-          (recentArts.has(q.art)?6:0) + Math.random()*9;
+        const sameFamily=chosen.filter(x=>family(x)===family(q)).length;
+        return Math.abs(worldExerciseBand(q)-target)*180+
+          (prior.has(q.id)?20:0)+sameScene*45+sameFamily*25+
+          (recentArts.has(q.art)?6:0)+Math.random()*9;
       };
-      const ranked=options.map(q=>({q,value:score(q)})).sort((a,b)=>a.value-b.value);
+      const ranked=choices.map(q=>({q,value:score(q)})).sort((a,b)=>a.value-b.value);
       chosen.push(ranked[0].q);
     }
     return chosen;
