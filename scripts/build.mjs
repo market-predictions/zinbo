@@ -74,5 +74,19 @@ const html=template.replace('__ZINBO_APP__',app);
 const dir=new URL('public/',root);
 await mkdir(dir,{recursive:true});
 await writeFile(new URL('index.html',dir),html,'utf8');
-await writeFile(new URL('styles.css',dir),await read('src/styles/legacy.css'),'utf8');
+const tokenData=JSON.parse(await read('docs/design-system/tokens.json'));
+const props=[
+  ...tokenData.color.tokens.map(t=>['--zb-'+t.name,t.value]),
+  ...tokenData.spacing.tokens.map(t=>['--zb-'+t.name,t.value]),
+  ...tokenData.radius.tokens.map(t=>['--zb-'+t.name,t.value]),
+  ...tokenData.shadow.tokens.map(t=>['--zb-'+t.name,t.value]),
+  ...tokenData.type.groups.flatMap(g=>g.styles.map(t=>['--zb-font-size-'+t.name,t.fontSize])),
+  ['--zb-font',tokenData.type.families.sans]
+];
+if(new Set(props.map(([name])=>name)).size!==props.length)throw Error('Duplicate Claude design token');
+const tokenCSS=[
+  ...[400,700,800].map(weight=>'@font-face{font-family:"Nunito";font-style:normal;font-weight:'+weight+';font-display:swap;src:url("./fonts/nunito-latin-'+weight+'-normal.woff2") format("woff2")}'),
+  ':root{'+props.map(([name,value])=>name+':'+value+';').join('')+'}'
+].join('\n');
+await writeFile(new URL('styles.css',dir),tokenCSS+'\n'+await read('src/styles/zinbo.css'),'utf8');
 console.log('Zinbo phase 1 build:',Buffer.byteLength(html),'HTML bytes,',manifest.images.length,'standalone WebP assets,',ids.length,'attested candidate IDs');

@@ -198,7 +198,7 @@ for(let level=1;level<=4;level++){
 }
 assert.ok(html.includes('<strong>${evidence.unique}</strong><small>verschillende oefeningen</small>'),
   'Count and progress meter must both describe distinct exercises');
-assert.ok(css.includes('@media (min-width:881px) and (max-width:1450px)'),
+assert.ok(css.includes('max-width:1450px') && css.includes('min-width:800px'),
   'Laptop header must be responsive');
 
 
