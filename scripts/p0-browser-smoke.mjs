@@ -299,7 +299,7 @@ try {
         assert.equal(band(byId.get(id)),level,'World level '+level+' chose wrong construct: '+id);
         assert.equal(await page.locator('[data-action="speak-task"].instruction-card').isEnabled(),true,
           'Instruction replay must work when audio is on');
-        const onScreen=await page.locator('.instruction-card span').innerText();
+        const onScreen=await page.locator('.instruction-card .zbv2-task-text').innerText();
         const spoken=await page.evaluate(()=>window.__zinsbouwerTest.getAudioAudit().filter(x=>x.kind==='speech').at(-1)?.text);
         assert.equal(onScreen,spoken,'World level '+level+' text must match audio');
         return byId.get(id);
@@ -344,7 +344,7 @@ try {
       // The child must read exactly the same text that the speaker reads.
       await page.locator('[data-action="home"]').first().click();
       await page.evaluate(()=>window.__zinsbouwerTest.startPilotO3Test());
-      const visible=await page.locator('.instruction-card span').innerText();
+      const visible=await page.locator('.instruction-card .zbv2-task-text').innerText();
       const spoken=await page.evaluate(()=>window.__zinsbouwerTest.getAudioAudit().filter(x=>x.kind==='speech').at(-1)?.text);
       assert.equal(visible,spoken,'O3 screen and audio instruction must be identical');
       assert.equal(visible,'Je bent blij en je zingt. Maak met de blokjes één zin met omdat.');
@@ -354,7 +354,7 @@ try {
 
       await page.locator('[data-action="home"]').first().click();
       await page.evaluate(()=>window.__zinsbouwerTest.startPilotVTTTest());
-      const vttVisible=await page.locator('.instruction-card span').innerText();
+      const vttVisible=await page.locator('.instruction-card .zbv2-task-text').innerText();
       const vttSpoken=await page.evaluate(()=>window.__zinsbouwerTest.getAudioAudit().filter(x=>x.kind==='speech').at(-1)?.text);
       assert.equal(vttVisible,vttSpoken,'VTT text must match audio');
 
