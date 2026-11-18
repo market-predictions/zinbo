@@ -297,7 +297,7 @@
       }
       else if(a==='world-open'){startWorld(button.dataset.world);} 
       else if(a==='repeat-world'){startWorld(button.dataset.world);}
-      else if(a==='world-progress'){profileMenuOpen=false;app.querySelector('.op1-menu')?.remove();const p=app.querySelector('#op1-progress');if(p){p.scrollIntoView({behavior:state.motionOn?'smooth':'instant',block:'center'});p.setAttribute('tabindex','-1');p.focus({preventScroll:true});}}
+      else if(a==='world-progress'){profileMenuOpen=false;app.querySelector('.op1-menu')?.remove();const p=app.querySelector('#op1-progress');if(p){p.open=true;p.scrollIntoView({behavior:state.motionOn?'smooth':'instant',block:'center'});p.setAttribute('tabindex','-1');p.focus({preventScroll:true});}}
       else if(a==='world-profile'){profileMenuOpen=!profileMenuOpen;render();}
 
       else if(a==='profile-edit'){
