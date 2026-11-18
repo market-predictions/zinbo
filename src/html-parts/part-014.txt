@@ -218,7 +218,7 @@ lRc7bx5hAfQGy8SxdXLNbVi+fQ2fMZH1wmJBkzg3emv7M7YyTcCZFiVI9uBebV4ALca/fic6bKvjgOBj
       <h1>${opened?(demo?'Jouw vondst!':'Goed gedaan!'):'Je schatkist is klaar!'}</h1>
       <p>${opened?'Vijf oefenzinnen afgerond. Kijk wat je hebt verdiend!':'Vijf zinnen gemaakt. Tijd om de schatkist te openen.'}</p>
       ${opened?prize:`<div class="reward-chest" aria-label="Gesloten schatkist"><div class="reward-chest-lid"></div><div class="reward-chest-box"></div><div class="reward-chest-lock">★</div></div>`}
-      <div class="reward-preview-badge">${demo?'✪ '+state.previewCoins+' demonstratiemunten':'★ '+stars+' sterren beschikbaar'}</div>
+      <div class="reward-preview-badge">${demo?'✪ '+state.previewCoins+' demonstratiemunten':'★ '+stars+' '+(stars===1?'ster':'sterren')+' beschikbaar'}</div>
       <div class="actions">${opened?`<button class="primary" data-action="reward-preview-again">Nog vijf oefenzinnen</button>`:`<button class="primary" data-action="reward-chest-open">Open de schatkist</button>`}
       <button class="secondary" data-action="home">Terug naar Zinbo</button></div>
     </section>`;
@@ -293,7 +293,7 @@ lRc7bx5hAfQGy8SxdXLNbVi+fQ2fMZH1wmJBkzg3emv7M7YyTcCZFiVI9uBebV4ALca/fic6bKvjgOBj
     if(Array.isArray(stored))o3PilotHistory=stored.filter(x=>x&&typeof x.id==='string').slice(-200);
   }catch(_){}
   function isPilotO3(){return state.lessonSkill==='o3-pilot';}
-  function isRewardPreview(){return Boolean(state.rewardPreview && (isPilotO3()||isWorld()));}
+  function isRewardPreview(){return Boolean(state.rewardPreview && isPilotO3());}
   function isAuthorPilot(){return isPilotVTT()||isPilotO3()||isPilotO4();}
   function recordPilotO3(){
     const q=item();const independent=state.attempts===0&&!state.helpUsed&&!state.pilotAttemptedError&&!state.pilotUsedHelp;
