@@ -304,11 +304,39 @@ assert.ok(html.includes('pendingAvatarPurchase===profileDraftAvatar'),'Purchases
 assert.ok(html.includes("!preferences.listenOwnSentence"),'Unreviewed self-listening must default to opt-in');
 assert.ok(html.includes('data-action="profile-avatar-confirm"'),'Purchase control missing');
 
-// Normal learner worlds keep their chest animation, not a second stored wallet.
-assert.ok(html.includes("rewardPreview:true,previewCoins:0,previewShownCoins:0"),
-  'World reward animation must start from zero each round');
-assert.ok(html.includes("isPilotO3()||isWorld()"),
-  'Chest must remain available during normal learner worlds');
+// Phase 0: QA previews belong exclusively to the explicitly selected author pilot.
+const worldStart=html.slice(html.indexOf('  function startWorld(id){'),html.indexOf('  function isWorld(){'));
+assert.ok(worldStart.includes('rewardPreview:false,previewCoins:0,previewShownCoins:0'),
+  'Normal learner worlds may not enable the QA reward demo');
+assert.ok(!worldStart.includes('rewardPreview:true'),
+  'Author reward preview leaked into a learner world');
+const previewBegin=html.indexOf('  function isPilotO3(){');
+const previewEnd=html.indexOf('  function isAuthorPilot(){',previewBegin);
+assert.ok(previewBegin>=0&&previewEnd>previewBegin,'QA preview predicate missing');
+const previewCode=html.slice(previewBegin,previewEnd);
+const previewFor=state=>runInNewContext(previewCode+'\nisRewardPreview()', {state});
+assert.equal(previewFor({worldId:'sport',rewardPreview:true,lessonSkill:null}),false,
+  'Stale QA preview must be ignored in child world');
+assert.equal(previewFor({rewardPreview:true,lessonSkill:'o3-pilot'}),true,
+  'Explicit O3 author preview must remain usable');
+assert.equal(previewFor({rewardPreview:false,lessonSkill:'o3-pilot'}),false,
+  'O3 pilot without author preview must be unaffected');
+assert.ok(html.includes('data-action="reward-preview-open"'),
+  'Explicit author preview entry point missing');
+assert.ok(html.includes('data-action="reward-demo-complete"'),
+  'Author preview functionality must remain accessible');
+assert.ok(html.includes('<title>Zinbo</title>'),'Browser title must be Zinbo');
+assert.ok(html.includes('<strong>Zinbo</strong>'),'World wordmark must be Zinbo');
+assert.ok(!html.includes('aria-label="Zinsbouwer startpagina"'),
+  'World homepage must use the Zinbo brand');
+assert.ok(html.includes("(stars===1?'ster':'sterren')"),
+  'One star must use singular inflection');
+const profileMenuStart=html.indexOf('  function worldHome(){');
+const profileMenuEnd=html.indexOf('  function landingTop(){');
+const profileMarkup=html.slice(profileMenuStart>=0?profileMenuStart:html.indexOf('  function worldCard('),profileMenuEnd);
+assert.equal((profileMarkup.match(/data-action="parent-open"/g)||[]).length,1,
+  'Profile menu must expose only one parent/settings entry');
+// The reward currency and round-star persistence remain unchanged.
 assert.ok(!html.includes("rewardCoins=state.previewCoins;"),
   'Coins may no longer form a competing persistent currency');
 assert.ok(html.includes("if(state.index>=4){awardRoundStar();"),
