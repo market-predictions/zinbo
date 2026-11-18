@@ -249,7 +249,7 @@ assert.ok(html.includes("else if(isPilotO3()){if(!isRewardPreview())recordPilotO
 assert.ok(html.includes('function awardRoundStar()'),'Round-based reward must be present');
 assert.ok(html.includes('stars+=1;saveLearning();'),'Stars must be earned on round completion only');
 assert.ok(!html.includes('if(!isAuthorPilot()){stars++;saveLearning();}'),'Independent correctness must not earn spendable stars');
-assert.ok(css.includes("prefers-reduced-motion: reduce"),'Reduced-motion option missing');
+assert.ok(/prefers-reduced-motion\s*:\s*reduce/.test(css),'Reduced-motion option missing');
 assert.ok(html.includes("class=\"reward-vault-slot\""),'Visible chest landing slot missing');
 assert.ok(html.includes("duration:1800"),'Coin must no longer be a 780ms flash');
 assert.ok(html.includes("state.previewShownCoins=state.previewCoins"),'Displayed coins must settle only at landing or skip');
