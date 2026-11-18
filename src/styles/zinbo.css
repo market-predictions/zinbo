@@ -340,7 +340,15 @@ body.in-exercise .slot .slot-number{display:block;position:absolute;top:5px;left
 body.in-exercise .slot .slot-placeholder{font-size:var(--zb-font-size-small);color:var(--zb-ink-muted)}
 body.in-exercise .slot.filled{border:0;border-bottom:4px solid var(--role-color,var(--zb-role-other));background:var(--role-soft,var(--zb-role-other-soft))}
 body.in-exercise .slot.filled .slot-number{display:none}
-body.in-exercise .slot.needs-attention,body.in-exercise .slot.middle-hint{outline:3px solid var(--zb-brand);outline-offset:2px}
+/* In-sentence attention stays *inside* the tile geometry rather than adding
+   a floating focus ring beside the grammar-coloured bottom edge. */
+body.in-exercise .slot.needs-attention,body.in-exercise .slot.middle-hint{
+  outline:none;box-shadow:none;border-color:var(--zb-brand);
+}
+body.in-exercise .slot.filled.needs-attention{
+  border:3px solid var(--zb-brand);
+  box-shadow:none;outline:none;
+}
 body.in-exercise .sentence-review{margin:8px 0 0;min-height:0;justify-content:flex-end}
 body.in-exercise .sentence-review .self-listen-action{min-height:56px;padding:9px 14px;border:1px solid var(--zb-line);background:var(--zb-brand-soft);color:var(--zb-brand-strong);border-radius:var(--zb-radius-md);box-shadow:none;font-size:var(--zb-font-size-small)}
 body.in-exercise .feedback-space{display:block;min-height:0;margin:0}
@@ -405,7 +413,18 @@ body.in-exercise .zbv2-actions .check-action{margin-left:auto;min-width:220px;bo
 body.in-exercise .zbv2-actions .check-action:disabled{border-color:var(--zb-disabled);background:var(--zb-disabled);color:var(--zb-disabled-ink);box-shadow:none;opacity:1}
 /* Preserve visible keyboard focus without creating a second, detached
    rectangle around selected answer tiles. Focus is integrated in their border. */
-body.in-exercise .exercise button:not(.ending):focus-visible{outline:3px solid var(--zb-brand);outline-offset:3px}
+/* Word tiles carry a grammatical underline in their resting state.
+   On focus/attention replace that raised edge with one even blue border.
+   The soft role background and shape marker still identify the zinsdeel. */
+body.in-exercise .exercise button:not(.ending):not(.slot):not(.tile):focus-visible{
+  outline:3px solid var(--zb-brand);outline-offset:3px;
+}
+body.in-exercise .exercise button.slot.filled:focus-visible,
+body.in-exercise .exercise button.tile:focus-visible{
+  border:3px solid var(--zb-brand);
+  border-bottom-color:var(--zb-brand);
+  outline:none;box-shadow:none;filter:none;
+}
 body.in-exercise .exercise button.ending:focus-visible{outline:none;box-shadow:none;border:3px solid var(--zb-brand-strong)}
 @media(max-width:1100px){body.in-exercise .zbv2-task-panel{gap:16px}body.in-exercise .instruction-card{min-height:192px;padding:22px;font-size:var(--zb-font-size-instruction)}body.in-exercise .zbv2-scene{height:220px}body.in-exercise .tile,body.in-exercise .ending{font-size:var(--zb-font-size-body);min-height:70px}body.in-exercise .slots[data-count="6"]{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:800px){body.in-exercise .exercise-bar{min-height:72px;padding:10px 14px;gap:8px}body.in-exercise .bar-actions{gap:6px}body.in-exercise .star-pill{min-width:48px;padding:0 8px}body.in-exercise .progress-wrap{gap:8px;min-width:0}body.in-exercise .zbv2-exercise-body{gap:16px;padding:8px 16px 32px}body.in-exercise .zbv2-task-panel{grid-template-columns:1fr;gap:12px}body.in-exercise .instruction-card{min-height:84px;padding:12px 16px;gap:12px;font-size:var(--zb-font-size-instruction)}body.in-exercise .instruction-card .zbv2-listen-icon{flex-basis:56px;width:56px;height:56px}body.in-exercise .zbv2-scene{height:212px}body.in-exercise .zbv2-sentence-card{padding:14px}body.in-exercise .slots{gap:8px}body.in-exercise .slot{min-height:68px;padding:12px 6px;font-size:var(--zb-font-size-ui)}body.in-exercise .zbv2-choices{padding:14px}body.in-exercise .zbv2-actions{gap:8px;flex-wrap:wrap}body.in-exercise .zbv2-actions .secondary,body.in-exercise .zbv2-actions .primary{min-height:56px;padding:9px 12px}body.in-exercise .zbv2-actions .check-action{min-width:170px}body.in-exercise .feedback-space .feedback{flex-wrap:wrap}}
