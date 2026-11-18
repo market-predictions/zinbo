@@ -5,10 +5,10 @@
     const status=!playable?'Binnenkort':visited.size?visited.size+' '+(visited.size===1?'zin':'zinnen')+' geoefend':'Nieuw';
     const stateLabel=!playable?'pending':visited.size?'done':'new';
     const attrs=playable?'data-action="world-open" data-world="'+w.id+'"':'disabled aria-disabled="true"';
-    return \`<button \${attrs} class="op1-card zbv4-card \${selectedId===w.id&&playable?'is-selected ':''}\${playable?'':'op1-card-pending'}" aria-label="\${esc(w.name)}. \${esc(w.sub)}. \${esc(status)}">
-      <img src="\${cover}" alt="" draggable="false">
-      <span class="zbv4-card-copy"><strong class="op1-card-name">\${esc(w.name)}</strong><span class="op1-card-desc">\${esc(w.sub)}</span><small class="zbv4-badge zbv4-badge-\${stateLabel}">\${esc(status)}</small></span>
-    </button>\`;
+    return `<button ${attrs} class="op1-card zbv4-card ${selectedId===w.id&&playable?'is-selected ':''}${playable?'':'op1-card-pending'}" aria-label="${esc(w.name)}. ${esc(w.sub)}. ${esc(status)}">
+      <img src="${cover}" alt="" draggable="false">
+      <span class="zbv4-card-copy"><strong class="op1-card-name">${esc(w.name)}</strong><span class="op1-card-desc">${esc(w.sub)}</span><small class="zbv4-badge zbv4-badge-${stateLabel}">${esc(status)}</small></span>
+    </button>`;
   }
   let parentPanelMode='settings';
   function parentPanel(){
@@ -43,9 +43,9 @@
         </div>
       </header>
       <section class="op1-hero zbv4-hero" aria-label="Welkom bij Zinbo">
-        <div class="zbv4-hero-copy"><h1>Hoi!</h1><p>\${preferences.lastWorld&&last?'Je oefende in '+esc(last.name)+'.':'Kies een wereld die je leuk vindt.'}</p>
-        <button class="op1-start zbv4-continue" \${last?'data-action="world-open" data-world="'+last.id+'"':'data-action="routes"'}>\${opIcon('play',24)} <strong>Verder oefenen</strong></button></div>
-        <div class="zbv4-hero-art"><img src="\${SCENE_ART['bike-to-school.webp']}" alt="Een jongen fietst naar school." draggable="false"></div>
+        <div class="zbv4-hero-copy"><h1>Hoi!</h1><p>${preferences.lastWorld&&last?'Je oefende in '+esc(last.name)+'.':'Kies een wereld die je leuk vindt.'}</p>
+        <button class="op1-start zbv4-continue" ${last?'data-action="world-open" data-world="'+last.id+'"':'data-action="routes"'}>${opIcon('play',24)} <strong>Verder oefenen</strong></button></div>
+        <div class="zbv4-hero-art"><img src="${SCENE_ART['bike-to-school.webp']}" alt="Een jongen fietst naar school." draggable="false"></div>
       </section>
       <section class="op1-worlds zbv4-worlds" aria-label="Kies een wereld"><h2>Kies een wereld</h2><div class="op1-cards">${WORLD_INFO.map(w=>worldCard(w,last?.id)).join('')}</div></section>
       <details class="op1-progress zbv4-parent-info" id="op1-progress"><summary>Voor ouders en begeleiders</summary><div class="zbv4-parent-content"><h2>Jouw voortgang</h2><div class="op1-progress-grid">
