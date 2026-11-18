@@ -107,7 +107,7 @@
     return art[id]||face;
   }
 
-  let preferences={audioOn:true,motionOn:true,schoolGroup:null,displayName:'',avatarId:'smile-happy',listenOwnSentence:false};
+  let preferences={audioOn:true,motionOn:true,roleColorsOn:true,schoolGroup:null,displayName:'',avatarId:'smile-happy',listenOwnSentence:false};
   // A placement round is provisional. Its observations never count as mastery evidence.
   let placement={seen:[],history:[],done:false};
   let basicHistory=[];
@@ -122,6 +122,7 @@
       if(raw.preferences && typeof raw.preferences==='object'){
         if(typeof raw.preferences.audioOn==='boolean')preferences.audioOn=raw.preferences.audioOn;
         if(typeof raw.preferences.motionOn==='boolean')preferences.motionOn=raw.preferences.motionOn;
+        if(typeof raw.preferences.roleColorsOn==='boolean')preferences.roleColorsOn=raw.preferences.roleColorsOn;
         if(typeof raw.preferences.listenOwnSentence==='boolean')preferences.listenOwnSentence=raw.preferences.listenOwnSentence;
         preferences.displayName=cleanProfileName(raw.preferences.displayName);
         preferences.avatarId=validProfileAvatar(raw.preferences.avatarId);
