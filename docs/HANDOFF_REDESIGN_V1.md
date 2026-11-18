@@ -95,11 +95,13 @@ Specifiek:
 - Einde: ster + "Ronde klaar!", de vijf gemaakte zinnen met "Zelf"/"Met hulp" en een luisterknop per zin, primair "Nog een ronde", secundair "Naar start". Platte CSS-schatkist vervalt (eigenaar beslist nog of de kist terugkomt in nieuwe stijl).
 - Bovenbalk: woordmerk "Zinbo" (er is nog geen logo), sterrenteller, profielknop. De "Kies niveau"-pil verdwijnt uit de bovenbalk.
 
-### Fase 5 — Logica (alleen na akkoord eigenaar)
+### Fase 5 — Didactische selectie (eigenaarakkoord 18 november 2026)
 
-Niet uitvoeren zonder expliciete opdracht; wel in de PR van fase 4 als voorstel beschrijven:
-- Niveau in werelden is nu alleen handmatig (`o4Data.level`); de Kennismaking zet het niet. Voorstel: Kennismaking bepaalt het startniveau; `skillStage`-achtige ophoging ook in werelden.
-- Variatie per ronde: in `selectWorldItems()` weegt niveauafstand 180 en herhaalde familie 25; rondes worden eentonig (5× "Kies het werkwoord"). Voorstel: maximaal 2 per familie per ronde.
+De eigenaar heeft in de Control-chat expliciet akkoord gegeven voor uitvoering van fase 5. De implementatie staat uitsluitend op een aparte branch en concept-PR; dit akkoord is geen toestemming om zonder checks te mergen.
+- Kennismaking geeft een voorzichtig oefenstartadvies (1–3) na vijf resultaten; niveau 4 is geen conclusie uit een korte kennismaking.
+- Automatische groei per wereld vereist diverse zelfstandige resultaten, meerdere scènes en meerdere dagen. Een handmatige keuze voor niveau 1–4 gaat altijd voor; Automatisch kan expliciet worden gekozen.
+- Een ronde bevat maximaal twee oefeningen uit dezelfde werkwoordfamilie, tenzij onvoldoende goedgekeurde variatie beschikbaar is om vijf oefeningen te vullen. Geen nieuwe opgaven toegevoegd.
+- Deze regels zijn oefenheuristieken, geen diagnostiek; logopedische beoordeling is nog nodig.
 
 ## 4. Wat je niet doet
 
@@ -121,7 +123,7 @@ Per PR: wat veranderd is, schermafbeeldingen vóór/na op drie formaten, CI-stat
 | 2 | [PR #12](https://github.com/market-predictions/zinbo/pull/12) — design tokens, Nunito, CSS-audit; CI groen; eigenaarreview open |
 | 3 | [PR #13](https://github.com/market-predictions/zinbo/pull/13) — oefenschermen volgens mockups A–D en rolmarkeringen; CI groen; eigenaarreview open |
 | 4 | [PR #14](https://github.com/market-predictions/zinbo/pull/14) — start/einde volgens mockups E–G; mobiele screenshotbevindingen gecorrigeerd; laatste CI en visuele review nog af te ronden |
-| 5 | Niet gestart; alleen uitvoeren na expliciet akkoord eigenaar |
+| 5 | [PR #15](https://github.com/market-predictions/zinbo/pull/15) — eigenaarakkoord ontvangen; didactische selectie aangepast; nieuwe CI en onafhankelijke didactische beoordeling vereist |
 
 De PRs volgen op elkaar en zijn nog **niet** geïntegreerd in `main`.
 De preview van de gezamenlijke wijzigingen staat op
