@@ -356,8 +356,28 @@ body.in-exercise .bank,body.in-exercise .choice-row{display:flex;flex-wrap:wrap;
 body.in-exercise .tile-wrap{position:relative;display:flex;flex:0 1 auto;align-items:stretch;min-width:0}
 body.in-exercise .tile,body.in-exercise .ending{position:relative;flex:1 1 auto;min-width:112px;min-height:76px;padding:14px 28px;border:0;border-bottom:4px solid var(--zb-role-other);border-radius:var(--zb-radius-md);box-shadow:none;background:var(--zb-role-other-soft);color:var(--zb-ink);font-size:var(--zb-font-size-tile);font-weight:700;line-height:1.2;letter-spacing:0;overflow-wrap:anywhere}
 body.in-exercise .tile-wrap .tile{padding-right:36px}
-body.in-exercise .ending.selected{outline:3px solid var(--zb-brand);outline-offset:2px}
-body.in-exercise .tile:hover,body.in-exercise .ending:hover{filter:brightness(.98);box-shadow:var(--zb-shadow-card)}
+/* Choice buttons are flat and crisp: selection is one integrated border, not
+   an external ring combined with a raised bottom edge. Word tiles retain
+   their grammatical role underline; only single-choice endings change. */
+body.in-exercise .choice-row .ending{
+  border:2px solid var(--zb-line);
+  background:var(--zb-surface-card);
+  box-shadow:none;
+  outline:none;
+}
+body.in-exercise .choice-row .ending.selected{
+  border-color:var(--zb-brand);
+  background:var(--zb-brand-soft);
+  box-shadow:none;
+  outline:none;
+}
+body.in-exercise .choice-row .ending.selected:focus-visible{
+  border:3px solid var(--zb-brand-strong);
+  outline:none;
+  box-shadow:none;
+}
+body.in-exercise .tile:hover{filter:brightness(.98);box-shadow:var(--zb-shadow-card)}
+body.in-exercise .choice-row .ending:hover{filter:none;box-shadow:none;background:var(--zb-brand-soft)}
 body.in-exercise .hear-tile{position:absolute;right:0;bottom:0;display:grid;place-items:center;width:44px;min-width:44px;height:44px;min-height:44px;border:1px solid var(--zb-line);border-radius:var(--zb-radius-pill);background:var(--zb-surface-card);color:var(--zb-brand)}
 body.in-exercise .hear-tile svg{width:20px;height:20px}
 body.in-exercise .slot[data-grammar],body.in-exercise .tile[data-grammar]{--role-color:var(--zb-role-other);--role-soft:var(--zb-role-other-soft);background:var(--role-soft);border-bottom-color:var(--role-color)}
