@@ -187,10 +187,22 @@ try {
       localStorage.setItem(key,JSON.stringify(prior));
     });
     await page.reload({waitUntil:'load'});
-    // Normal learning worlds use the chest reward, not only the author demo.
+    // Phase 0: child-facing worlds must never expose QA reward controls.
     await page.locator('.op1-card[data-action="world-open"][data-world="sport"]').click();
+    const afterEnter=await page.evaluate(()=>({scrollY:window.scrollY,emptyArt:!!document.querySelector('.zbv2-task-panel.no-art'),artCount:document.querySelectorAll('.zbv2-scene').length}));
+    assert.ok(afterEnter.scrollY<4,'World entry must reset scroll to show navigation and task: '+afterEnter.scrollY);
+    if(afterEnter.emptyArt) assert.equal(afterEnter.artCount,0,'Exercise without an approved illustration must not show a blank or broken image');
     const worldState=await page.evaluate(()=>window.__zinsbouwerTest.getState());
-    assert.equal(worldState.rewardPreview,true,'Regular learner world should get chest rewards');
+    assert.equal(worldState.rewardPreview,false,'QA reward preview must be off for learner worlds');
+    assert.equal(await page.locator('.reward-prototype-tools,.reward-vault,.reward-demo-trigger').count(),0,
+      'Child must not see QA controls or a floating chest badge');
+    assert.equal(await page.locator('.op1-menu').count(),0);
+    assert.equal(await page.locator('.bar-actions .star-pill:not(.reward-vault)').count(),1,
+      'Regular learner header should have only the normal star balance');
+    if(width===390){
+      const box=await page.locator('.zbv2-task-text').boundingBox();
+      assert.ok(box&&box.x>=0&&box.x+box.width<=width+2,'Mobile title must fit without chest overlay');
+    }
 
     const replay=page.locator('.work-area .sentence-review [data-action="speak-built"]');
     assert.equal(await replay.count(),1,'Self-replay should sit in the sentence work area');
@@ -234,25 +246,30 @@ try {
         await page.locator('[data-action="ending"][data-ending="'+q.ending+'"]').click();
       }
       await page.locator('[data-action="check"]').click();
-      assert.equal(await page.locator('.reward-preview-feedback').count(),1,'World lacks feedback');
-      const earned=await page.evaluate(()=>window.__zinsbouwerTest.getRewardPreview());
-      assert.equal(earned.coins,i+1,'Chest visually counts five completed sentences');
-      assert.equal(earned.storedCoins,balancesBefore.coins,'No second spendable currency should be awarded');
+      assert.equal(await page.locator('.reward-preview-feedback,.reward-prototype-tools').count(),0,
+        'QA overlay must remain absent throughout normal rounds');
+      assert.equal((await page.evaluate(()=>window.__zinsbouwerTest.getRewardPreview())).active,false,
+        'Preview must stay off after a correct answer');
       await page.locator('[data-action="next"]').click();
     }
-    assert.equal(await page.locator('.reward-preview-end').count(),1,'World must end with chest');
+    assert.equal(await page.locator('.reward-preview-end').count(),0,
+      'Normal world must show its regular end screen, never the author chest');
+    assert.equal(await page.locator('.panel.success h1').innerText(),'Ronde klaar!');
+    assert.equal(await page.locator('.zbv4-review-row').count(),5,'The round recap must show five actually completed sentences');
+    assert.equal(await page.locator('.zbv4-review-listen').count(),5,'Every sentence needs its own listen control');
     const balancesAfter=await page.evaluate(()=>{
       const o=JSON.parse(localStorage.getItem('zinsbouwer-qa-360-feedback-20261019'));
       return {stars:o.stars,coins:o.rewardCoins};
     });
     assert.equal(balancesAfter.stars,balancesBefore.stars+1,'Five completed exercises earn one star');
     assert.equal(balancesAfter.coins,balancesBefore.coins,'Legacy coin counter is no longer a wallet');
-    await page.locator('[data-action="reward-chest-open"]').click();
-    assert.equal(await page.locator('.reward-preview-found').count(),1,'World chest must open');
     await page.locator('[data-action="home"]').first().click();
     await page.reload({waitUntil:'load'});
     assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('zinsbouwer-qa-360-feedback-20261019')).stars),
       balancesAfter.stars,'Earned star must persist after reload');
+    // A single earned star must use the singular label in the home interface.
+    if(balancesAfter.stars===1)
+      assert.ok((await page.locator('.op1-star').getAttribute('aria-label')).includes('1 ster beschikbaar'));
     // Restore the starting sound preference before exercising older audio regressions.
     await page.locator('.op1-card[data-action="world-open"][data-world="sport"]').click();
     await page.locator('[data-action="settings"]').first().click();
@@ -277,8 +294,18 @@ try {
       assert.ok(v.left>=0&&v.right<=width+2,'Mini chest must fit the viewport');
     };
     if(width===1366) {
+      // Fase 5: parent can switch back from a manual level to automatic.
+      await page.locator('[data-action="world-profile"]').click();
+      await page.locator('.op1-menu [data-action="world-group"]').click();
+      await page.locator('.world-parent-dialog [data-level="3"]').click();
+      assert.equal(await page.locator('.world-parent-dialog [data-level="3"]').getAttribute('aria-pressed'),'true');
+      await page.locator('.world-parent-dialog [data-level="auto"]').click();
+      assert.equal(await page.locator('.world-parent-dialog [data-level="auto"]').getAttribute('aria-pressed'),'true');
+      assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('zinsbouwer-o4-adaptive-qa-20261019')).level),null);
+      await page.locator('.parent-close').click();
       const first=async level=>{
-        await page.locator('[data-action="world-group"]').click();
+        await page.locator('[data-action="world-profile"]').click();
+        await page.locator('.op1-menu [data-action="world-group"]').click();
         await page.locator('.world-parent-dialog [data-action="o4-level"][data-level="'+level+'"]').click();
         await page.locator('.parent-close').click();
         await page.locator('.op1-card[data-action="world-open"][data-world="sport"]').click();
@@ -287,7 +314,7 @@ try {
         assert.equal(band(byId.get(id)),level,'World level '+level+' chose wrong construct: '+id);
         assert.equal(await page.locator('[data-action="speak-task"].instruction-card').isEnabled(),true,
           'Instruction replay must work when audio is on');
-        const onScreen=await page.locator('.instruction-card span').innerText();
+        const onScreen=await page.locator('.instruction-card .zbv2-task-text').innerText();
         const spoken=await page.evaluate(()=>window.__zinsbouwerTest.getAudioAudit().filter(x=>x.kind==='speech').at(-1)?.text);
         assert.equal(onScreen,spoken,'World level '+level+' text must match audio');
         return byId.get(id);
@@ -332,7 +359,7 @@ try {
       // The child must read exactly the same text that the speaker reads.
       await page.locator('[data-action="home"]').first().click();
       await page.evaluate(()=>window.__zinsbouwerTest.startPilotO3Test());
-      const visible=await page.locator('.instruction-card span').innerText();
+      const visible=await page.locator('.instruction-card .zbv2-task-text').innerText();
       const spoken=await page.evaluate(()=>window.__zinsbouwerTest.getAudioAudit().filter(x=>x.kind==='speech').at(-1)?.text);
       assert.equal(visible,spoken,'O3 screen and audio instruction must be identical');
       assert.equal(visible,'Je bent blij en je zingt. Maak met de blokjes één zin met omdat.');
@@ -342,7 +369,7 @@ try {
 
       await page.locator('[data-action="home"]').first().click();
       await page.evaluate(()=>window.__zinsbouwerTest.startPilotVTTTest());
-      const vttVisible=await page.locator('.instruction-card span').innerText();
+      const vttVisible=await page.locator('.instruction-card .zbv2-task-text').innerText();
       const vttSpoken=await page.evaluate(()=>window.__zinsbouwerTest.getAudioAudit().filter(x=>x.kind==='speech').at(-1)?.text);
       assert.equal(vttVisible,vttSpoken,'VTT text must match audio');
 
@@ -431,6 +458,80 @@ try {
       const scrollOverflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
       assert.ok(scrollOverflow<=2,'Reward visual horizontal overflow at 390: '+scrollOverflow);
     }
+    // Visual QA regression: selected verb endings must not combine an
+    // external outline with the former raised bottom border/shadow.
+    // Exercise the real child route, at every supported viewport.
+    const choicePage=await context.newPage();
+    choicePage.on('pageerror',e=>errors.push(width+' choice-state: '+e.message));
+    await choicePage.goto(url,{waitUntil:'load'});
+    await choicePage.locator('.op1-other summary').click();
+    await choicePage.locator('.op1-other [data-action="challenge-home"]').click();
+    await choicePage.locator('[data-action="start-skill"][data-skill="past"]').click();
+    const option=choicePage.locator('.choice-row .ending').first();
+    await option.click();
+    const visuals=await choicePage.locator('.choice-row .ending.selected').evaluate(el=>{
+      const css=getComputedStyle(el);
+      return {top:css.borderTopWidth,bottom:css.borderBottomWidth,
+        topColor:css.borderTopColor,bottomColor:css.borderBottomColor,
+        shadow:css.boxShadow,outline:css.outlineStyle};
+    });
+    assert.equal(visuals.top,visuals.bottom,'Selected ending must have an even border');
+    assert.equal(visuals.topColor,visuals.bottomColor,'Selected ending must use a unified border color');
+    assert.equal(visuals.shadow,'none','Selected ending must not show the old bottom shadow');
+    assert.equal(visuals.outline,'none','Selected ending must not show a second, detached outline');
+    // Reproduce the exact reported state: a chosen button also holds keyboard
+    // focus. A generic :focus-visible rule must not bring back the outer ring.
+    await choicePage.keyboard.press('Tab');
+    await choicePage.locator('.choice-row .ending.selected').focus();
+    const focused=await choicePage.locator('.choice-row .ending.selected').evaluate(el=>{
+      const c=getComputedStyle(el);
+      return {outline:c.outlineStyle,shadow:c.boxShadow,
+        top:c.borderTopWidth,bottom:c.borderBottomWidth,
+        focusVisible:el.matches(':focus-visible')};
+    });
+    assert.equal(focused.outline,'none','Focused selection must never show detached blue outline');
+    assert.equal(focused.shadow,'none','Focused selection must never show bottom shadow');
+    assert.equal(focused.top,focused.bottom,'Focused selection must use even border width');
+
+    await choicePage.close();
+    // Regression for the learner's actual screenshot: a grammar-coloured word
+    // must have a single integrated blue focus border (not a second ring over
+    // the raised grammatical underline), on desktop, tablet and phone.
+    const slotPage=await context.newPage();
+    slotPage.on('pageerror',e=>errors.push(width+' slot-focus: '+e.message));
+    await slotPage.goto(url,{waitUntil:'load'});
+    // Open the published learner route for sentence-building: unlike a
+    // world-level preference, this guarantees draggable word tiles.
+    await slotPage.locator('.op1-other summary').click();
+    await slotPage.locator('.op1-other [data-action="routes"]').click();
+    await slotPage.locator('[data-action="start-order"]').click();
+    await slotPage.locator('[data-action="pick-series"]').first().click();
+    const focusStyle=async locator=>{
+      await slotPage.keyboard.press('Tab');
+      await locator.focus();
+      return locator.evaluate(el=>{
+        const c=getComputedStyle(el);
+        return {outline:c.outlineStyle,shadow:c.boxShadow,
+          top:c.borderTopWidth,bottom:c.borderBottomWidth,
+          topColor:c.borderTopColor,bottomColor:c.borderBottomColor};
+      });
+    };
+    const sourceTile=slotPage.locator('.bank button.tile').first();
+    const bankStyle=await focusStyle(sourceTile);
+    assert.equal(bankStyle.outline,'none','Bank tile must not have a detached focus outline');
+    assert.equal(bankStyle.shadow,'none','Bank tile must not retain a raised focus shadow');
+    assert.equal(bankStyle.top,bankStyle.bottom,'Focused bank tile needs an even border');
+    assert.equal(bankStyle.topColor,bankStyle.bottomColor,'Bank focus must not mix blue and role underlines');
+    await sourceTile.click();
+    const placedTile=slotPage.locator('button.slot.filled').first();
+    assert.equal(await placedTile.count(),1,'Placed learner word must exist');
+    const placedStyle=await focusStyle(placedTile);
+    assert.equal(placedStyle.outline,'none','Placed word must not have a detached blue focus ring');
+    assert.equal(placedStyle.shadow,'none','Placed word must not retain a raised shadow');
+    assert.equal(placedStyle.top,placedStyle.bottom,'Placed word focus needs an even border');
+    assert.equal(placedStyle.topColor,placedStyle.bottomColor,
+      'Placed word focus must not mix blue and grammatical underline');
+    await slotPage.close();
     await context.close();
   }
   assert.deepEqual(errors,[],'No uncaught JS errors in Chromium');

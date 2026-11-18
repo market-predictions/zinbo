@@ -1,0 +1,190 @@
+{
+  "schema": "zinbo.art-manifest.v1",
+  "images": [
+    {
+      "name": "legacy-hero-1.webp",
+      "bytes": 137044,
+      "gitBlobSha": "8c7382cf17bc363b70c38b22f81dd0f8ad861b83"
+    },
+    {
+      "name": "legacy-hero-2.webp",
+      "bytes": 156436,
+      "gitBlobSha": "848befea638ef9090f93f21ca76a7c3f79ee262d"
+    },
+    {
+      "name": "pet-dog.webp",
+      "bytes": 41364,
+      "gitBlobSha": "74bcedbd4373b6d4fbc56fdd6984246781083ba4"
+    },
+    {
+      "name": "school-gate.webp",
+      "bytes": 30532,
+      "gitBlobSha": "4a8a7b64b2a9d9250cdb81a22a1b185efcd9aa39"
+    },
+    {
+      "name": "sports-field.webp",
+      "bytes": 34632,
+      "gitBlobSha": "c001b0ff7c22390779d9e1738ae014fbc9b6958c"
+    },
+    {
+      "name": "kitchen-cooking.webp",
+      "bytes": 24964,
+      "gitBlobSha": "ddb2876e8f4fdd84250bb2a253b9f17a95c9f944"
+    },
+    {
+      "name": "family-talk.webp",
+      "bytes": 30712,
+      "gitBlobSha": "f72790b0b5f663d7c94b3ccbbc00128b0e4b9821"
+    },
+    {
+      "name": "town-outing.webp",
+      "bytes": 29330,
+      "gitBlobSha": "e8e2387b8a36f6ab345f8dd0b9ef257ac45c6fb2"
+    },
+    {
+      "name": "kitchen-cooking-v2.webp",
+      "bytes": 227186,
+      "gitBlobSha": "9f63433d41749d7c7d0a0b89962a55df17bba266"
+    },
+    {
+      "name": "family-talk-v2.webp",
+      "bytes": 292198,
+      "gitBlobSha": "000e95145d929821ed70815cf43430c5ef908c88"
+    },
+    {
+      "name": "school-walking-v2.webp",
+      "bytes": 276792,
+      "gitBlobSha": "b0c190206f9be727713bc8a7b7044b78b0c44332"
+    },
+    {
+      "name": "town-lookout-v2.webp",
+      "bytes": 296750,
+      "gitBlobSha": "c5dd170f4673a930a870816a54031a98459fdc66"
+    },
+    {
+      "name": "self-colors-choose.webp",
+      "bytes": 194364,
+      "gitBlobSha": "6b102108cb3130adc7f96edf73b4394cfeb72b6d"
+    },
+    {
+      "name": "self-backpack-take.webp",
+      "bytes": 173966,
+      "gitBlobSha": "fdab467481a92eb156fa0d95ea6162eb32500025"
+    },
+    {
+      "name": "station-walk-to-stop.webp",
+      "bytes": 292454,
+      "gitBlobSha": "c414b5e1077c82ef7eabd4e2afbd8ad536e28e6d"
+    },
+    {
+      "name": "library-borrow.webp",
+      "bytes": 226496,
+      "gitBlobSha": "bdfb16ad6bf382cd72df5bc1dcae1b4fc4c2e445"
+    },
+    {
+      "name": "pool-swimming.webp",
+      "bytes": 230124,
+      "gitBlobSha": "3a95e932e2eb8fe0f076ceb8d67c07d10ba82e26"
+    },
+    {
+      "name": "music-singing.webp",
+      "bytes": 182186,
+      "gitBlobSha": "26efa532a7b14bdab54a9115f9cf10affe9e97bf"
+    },
+    {
+      "name": "playground-climbing.webp",
+      "bytes": 240052,
+      "gitBlobSha": "077f966e2d8d2d7810fcaa9b268e9152024cf336"
+    },
+    {
+      "name": "museum-looking.webp",
+      "bytes": 231974,
+      "gitBlobSha": "fbba7d09ffec92600c1fab0dbc493a016746c406"
+    },
+    {
+      "name": "classroom-reading.webp",
+      "bytes": 151718,
+      "gitBlobSha": "77badd10c3b9f41547467d2877717059672852ff"
+    },
+    {
+      "name": "schoolyard.webp",
+      "bytes": 252654,
+      "gitBlobSha": "534f928268bcf6c2465965c79939332c035043ba"
+    },
+    {
+      "name": "self-painting.webp",
+      "bytes": 160778,
+      "gitBlobSha": "9e6a6a5926ce14d833f13225ce5c0e895df284c5"
+    },
+    {
+      "name": "self-backpack.webp",
+      "bytes": 169670,
+      "gitBlobSha": "e2dcf339a247e8a62e1ff4a5a0687baabf9ceb2e"
+    },
+    {
+      "name": "station-trip.webp",
+      "bytes": 263426,
+      "gitBlobSha": "c9ce78746a4bdd6c78871c5965b7ec3975a36fa6"
+    },
+    {
+      "name": "shopping-store.webp",
+      "bytes": 166114,
+      "gitBlobSha": "ed0d1f584bec47edfcbebd5f124ab2d9b35aec51"
+    },
+    {
+      "name": "market-flowers.webp",
+      "bytes": 413146,
+      "gitBlobSha": "a2a2118dee1b18834a130b74400cf54c3b3feabf"
+    },
+    {
+      "name": "bike-to-school.webp",
+      "bytes": 143032,
+      "gitBlobSha": "1f239be72315624846d2e537b836834c9ee1a218"
+    },
+    {
+      "name": "dog-run.webp",
+      "bytes": 112044,
+      "gitBlobSha": "89bfb40bc7d5feff0137f603c866ff2b087c894c"
+    },
+    {
+      "name": "drawing-together.webp",
+      "bytes": 122854,
+      "gitBlobSha": "abe02c45eee76e6da07fdd6f78fbdebef2ec09e9"
+    },
+    {
+      "name": "garden-work.webp",
+      "bytes": 155046,
+      "gitBlobSha": "a92127689e263c64ffec8c626536430459593610"
+    },
+    {
+      "name": "grandma-reading.webp",
+      "bytes": 92776,
+      "gitBlobSha": "ba58d91020cb14a6c089b6949e9cf17fbb4ea2a0"
+    },
+    {
+      "name": "kids-dancing.webp",
+      "bytes": 137442,
+      "gitBlobSha": "2c4c7be94706c2ca22f5bb5329774be102a9ca51"
+    },
+    {
+      "name": "park-walk-grandma.webp",
+      "bytes": 170594,
+      "gitBlobSha": "55c79daa331d1c203eb2a4a34973e987df13938b"
+    },
+    {
+      "name": "sam-friend-dog-soccer.webp",
+      "bytes": 152274,
+      "gitBlobSha": "a9be732a6d90bd2c74c8e9fd557f72ad07f3c384"
+    },
+    {
+      "name": "sam-soccer.webp",
+      "bytes": 129412,
+      "gitBlobSha": "44d9a979e5ebea89c0f1d0b45a4aa4ebf780dbd0"
+    },
+    {
+      "name": "sara-parcel.webp",
+      "bytes": 142502,
+      "gitBlobSha": "260f11eb431ce413187c6f1e9764b2bb7faf0f73"
+    }
+  ]
+}

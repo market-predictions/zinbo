@@ -4,6 +4,18 @@ import { readFile } from 'node:fs/promises';
 import { Script, runInNewContext } from 'node:vm';
 
 const html = await readFile(new URL('../public/index.html', import.meta.url), 'utf8');
+const css = await readFile(new URL('../public/styles.css', import.meta.url), 'utf8');
+// Release gate: the redesign must not silently remove live privacy/security
+// response headers when it adds long-lived static asset caching.
+const headers = await readFile(new URL('../public/_headers', import.meta.url), 'utf8');
+for (const required of [
+  'X-Robots-Tag: noindex, nofollow',
+  'X-Content-Type-Options: nosniff',
+  'Referrer-Policy: strict-origin-when-cross-origin',
+  '/index.html', 'Cache-Control: no-cache',
+  '/art/*', '/fonts/*', '/styles.css'
+]) assert.ok(headers.includes(required), 'Missing production header: '+required);
+
 
 // Compile embedded JavaScript: catch unterminated templates, malformed regexes
 // and accidental source-segment corruption before publication.
@@ -123,12 +135,7 @@ const resolutions=JSON.parse(resolutionMatch[1]);
 assert.equal(resolutions['market-flowers.webp'],true,'1536x1024 flower image must pass');
 assert.equal(resolutions['schoolyard.webp'],true,'1536x1024 schoolyard image must pass');
 assert.equal(resolutions['pet-dog.webp'],true,'Reviewed replacement dog scene should pass image resolution');
-const dogPrefix='"pet-dog.webp":"data:image/webp;base64,';
-const dogStart=html.indexOf(dogPrefix);
-assert.ok(dogStart>=0,'Embedded dog image missing');
-const dogEnd=html.indexOf('"',dogStart+dogPrefix.length);
-assert.ok(dogEnd>dogStart,'Dog image data incomplete');
-const dogBytes=Buffer.from(html.slice(dogStart+dogPrefix.length,dogEnd),'base64');
+const dogBytes=await readFile(new URL('../public/art/pet-dog.webp', import.meta.url));
 assert.equal(dogBytes.toString('ascii',0,4),'RIFF','Dog image must be WebP');
 const dogVp8=dogBytes.indexOf(Buffer.from('VP8 '));
 assert.ok(dogVp8>=12,'Dog image needs a VP8 WebP frame');
@@ -177,7 +184,7 @@ for(const q of repairedCandidates){
 // level is a user preference, not a clinical score or the old stage 0-2 number.
 const bandStart=html.indexOf('  function worldExerciseBand(q){');
 const bandEnd=html.indexOf('  function worldFamilies(items){',bandStart);
-const pickerStart=html.indexOf('  function selectWorldItems(id){');
+const pickerStart=html.indexOf('  function worldAutomaticLevel(id){');
 const pickerEnd=html.indexOf('  function startWorld(id){',pickerStart);
 assert.ok(bandStart>=0&&bandEnd>bandStart&&pickerStart>bandEnd&&pickerEnd>pickerStart,
   'World selection functions must exist');
@@ -187,12 +194,12 @@ const samples=[1,2,3,4].flatMap(level=>Array.from({length:6},(_,i)=>{
   return {id:'sample-'+level+'-'+i,art:'scene-'+i,family:'family-'+i,kind,stage};
 }));
 const context={
-  o4Data:{level:1}, worldItems:()=>samples, worldHistory:()=>[],
+  o4Data:{level:1}, placement:{done:false,recommendedLevel:null}, worldItems:()=>samples, worldHistory:()=>[],
   evidenceFamily:q=>q.family, itemFamily:q=>q.family
 };
 const picker=runInNewContext(
   html.slice(bandStart,bandEnd)+'\n'+html.slice(pickerStart,pickerEnd)+
-  '\n({worldExerciseBand,selectWorldItems})',context);
+  '\n({worldExerciseBand,worldAutomaticLevel,worldSelectedLevel,selectWorldItems})',context);
 for(let level=1;level<=4;level++){
   context.o4Data.level=level;
   const picked=picker.selectWorldItems('sport');
@@ -200,9 +207,66 @@ for(let level=1;level<=4;level++){
   assert.ok(picked.every(q=>picker.worldExerciseBand(q)===level),
     'Level '+level+' must select its actual grammar construct when available');
 }
+// The five real kennismaking results suggest only a starting practice preference.
+const placementStart=html.indexOf('  function placementRecommendation(results){');
+const placementEnd=html.indexOf('  function startPlacement(){',placementStart);
+assert.ok(placementStart>0&&placementEnd>placementStart,'Placement recommendation helper is required');
+const recommend=runInNewContext(html.slice(placementStart,placementEnd)+'\nplacementRecommendation');
+const result=(skill,independent,stage=0)=>({placementSkill:skill,independent,
+  attempts:independent?0:1,helpUsed:!independent,stage});
+assert.equal(recommend([result('past',true)]),null,'Partial kennismaking is not enough');
+assert.equal(recommend([result('past',true),result('past',false),result('inversion',false),
+  result('strong',false),result('past',false)]),1,'Low evidence must stay at level 1');
+assert.equal(recommend([result('past',true),result('past',true),result('inversion',true),
+  result('strong',false),result('past',false)]),2,'Three successes across constructs suggest level 2');
+assert.equal(recommend([result('past',true),result('inversion',true),result('strong',true,1),
+  result('past',true,1),result('inversion',false)]),3,'Four independent results across constructs suggest level 3');
+assert.ok(!html.includes('placement.recommendedLevel=4'),
+  'Five kennismaking tasks must never claim a level-4 outcome');
+context.o4Data.level=null;
+context.placement.done=true;
+context.placement.recommendedLevel=2;
+assert.equal(picker.worldSelectedLevel('sport'),2,'Automatic world level starts at the kennismaking recommendation');
+const atLevel2=[0,1,2,3].map(i=>({id:'sample-2-'+i,day:i%2?'2026-11-17':'2026-11-18',
+  scene:'scene-'+i,independent:true,evidenceVersion:3}));
+context.worldHistory=()=>atLevel2;
+assert.equal(picker.worldSelectedLevel('sport'),3,
+  'Four independent varied constructs across two days can promote one level');
+context.worldHistory=()=>atLevel2.map(x=>({...x,day:'2026-11-18'}));
+assert.equal(picker.worldSelectedLevel('sport'),2,
+  'Four correct answers in one day are insufficient to promote');
+context.o4Data.level=4;
+assert.equal(picker.worldSelectedLevel('sport'),4,'Manually chosen level always overrides automatic evidence');
+const diversePool=['a','a','a','a','b','b','c','c'].map((family,i)=>({
+  id:'diverse-'+i,kind:'order',stage:0,art:'art-'+i,family
+}));
+const diversePicker=runInNewContext(
+  html.slice(bandStart,bandEnd)+'\n'+html.slice(pickerStart,pickerEnd)+
+  '\nselectWorldItems', {
+    o4Data:{level:1},placement:{done:false,recommendedLevel:null},
+    worldItems:()=>diversePool,worldHistory:()=>[],
+    evidenceFamily:q=>q.family,itemFamily:q=>q.family
+  });
+for(let repeat=0;repeat<20;repeat++){
+  const selected=diversePicker('sport');
+  assert.equal(selected.length,5);
+  const families=selected.reduce((acc,q)=>(acc[q.family]=(acc[q.family]||0)+1,acc),{});
+  assert.ok(Object.values(families).every(count=>count<=2),
+    'When enough families exist, no more than two items may use the same family');
+}
+const sparsePicker=runInNewContext(
+  html.slice(bandStart,bandEnd)+'\n'+html.slice(pickerStart,pickerEnd)+
+  '\nselectWorldItems', {
+    o4Data:{level:1},placement:{done:false,recommendedLevel:null},
+    worldItems:()=>diversePool.filter(q=>q.family==='a').concat(diversePool.filter(q=>q.family==='b').slice(0,1)),
+    worldHistory:()=>[],evidenceFamily:q=>q.family,itemFamily:q=>q.family
+  });
+assert.equal(sparsePicker('sport').length,5,
+  'A limited reviewed pool must still yield five exercises rather than break the round');
+
 assert.ok(html.includes('<strong>${evidence.unique}</strong><small>verschillende oefeningen</small>'),
   'Count and progress meter must both describe distinct exercises');
-assert.ok(html.includes('@media (min-width:881px) and (max-width:1450px)'),
+assert.ok(css.includes('max-width:1450px') && css.includes('min-width:800px'),
   'Laptop header must be responsive');
 
 
@@ -253,7 +317,7 @@ assert.ok(html.includes("else if(isPilotO3()){if(!isRewardPreview())recordPilotO
 assert.ok(html.includes('function awardRoundStar()'),'Round-based reward must be present');
 assert.ok(html.includes('stars+=1;saveLearning();'),'Stars must be earned on round completion only');
 assert.ok(!html.includes('if(!isAuthorPilot()){stars++;saveLearning();}'),'Independent correctness must not earn spendable stars');
-assert.ok(html.includes("prefers-reduced-motion: reduce"),'Reduced-motion option missing');
+assert.ok(/prefers-reduced-motion\s*:\s*reduce/.test(css),'Reduced-motion option missing');
 assert.ok(html.includes("class=\"reward-vault-slot\""),'Visible chest landing slot missing');
 assert.ok(html.includes("duration:1800"),'Coin must no longer be a 780ms flash');
 assert.ok(html.includes("state.previewShownCoins=state.previewCoins"),'Displayed coins must settle only at landing or skip');
@@ -304,11 +368,39 @@ assert.ok(html.includes('pendingAvatarPurchase===profileDraftAvatar'),'Purchases
 assert.ok(html.includes("!preferences.listenOwnSentence"),'Unreviewed self-listening must default to opt-in');
 assert.ok(html.includes('data-action="profile-avatar-confirm"'),'Purchase control missing');
 
-// Normal learner worlds keep their chest animation, not a second stored wallet.
-assert.ok(html.includes("rewardPreview:true,previewCoins:0,previewShownCoins:0"),
-  'World reward animation must start from zero each round');
-assert.ok(html.includes("isPilotO3()||isWorld()"),
-  'Chest must remain available during normal learner worlds');
+// Phase 0: QA previews belong exclusively to the explicitly selected author pilot.
+const worldStart=html.slice(html.indexOf('  function startWorld(id){'),html.indexOf('  function isWorld(){'));
+assert.ok(worldStart.includes('rewardPreview:false,previewCoins:0,previewShownCoins:0'),
+  'Normal learner worlds may not enable the QA reward demo');
+assert.ok(!worldStart.includes('rewardPreview:true'),
+  'Author reward preview leaked into a learner world');
+const previewBegin=html.indexOf('  function isPilotO3(){');
+const previewEnd=html.indexOf('  function isAuthorPilot(){',previewBegin);
+assert.ok(previewBegin>=0&&previewEnd>previewBegin,'QA preview predicate missing');
+const previewCode=html.slice(previewBegin,previewEnd);
+const previewFor=state=>runInNewContext(previewCode+'\nisRewardPreview()', {state});
+assert.equal(previewFor({worldId:'sport',rewardPreview:true,lessonSkill:null}),false,
+  'Stale QA preview must be ignored in child world');
+assert.equal(previewFor({rewardPreview:true,lessonSkill:'o3-pilot'}),true,
+  'Explicit O3 author preview must remain usable');
+assert.equal(previewFor({rewardPreview:false,lessonSkill:'o3-pilot'}),false,
+  'O3 pilot without author preview must be unaffected');
+assert.ok(html.includes('data-action="reward-preview-open"'),
+  'Explicit author preview entry point missing');
+assert.ok(html.includes('data-action="reward-demo-complete"'),
+  'Author preview functionality must remain accessible');
+assert.ok(html.includes('<title>Zinbo</title>'),'Browser title must be Zinbo');
+assert.ok(html.includes('<strong>Zinbo</strong>'),'World wordmark must be Zinbo');
+assert.ok(!html.includes('aria-label="Zinsbouwer startpagina"'),
+  'World homepage must use the Zinbo brand');
+assert.ok(html.includes("(stars===1?'ster':'sterren')"),
+  'One star must use singular inflection');
+const profileMenuStart=html.indexOf('  function worldHome(){');
+const profileMenuEnd=html.indexOf('  function landingTop(){');
+const profileMarkup=html.slice(profileMenuStart>=0?profileMenuStart:html.indexOf('  function worldCard('),profileMenuEnd);
+assert.equal((profileMarkup.match(/data-action="parent-open"/g)||[]).length,1,
+  'Profile menu must expose only one parent/settings entry');
+// The reward currency and round-star persistence remain unchanged.
 assert.ok(!html.includes("rewardCoins=state.previewCoins;"),
   'Coins may no longer form a competing persistent currency');
 assert.ok(html.includes("if(state.index>=4){awardRoundStar();"),

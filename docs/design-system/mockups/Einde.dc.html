@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>F · Eindscherm na een ronde</title>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&amp;display=swap">
+<style>
+body{margin:0}
+.zb{font-family:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;color:#0E2148;background:#FBF8F2;box-sizing:border-box}
+.zb *{box-sizing:border-box}
+.zb button{font-family:inherit}
+.iconbtn{width:56px;height:56px;border-radius:999px;border:0;background:#FFFFFF;color:#0E2148;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 2px rgba(14,33,72,0.06),0 4px 16px rgba(14,33,72,0.06)}
+.listen{width:64px;height:64px;border-radius:999px;border:0;background:#1F5FD6;color:#FFFFFF;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:inset 0 -3px 0 #164AA8}
+.card{background:#FFFFFF;border-radius:24px;box-shadow:0 1px 2px rgba(14,33,72,0.06),0 4px 16px rgba(14,33,72,0.06)}
+.tile{position:relative;min-height:76px;padding:0 28px;border-radius:16px;border:0;display:flex;align-items:center;justify-content:center;gap:10px;font-size:28px;line-height:34px;font-weight:700;color:#0E2148}
+.tile .mk{position:absolute;left:10px;top:10px;display:flex}
+.slot{min-height:76px;border-radius:16px;border:2px dashed #B9B2A6;background:#F3EFE7;display:flex;align-items:center;justify-content:center;color:#5E6A80;font-size:18px;font-weight:700}
+.hear{width:40px;height:40px;border-radius:999px;border:0;background:rgba(255,255,255,0.8);color:#0E2148;display:flex;align-items:center;justify-content:center}
+.btn{height:60px;padding:0 24px;border-radius:16px;border:0;display:flex;align-items:center;gap:10px;font-size:18px;line-height:24px;font-weight:700}
+.btn2{background:#E6EEFC;color:#164AA8}
+.btn1{background:#1F5FD6;color:#FFFFFF;box-shadow:inset 0 -3px 0 #164AA8;padding:0 32px}
+.btnoff{background:#E9EDF2;color:#5E6A80;padding:0 32px}
+.pill{height:44px;padding:0 16px;border-radius:999px;background:#FFFFFF;display:flex;align-items:center;gap:8px;font-size:18px;font-weight:800;box-shadow:0 1px 2px rgba(14,33,72,0.06),0 4px 16px rgba(14,33,72,0.06)}
+.seg{height:10px;flex:1;border-radius:999px;background:#E3DDD2}
+.seg.on{background:#1F5FD6}
+.small{font-size:15px;line-height:20px;font-weight:700;color:#4A5B78}
+.wcard{display:flex;flex-direction:column;text-align:left;padding:0;border:0;background:#FFFFFF;border-radius:24px;overflow:hidden;box-shadow:0 1px 2px rgba(14,33,72,0.06),0 4px 16px rgba(14,33,72,0.06);color:#0E2148}
+.wimg{width:100%;aspect-ratio:16/10;object-fit:cover;display:block}
+.wbody{padding:16px 20px 20px;display:flex;flex-direction:column;gap:4px}
+.wtitle{font-size:22px;line-height:28px;font-weight:800}
+.wsub{font-size:18px;line-height:24px;font-weight:400;color:#4A5B78}
+.badge{align-self:flex-start;margin-top:10px;height:32px;padding:0 12px;border-radius:999px;display:flex;align-items:center;gap:6px;font-size:15px;line-height:20px;font-weight:700}
+.b-new{background:#E6EEFC;color:#164AA8}
+.b-done{background:#E5F4EC;color:#155C3B}
+.b-now{background:#FFE6D2;color:#8A3D07}
+.link{background:none;border:0;padding:0;font-size:18px;font-weight:700;color:#164AA8;text-decoration:underline;text-underline-offset:3px}
+</style>
+</helmet>
+<div class="zb" style="width:1280px;height:800px;padding:16px 48px 32px;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;align-items:center;height:72px"><span style="font-size:32px;font-weight:800;letter-spacing:-0.5px">Zinbo</span></div>
+<div style="display:grid;grid-template-columns:420px 1fr;gap:48px;align-items:center;flex:1">
+<div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px">
+<svg width="200" height="200" viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="96" fill="#FFF3D6"></circle><circle cx="100" cy="100" r="70" fill="#F5B82E"></circle><path d="M100 52l13.5 28 30.5 4.4-22 21.5 5.2 30.4L100 122l-27.2 14.3 5.2-30.4-22-21.5 30.5-4.4z" fill="#FFFFFF"></path></svg>
+<p style="margin:0;font-size:40px;line-height:44px;font-weight:800">Ronde klaar!</p>
+<p style="margin:0;font-size:20px;line-height:28px">Je verdiende een ster. Je hebt er nu 4.</p></div>
+<div class="card" style="padding:28px 32px">
+<p style="margin:0 0 8px;font-size:22px;line-height:30px;font-weight:800">Jouw vijf zinnen</p>
+<div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-top:1px solid #E3DDD2">
+<span style="display:flex;width:32px;height:32px;border-radius:999px;align-items:center;justify-content:center;background:#1E7A4F;color:#FFFFFF"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+<span style="flex:1;font-size:20px;line-height:28px">Ik pak mijn schooltas.</span>
+<span class="small" style="color:#155C3B">Zelf</span>
+<button class="hear" style="background:#E6EEFC;color:#164AA8" aria-label="Luister naar Ik pak mijn schooltas."><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"></path></svg></button></div><div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-top:1px solid #E3DDD2">
+<span style="display:flex;width:32px;height:32px;border-radius:999px;align-items:center;justify-content:center;background:#1E7A4F;color:#FFFFFF"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+<span style="flex:1;font-size:20px;line-height:28px">Ik praat met oma.</span>
+<span class="small" style="color:#155C3B">Zelf</span>
+<button class="hear" style="background:#E6EEFC;color:#164AA8" aria-label="Luister naar Ik praat met oma."><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"></path></svg></button></div><div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-top:1px solid #E3DDD2">
+<span style="display:flex;width:32px;height:32px;border-radius:999px;align-items:center;justify-content:center;background:#1E7A4F;color:#FFFFFF"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+<span style="flex:1;font-size:20px;line-height:28px">Ik werk in de tuin.</span>
+<span class="small" style="color:#155C3B">Zelf</span>
+<button class="hear" style="background:#E6EEFC;color:#164AA8" aria-label="Luister naar Ik werk in de tuin."><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"></path></svg></button></div><div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-top:1px solid #E3DDD2">
+<span style="display:flex;width:32px;height:32px;border-radius:999px;align-items:center;justify-content:center;background:#E6EEFC;color:#164AA8"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4"></path><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"></path></svg></span>
+<span style="flex:1;font-size:20px;line-height:28px">Ik kook in de keuken.</span>
+<span class="small" style="color:#164AA8">Met hulp</span>
+<button class="hear" style="background:#E6EEFC;color:#164AA8" aria-label="Luister naar Ik kook in de keuken."><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"></path></svg></button></div><div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-top:1px solid #E3DDD2">
+<span style="display:flex;width:32px;height:32px;border-radius:999px;align-items:center;justify-content:center;background:#1E7A4F;color:#FFFFFF"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+<span style="flex:1;font-size:20px;line-height:28px">Ik speel op het schoolplein.</span>
+<span class="small" style="color:#155C3B">Zelf</span>
+<button class="hear" style="background:#E6EEFC;color:#164AA8" aria-label="Luister naar Ik speel op het schoolplein."><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"></path></svg></button></div>
+<p class="small" style="margin:12px 0 0">Vier zinnen deed je zelf. Bij één zin kreeg je hulp, en die maakte je daarna zelf af.</p></div></div>
+<div style="display:flex;justify-content:flex-end;gap:12px"><button class="btn btn2">Naar start</button><button class="btn btn1">Nog een ronde<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

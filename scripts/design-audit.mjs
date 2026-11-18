@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+const css=await readFile(new URL('../public/styles.css',import.meta.url),'utf8');
+const strip=css.replace(/\/\*[\s\S]*?\*\//g,'');
+const colors=new Set([...strip.matchAll(/#[a-f0-9]{3,8}(?![a-f0-9])/gi)].map(x=>x[0].toLowerCase()));
+const textSizes=new Set([...strip.matchAll(/font-size\s*:\s*([^;}]+)/gi)].map(x=>x[1].trim()));
+const weights=new Set([...strip.matchAll(/font-weight\s*:\s*([^;}]+)/gi)].map(x=>x[1].trim()));
+const radii=new Set([...strip.matchAll(/border-radius\s*:\s*([^;}]+)/gi)].map(x=>x[1].trim()));
+const breakpoints=new Set([...strip.matchAll(/@media[^{}]*/gi)].flatMap(m=>[...m[0].matchAll(/(?:max|min)-width\s*:\s*(\d+)px/gi)].map(x=>x[1])));
+assert.ok(colors.size<=30,'Colors exceed 30 design tokens: '+colors.size);
+assert.ok(textSizes.size<=8,'Font sizes exceed 7 styles plus zero: '+[...textSizes].join(','));
+assert.ok(weights.size<=3,'Font weights exceed 400/700/800');
+assert.ok(radii.size<=6,'Radii exceed four tokens plus 0/inherit: '+[...radii].join(','));
+assert.ok(breakpoints.size<=4,'Too many screen breakpoints: '+[...breakpoints]);
+assert.ok(!/!important/i.test(strip),'Legacy !important still present');
+assert.ok(css.includes('@font-face')&&css.includes('nunito-latin-800-normal.woff2'),'Nunito must be self-hosted');
+console.log('PASS design token audit:',colors.size,'colors,',textSizes.size,'font-size variants,',weights.size,'weights,',radii.size,'radii,',breakpoints.size,'breakpoints, zero !important');
