@@ -116,7 +116,7 @@ Per PR: wat veranderd is, schermafbeeldingen vóór/na op drie formaten, CI-stat
 
 | Fase | Status |
 | --- | --- |
-| 0 | implementatie en regressiechecks voorbereid; PR/CI-verificatie in behandeling |
+| 0 | [PR #10](https://github.com/market-predictions/zinbo/pull/10) concept geopend; code en tests aangepast; CI en screenshots nog niet uitgevoerd of gevalideerd |
 | 1 | open |
 | 2 | open |
 | 3 | open |
