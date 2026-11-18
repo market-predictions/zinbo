@@ -15,8 +15,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Build with pinned SHA-256
+      - name: Build and verify source integrity
         run: node scripts/build.mjs
+      - name: Claude design token audit
+        run: node scripts/design-audit.mjs
       - name: P0 text audit
         run: node scripts/p0-text-audit.mjs --strict
       - name: P0 regression checks
