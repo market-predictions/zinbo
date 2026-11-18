@@ -22,30 +22,30 @@
     const review=Array.isArray(state.roundReview)?state.roundReview:[];
     const independent=review.filter(entry=>entry.independent).length;
     const assisted=review.length-independent;
-    const items=review.map((entry,i)=>\`<li class="zbv4-review-row">
-      <span class="zbv4-review-symbol \${entry.independent?'is-self':'is-assisted'}" aria-hidden="true">\${entry.independent?'✓':'◈'}</span>
-      <span class="zbv4-review-sentence">\${esc(entry.sentence)}</span>
-      <span class="zbv4-review-label">\${entry.independent?'Zelf':'Met hulp'}</span>
-      <button type="button" class="zbv4-review-listen" data-action="speak-summary" data-index="\${entry.index}" \${state.audioOn?'':'disabled'} aria-label="Luister naar zin \${i+1}">\${uiIcon('audio',20)}</button>
-    </li>\`).join('');
+    const items=review.map((entry,i)=>`<li class="zbv4-review-row">
+      <span class="zbv4-review-symbol ${entry.independent?'is-self':'is-assisted'}" aria-hidden="true">${entry.independent?'✓':'◈'}</span>
+      <span class="zbv4-review-sentence">${esc(entry.sentence)}</span>
+      <span class="zbv4-review-label">${entry.independent?'Zelf':'Met hulp'}</span>
+      <button type="button" class="zbv4-review-listen" data-action="speak-summary" data-index="${entry.index}" ${state.audioOn?'':'disabled'} aria-label="Luister naar zin ${i+1}">${uiIcon('audio',20)}</button>
+    </li>`).join('');
     const message=review.length
       ?independent+' '+(independent===1?'zin deed':'zinnen deed')+' je zelfstandig. '+(assisted?assisted+' '+(assisted===1?'zin maakte':'zinnen maakte')+' je met hulp.':'Goed gedaan!')
       :'Goed geoefend!';
-    return \`<section class="panel success zbv4-end">
+    return `<section class="panel success zbv4-end">
       <header class="zbv4-end-brand">Zinbo</header>
       <div class="zbv4-end-layout">
         <div class="zbv4-end-celebration"><div class="zbv4-end-star" aria-hidden="true">★</div>
-        <h1>Ronde klaar!</h1><p>Je verdiende een ster. Je hebt er nu \${stars}.</p></div>
-        <div class="zbv4-review-card"><h2>Jouw \${review.length===5?'vijf':review.length} zinnen</h2>
-        <ol class="zbv4-review-list">\${items}</ol>
-        <p class="zbv4-review-summary">\${message}</p></div>
+        <h1>Ronde klaar!</h1><p>Je verdiende een ster. Je hebt er nu ${stars}.</p></div>
+        <div class="zbv4-review-card"><h2>Jouw ${review.length===5?'vijf':review.length} zinnen</h2>
+        <ol class="zbv4-review-list">${items}</ol>
+        <p class="zbv4-review-summary">${message}</p></div>
       </div>
       <div class="zbv4-end-actions">
         <button class="secondary" data-action="home">Naar start</button>
-        <button class="primary" data-action="\${action}" \${extra}>\${label} \${uiIcon('chevron-right',22)}</button>
+        <button class="primary" data-action="${action}" ${extra}>${label} ${uiIcon('chevron-right',22)}</button>
       </div>
-      <details class="zbv4-end-optional"><summary>Wil je nog iets vertellen?</summary>\${ownVoicePrompt()}</details>
-    </section>\`;
+      <details class="zbv4-end-optional"><summary>Wil je nog iets vertellen?</summary>${ownVoicePrompt()}</details>
+    </section>`;
   }
   function end(){
     if(isRewardPreview())return rewardPreviewEnd();
