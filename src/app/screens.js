@@ -214,6 +214,7 @@
     document.body.classList.toggle('in-landing',state.screen!=='exercise');
     document.body.classList.toggle('in-world',state.screen==='home');
     document.body.classList.toggle('no-motion',!state.motionOn);
+    document.body.classList.toggle('no-role-colors',preferences.roleColorsOn===false);
     document.body.classList.toggle('reward-preview-mode',isRewardPreview());
     const previous = document.activeElement;
     const action = previous && previous.dataset ? previous.dataset.action : null;
@@ -328,6 +329,7 @@
       else if(a==='hint')toggleHint();
       else if(a==='settings'){state.settingsOpen=!state.settingsOpen;render();}
       else if(a==='motion'){state.motionOn=!state.motionOn;preferences.motionOn=state.motionOn;saveLearning();render();}
+       else if(a==='role-colors'){preferences.roleColorsOn=preferences.roleColorsOn===false;saveLearning();render();}
       else if(a==='sound'){state.audioOn=!state.audioOn;preferences.audioOn=state.audioOn;saveLearning();stopAudio();render();if(state.audioOn)speak('Geluid aan.');}
       else if(a==='listen-preview-toggle'){preferences.listenOwnSentence=!preferences.listenOwnSentence;saveLearning();render();}
       else if(a==='speak-built')speakBuiltSentence();
