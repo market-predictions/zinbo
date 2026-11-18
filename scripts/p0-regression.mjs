@@ -173,7 +173,7 @@ for(const q of repairedCandidates){
 // level is a user preference, not a clinical score or the old stage 0-2 number.
 const bandStart=html.indexOf('  function worldExerciseBand(q){');
 const bandEnd=html.indexOf('  function worldFamilies(items){',bandStart);
-const pickerStart=html.indexOf('  function selectWorldItems(id){');
+const pickerStart=html.indexOf('  function worldAutomaticLevel(id){');
 const pickerEnd=html.indexOf('  function startWorld(id){',pickerStart);
 assert.ok(bandStart>=0&&bandEnd>bandStart&&pickerStart>bandEnd&&pickerEnd>pickerStart,
   'World selection functions must exist');
@@ -183,12 +183,12 @@ const samples=[1,2,3,4].flatMap(level=>Array.from({length:6},(_,i)=>{
   return {id:'sample-'+level+'-'+i,art:'scene-'+i,family:'family-'+i,kind,stage};
 }));
 const context={
-  o4Data:{level:1}, worldItems:()=>samples, worldHistory:()=>[],
+  o4Data:{level:1}, placement:{done:false,recommendedLevel:null}, worldItems:()=>samples, worldHistory:()=>[],
   evidenceFamily:q=>q.family, itemFamily:q=>q.family
 };
 const picker=runInNewContext(
   html.slice(bandStart,bandEnd)+'\n'+html.slice(pickerStart,pickerEnd)+
-  '\n({worldExerciseBand,selectWorldItems})',context);
+  '\n({worldExerciseBand,worldAutomaticLevel,worldSelectedLevel,selectWorldItems})',context);
 for(let level=1;level<=4;level++){
   context.o4Data.level=level;
   const picked=picker.selectWorldItems('sport');
@@ -196,6 +196,63 @@ for(let level=1;level<=4;level++){
   assert.ok(picked.every(q=>picker.worldExerciseBand(q)===level),
     'Level '+level+' must select its actual grammar construct when available');
 }
+// The five real kennismaking results suggest only a starting practice preference.
+const placementStart=html.indexOf('  function placementRecommendation(results){');
+const placementEnd=html.indexOf('  function startPlacement(){',placementStart);
+assert.ok(placementStart>0&&placementEnd>placementStart,'Placement recommendation helper is required');
+const recommend=runInNewContext(html.slice(placementStart,placementEnd)+'\nplacementRecommendation');
+const result=(skill,independent,stage=0)=>({placementSkill:skill,independent,
+  attempts:independent?0:1,helpUsed:!independent,stage});
+assert.equal(recommend([result('past',true)]),null,'Partial kennismaking is not enough');
+assert.equal(recommend([result('past',true),result('past',false),result('inversion',false),
+  result('strong',false),result('past',false)]),1,'Low evidence must stay at level 1');
+assert.equal(recommend([result('past',true),result('past',true),result('inversion',true),
+  result('strong',false),result('past',false)]),2,'Three successes across constructs suggest level 2');
+assert.equal(recommend([result('past',true),result('inversion',true),result('strong',true,1),
+  result('past',true,1),result('inversion',false)]),3,'Four independent results across constructs suggest level 3');
+assert.ok(!html.includes('placement.recommendedLevel=4'),
+  'Five kennismaking tasks must never claim a level-4 outcome');
+context.o4Data.level=null;
+context.placement.done=true;
+context.placement.recommendedLevel=2;
+assert.equal(picker.worldSelectedLevel('sport'),2,'Automatic world level starts at the kennismaking recommendation');
+const atLevel2=[0,1,2,3].map(i=>({id:'sample-2-'+i,day:i%2?'2026-11-17':'2026-11-18',
+  scene:'scene-'+i,independent:true,evidenceVersion:3}));
+context.worldHistory=()=>atLevel2;
+assert.equal(picker.worldSelectedLevel('sport'),3,
+  'Four independent varied constructs across two days can promote one level');
+context.worldHistory=()=>atLevel2.map(x=>({...x,day:'2026-11-18'}));
+assert.equal(picker.worldSelectedLevel('sport'),2,
+  'Four correct answers in one day are insufficient to promote');
+context.o4Data.level=4;
+assert.equal(picker.worldSelectedLevel('sport'),4,'Manually chosen level always overrides automatic evidence');
+const diversePool=['a','a','a','a','b','b','c','c'].map((family,i)=>({
+  id:'diverse-'+i,kind:'order',stage:0,art:'art-'+i,family
+}));
+const diversePicker=runInNewContext(
+  html.slice(bandStart,bandEnd)+'\n'+html.slice(pickerStart,pickerEnd)+
+  '\nselectWorldItems', {
+    o4Data:{level:1},placement:{done:false,recommendedLevel:null},
+    worldItems:()=>diversePool,worldHistory:()=>[],
+    evidenceFamily:q=>q.family,itemFamily:q=>q.family
+  });
+for(let repeat=0;repeat<20;repeat++){
+  const selected=diversePicker('sport');
+  assert.equal(selected.length,5);
+  const families=selected.reduce((acc,q)=>(acc[q.family]=(acc[q.family]||0)+1,acc),{});
+  assert.ok(Object.values(families).every(count=>count<=2),
+    'When enough families exist, no more than two items may use the same family');
+}
+const sparsePicker=runInNewContext(
+  html.slice(bandStart,bandEnd)+'\n'+html.slice(pickerStart,pickerEnd)+
+  '\nselectWorldItems', {
+    o4Data:{level:1},placement:{done:false,recommendedLevel:null},
+    worldItems:()=>diversePool.filter(q=>q.family==='a').concat(diversePool.filter(q=>q.family==='b').slice(0,1)),
+    worldHistory:()=>[],evidenceFamily:q=>q.family,itemFamily:q=>q.family
+  });
+assert.equal(sparsePicker('sport').length,5,
+  'A limited reviewed pool must still yield five exercises rather than break the round');
+
 assert.ok(html.includes('<strong>${evidence.unique}</strong><small>verschillende oefeningen</small>'),
   'Count and progress meter must both describe distinct exercises');
 assert.ok(css.includes('max-width:1450px') && css.includes('min-width:800px'),
