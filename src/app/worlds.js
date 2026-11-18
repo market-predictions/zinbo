@@ -1,15 +1,14 @@
   function worldCard(w,selectedId){
     const pool=worldItems(w.id),visited=worldPracticedIds(w.id),playable=worldIsPlayable(w.id);
-    const art={zelf:'pet-dog.webp',school:'school-gate.webp',sport:'sports-field.webp',thuis:'kitchen-cooking.webp',familie:'family-talk.webp',uitstapjes:'town-outing.webp'}[w.id];
-    const cover=V43_ART[art]||SCENE_ART[w.art]||SCENE_ART['bike-to-school.webp'];
-    const progress=playable&&pool.length?Math.round(100*visited.size/pool.length):0;
-    const icons={zelf:['person','orange'],school:['graduation-cap','blue'],sport:['target','green'],thuis:['house','purple'],familie:['users','pink'],uitstapjes:['map-pin','muted']};
-    const [icon,theme]=icons[w.id];
-    return `<button ${playable?`data-action="world-open" data-world="${w.id}"`:'disabled aria-disabled="true"'} class="op1-card ${selectedId===w.id&&playable?'is-selected ':''}${playable?'':'op1-card-pending'}" aria-label="${esc(w.name)}: ${playable?`${visited.size} van ${pool.length} oefeningen geoefend`:'Nog niet beschikbaar'}">
-      <img src="${cover}" alt="" draggable="false">${!playable?`<span class="op1-lock" title="Nog niet beschikbaar">${opIcon('lock',23)}</span>`:''}
-      <span class="op1-card-body"><span class="op1-card-icon ${theme}">${opIcon(icon,25)}</span><span><span class="op1-card-name">${esc(w.name)}</span><span class="op1-card-desc">${esc(w.sub)}</span></span><span class="op1-card-arrow">${playable?opIcon('chevron-right',19):''}</span></span>
-      <span class="op1-card-bottom"><span class="op1-card-bar" aria-hidden="true"><i style="width:${progress}%"></i></span><small>${playable?`${visited.size} / ${pool.length}`:opIcon('lock',19)}</small></span>
-    </button>`;
+    const art={zelf:'self-backpack-take.webp',school:'school-walking-v2.webp',sport:'sam-soccer.webp',thuis:'kitchen-cooking-v2.webp',familie:'family-talk-v2.webp',uitstapjes:'town-lookout-v2.webp'}[w.id];
+    const cover=V43_ART[art]||SCENE_ART[art]||SCENE_ART[w.art]||SCENE_ART['bike-to-school.webp'];
+    const status=!playable?'Binnenkort':visited.size?visited.size+' '+(visited.size===1?'zin':'zinnen')+' geoefend':'Nieuw';
+    const stateLabel=!playable?'pending':visited.size?'done':'new';
+    const attrs=playable?'data-action="world-open" data-world="'+w.id+'"':'disabled aria-disabled="true"';
+    return \`<button \${attrs} class="op1-card zbv4-card \${selectedId===w.id&&playable?'is-selected ':''}\${playable?'':'op1-card-pending'}" aria-label="\${esc(w.name)}. \${esc(w.sub)}. \${esc(status)}">
+      <img src="\${cover}" alt="" draggable="false">
+      <span class="zbv4-card-copy"><strong class="op1-card-name">\${esc(w.name)}</strong><span class="op1-card-desc">\${esc(w.sub)}</span><small class="zbv4-badge zbv4-badge-\${stateLabel}">\${esc(status)}</small></span>
+    </button>\`;
   }
   let parentPanelMode='settings';
   function parentPanel(){
@@ -39,15 +38,17 @@
       <header class="op1-header"><button class="op1-home" data-action="home" aria-label="Startpagina">${uiIcon('home',29)}</button>
         <div class="op1-brand"><strong>Zinbo</strong><span>Zinnen maken. Stap voor stap.</span></div>
         <div class="op1-toolbar"><button data-action="profile-edit" class="op1-pill op1-star" aria-label="${stars} ${stars===1?'ster':'sterren'} beschikbaar. Open avatarbibliotheek" title="Kies een avatar">${opIcon('star',28)}<strong>${stars}</strong></button>
-          <button data-action="world-group" class="op1-pill op1-group" aria-label="Oefenniveau: ${chosen}. Kennismaking ${placed} van 5.">${opIcon('graduation-cap',26)}<span class="op1-group-copy"><span>Instap</span><strong>${chosen}</strong><small>${placement.done?'Kennismaking klaar':`${placed} van 5 oefenzinnen`}</small></span><span class="op1-group-track" aria-hidden="true"><i style="width:${pct}%"></i></span></button>
           <div class="op1-profile-holder"><button data-action="world-profile" class="op1-pill op1-profile" aria-haspopup="menu" aria-expanded="${profileMenuOpen}"><span class="op1-profile-avatar">${profileAvatar(preferences.avatarId)}</span><span class="op1-profile-name">${esc(profileLabel())}</span>${opIcon('chevron-down',19)}</button>
           ${profileMenuOpen?`<div class="op1-menu" role="menu"><button role="menuitem" data-action="profile-edit">${opIcon('circle-check',22)} Mijn profiel en avatars</button><button role="menuitem" data-action="world-progress">${opIcon('chart-column',22)} Jouw voortgang</button><button role="menuitem" data-action="world-group">${opIcon('graduation-cap',22)} Oefenniveau</button><button role="menuitem" data-action="start-placement">${opIcon('play',22)} Kennismaking</button><button role="menuitem" data-action="parent-open">${opIcon('users',22)} Voor ouders</button></div>`:''}</div>
         </div>
       </header>
-      <section class="op1-hero" aria-label="Welkom bij Zinbo"><div class="op1-welcome"><div class="op1-welcome-top"><h1>Hoi!</h1><p>Waar wil je vandaag mee oefenen?</p><p class="op1-welcome-guide">Kies hieronder een wereld.</p></div></div><span class="op1-hero-message">Jij kunt dit!</span>
+      <section class="op1-hero zbv4-hero" aria-label="Welkom bij Zinbo">
+        <div class="zbv4-hero-copy"><h1>Hoi!</h1><p>\${preferences.lastWorld&&last?'Je oefende in '+esc(last.name)+'.':'Kies een wereld die je leuk vindt.'}</p>
+        <button class="op1-start zbv4-continue" \${last?'data-action="world-open" data-world="'+last.id+'"':'data-action="routes"'}>\${opIcon('play',24)} <strong>Verder oefenen</strong></button></div>
+        <div class="zbv4-hero-art"><img src="\${SCENE_ART['bike-to-school.webp']}" alt="Een jongen fietst naar school." draggable="false"></div>
       </section>
-      <section class="op1-worlds" aria-label="Mijn werelden"><h2>Mijn werelden</h2><p class="op1-sub">Kies wat je wilt oefenen.</p><div class="op1-cards">${WORLD_INFO.map(w=>worldCard(w,last?.id)).join('')}</div></section>
-      <section class="op1-progress" id="op1-progress" aria-label="Jouw voortgang"><h2>Jouw voortgang</h2><div class="op1-progress-grid">
+      <section class="op1-worlds zbv4-worlds" aria-label="Kies een wereld"><h2>Kies een wereld</h2><div class="op1-cards">${WORLD_INFO.map(w=>worldCard(w,last?.id)).join('')}</div></section>
+      <details class="op1-progress zbv4-parent-info" id="op1-progress"><summary>Voor ouders en begeleiders</summary><div class="zbv4-parent-content"><h2>Jouw voortgang</h2><div class="op1-progress-grid">
         <article class="op1-stat"><span class="op1-stat-icon">${opIcon('message-circle',32)}</span><span class="op1-stat-text"><strong>${evidence.unique}</strong><small>verschillende oefeningen</small></span><div class="op1-stat-meter" role="progressbar" aria-label="Verschillende oefeningen geprobeerd" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${discoveryRate}" title="${evidence.unique} van ${approvedTotal} verschillende oefeningen geprobeerd"><span class="op1-stat-deco"><i style="width:${discoveryRate}%"></i></span><small>${discoveryRate}%</small></div></article>
         <article class="op1-stat"><span class="op1-stat-icon good">${opIcon('circle-check',32)}</span><span class="op1-stat-text"><strong>${evidence.independent}</strong><small>zelfstandig goed</small></span><div class="op1-stat-meter" role="progressbar" aria-label="Zinnen zelfstandig goed gemaakt" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${successRate}" title="${evidence.independent} van ${evidence.count} antwoorden zonder hulp correct"><span class="op1-stat-deco green"><i style="width:${successRate}%"></i></span><small>${successRate}%</small></div></article>
         <article class="op1-stat"><span class="op1-stat-icon accent">${opIcon('chart-column',32)}</span><span class="op1-stat-text"><strong>${evidence.words}</strong><small>werkwoorden geoefend</small></span><div class="op1-stat-meter" role="progressbar" aria-label="Verschillende werkwoorden geoefend" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${verbsRate}" title="${evidence.words} van ${totalVerbs} herkenbare werkwoordfamilies geoefend"><span class="op1-stat-deco orange"><i style="width:${verbsRate}%"></i></span><small>${verbsRate}%</small></div></article>
@@ -57,7 +58,7 @@
         <button class="op1-start" ${last?`data-action="world-open" data-world="${last.id}"`:'data-action="routes"'}>${opIcon('play',27)} <strong>Verder oefenen</strong></button>
         <button class="op1-change-challenge" data-action="challenge-home">Andere uitdaging</button>
       </div>
-    </section>
+    </div></details>
       <details class="op1-other"><summary>Andere oefenroutes</summary><div class="op1-other-buttons"><button data-action="routes">${opIcon('book-open',20)} Basisoefeningen</button><button data-action="challenge-home">${opIcon('target',20)} Nieuwe uitdaging</button><button data-action="start-placement">${opIcon('play',20)} Kennismaking</button></div></details>
       ${parentPanelOpen?parentPanel():''}${profileDialogOpen?profileDialog():''}</div>`;
   }
