@@ -197,7 +197,7 @@ try {
     assert.equal(await page.locator('.bar-actions .star-pill:not(.reward-vault)').count(),1,
       'Regular learner header should have only the normal star balance');
     if(width===390){
-      const box=await page.locator('.activity-title h2').boundingBox();
+      const box=await page.locator('.zbv2-task-text').boundingBox();
       assert.ok(box&&box.x>=0&&box.x+box.width<=width+2,'Mobile title must fit without chest overlay');
     }
 
