@@ -112,6 +112,12 @@
       state.previewCoins+=state.previewLastGain;
       // Coins are only a visual count within this five-sentence round.
     }
+    // Fase 4: tijdelijke ronde-terugblik, uitsluitend van werkelijk gemaakte zinnen.
+    // Heeft geen invloed op antwoordcontrole, beloningen of opgeslagen leerdata.
+    if(!Array.isArray(state.roundReview))state.roundReview=[];
+    if(!state.roundReview.some(entry=>entry.index===state.index))
+      state.roundReview.push({index:state.index,sentence:correctSentence(),
+        independent:!state.answerRevealed&&!state.helpUsed&&state.attempts===0});
     state.completed=true;
     state.message='';state.focusPos=null;
     render();
