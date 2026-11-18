@@ -502,7 +502,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     state={screen:'exercise',motionOn,settingsOpen:false,mode:items[0].tiles?'order':'morph',series:0,
       index:0,worldId:id,lessonItems:items,positions:[],selected:null,attempts:0,helpUsed:false,
       solvedFirst:0,message:'',showHint:false,completed:false,focusPos:null,audioOn,
-      rewardPreview:true,previewCoins:0,previewShownCoins:0,previewLastGain:0,previewChestOpen:false};
+      rewardPreview:false,previewCoins:0,previewShownCoins:0,previewLastGain:0,previewChestOpen:false};
     resetItem();render();speak(taskInstruction());
   }
   function isWorld(){return Boolean(state.worldId);}
@@ -539,7 +539,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     return '<div class="zinbo-profile-backdrop" data-action="profile-cancel" aria-hidden="true"></div>'+
       '<section class="zinbo-profile-dialog zinbo-avatar-dialog" role="dialog" aria-modal="true" aria-labelledby="zinbo-profile-title">'+
       '<header class="zinbo-profile-titlebar"><div><span class="zinbo-profile-kicker">Jouw plek in Zinbo</span><h2 id="zinbo-profile-title">Kies je avatar</h2><p>Spaar sterren en ontgrendel nieuwe avatars.</p></div><button type="button" class="zinbo-profile-close" data-action="profile-cancel" aria-label="Sluit avatarbibliotheek">×</button></header>'+
-      '<p class="zinbo-avatar-info">★ '+stars+' sterren beschikbaar · Gratis avatars kies je meteen.</p>'+
+      '<p class="zinbo-avatar-info">★ '+stars+' '+(stars===1?'ster':'sterren')+' beschikbaar · Gratis avatars kies je meteen.</p>'+
       '<div class="zinbo-avatar-layout"><div class="zinbo-avatar-lists">'+
         '<h3>Gratis avatars</h3><div class="zinbo-avatar-grid" role="group" aria-label="Gratis avatars">'+free+'</div>'+
         '<h3>Nieuwe avatars</h3><div class="zinbo-avatar-grid" role="group" aria-label="Ontgrendelbare avatars">'+premium+'</div>'+
@@ -595,16 +595,16 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
     const verbPool=new Set(ALL_LEGACY_ITEMS.map(evidenceFamily).filter(Boolean));
     const totalVerbs=verbPool.size;
     const verbsRate=totalVerbs?Math.min(100,Math.round(100*evidence.words/totalVerbs)):0;
-    return `<div class="op1-root" aria-label="Zinsbouwer startpagina">
+    return `<div class="op1-root" aria-label="Zinbo startpagina">
       <header class="op1-header"><button class="op1-home" data-action="home" aria-label="Startpagina">${uiIcon('home',29)}</button>
-        <div class="op1-brand"><strong>Zinsbouwer</strong><span>Zinnen maken. Stap voor stap.</span></div>
-        <div class="op1-toolbar"><button data-action="profile-edit" class="op1-pill op1-star" aria-label="${stars} sterren beschikbaar. Open avatarbibliotheek" title="Kies een avatar">${opIcon('star',28)}<strong>${stars}</strong></button>
+        <div class="op1-brand"><strong>Zinbo</strong><span>Zinnen maken. Stap voor stap.</span></div>
+        <div class="op1-toolbar"><button data-action="profile-edit" class="op1-pill op1-star" aria-label="${stars} ${stars===1?'ster':'sterren'} beschikbaar. Open avatarbibliotheek" title="Kies een avatar">${opIcon('star',28)}<strong>${stars}</strong></button>
           <button data-action="world-group" class="op1-pill op1-group" aria-label="Oefenniveau: ${chosen}. Kennismaking ${placed} van 5.">${opIcon('graduation-cap',26)}<span class="op1-group-copy"><span>Instap</span><strong>${chosen}</strong><small>${placement.done?'Kennismaking klaar':`${placed} van 5 oefenzinnen`}</small></span><span class="op1-group-track" aria-hidden="true"><i style="width:${pct}%"></i></span></button>
           <div class="op1-profile-holder"><button data-action="world-profile" class="op1-pill op1-profile" aria-haspopup="menu" aria-expanded="${profileMenuOpen}"><span class="op1-profile-avatar">${profileAvatar(preferences.avatarId)}</span><span class="op1-profile-name">${esc(profileLabel())}</span>${opIcon('chevron-down',19)}</button>
-          ${profileMenuOpen?`<div class="op1-menu" role="menu"><button role="menuitem" data-action="profile-edit">${opIcon('circle-check',22)} Mijn profiel en avatars</button><button role="menuitem" data-action="world-progress">${opIcon('chart-column',22)} Jouw voortgang</button><button role="menuitem" data-action="world-group">${opIcon('graduation-cap',22)} Oefenniveau</button><button role="menuitem" data-action="parent-open">${opIcon('settings',22)} Instellingen</button><button role="menuitem" data-action="start-placement">${opIcon('play',22)} Kennismaking</button><button role="menuitem" data-action="parent-open">${opIcon('users',22)} Voor ouders</button></div>`:''}</div>
+          ${profileMenuOpen?`<div class="op1-menu" role="menu"><button role="menuitem" data-action="profile-edit">${opIcon('circle-check',22)} Mijn profiel en avatars</button><button role="menuitem" data-action="world-progress">${opIcon('chart-column',22)} Jouw voortgang</button><button role="menuitem" data-action="world-group">${opIcon('graduation-cap',22)} Oefenniveau</button><button role="menuitem" data-action="start-placement">${opIcon('play',22)} Kennismaking</button><button role="menuitem" data-action="parent-open">${opIcon('users',22)} Voor ouders</button></div>`:''}</div>
         </div>
       </header>
-      <section class="op1-hero" aria-label="Welkom bij Zinsbouwer"><div class="op1-welcome"><div class="op1-welcome-top"><h1>Hoi!</h1><p>Waar wil je vandaag mee oefenen?</p><p class="op1-welcome-guide">Kies hieronder een wereld.</p></div></div><span class="op1-hero-message">Jij kunt dit!</span>
+      <section class="op1-hero" aria-label="Welkom bij Zinbo"><div class="op1-welcome"><div class="op1-welcome-top"><h1>Hoi!</h1><p>Waar wil je vandaag mee oefenen?</p><p class="op1-welcome-guide">Kies hieronder een wereld.</p></div></div><span class="op1-hero-message">Jij kunt dit!</span>
       </section>
       <section class="op1-worlds" aria-label="Mijn werelden"><h2>Mijn werelden</h2><p class="op1-sub">Kies wat je wilt oefenen.</p><div class="op1-cards">${WORLD_INFO.map(w=>worldCard(w,last?.id)).join('')}</div></section>
       <section class="op1-progress" id="op1-progress" aria-label="Jouw voortgang"><h2>Jouw voortgang</h2><div class="op1-progress-grid">
@@ -807,7 +807,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
   function baseLayout(content){app.innerHTML=content;wire();}
 
   function landingTop(){
-    return `<div class="landing-top"><div class="landing-brand"><span class="landing-brand-mark" aria-hidden="true">Z</span><span>Zinsbouwer</span></div><div class="landing-rewards" title="Beschikbare avatarsterren" aria-label="${stars} sterren beschikbaar"> <span class="star-symbol" aria-hidden="true">★</span><strong>${stars}</strong></div></div>`;
+    return `<div class="landing-top"><div class="landing-brand"><span class="landing-brand-mark" aria-hidden="true">Z</span><span>Zinbo</span></div><div class="landing-rewards" title="Beschikbare avatarsterren" aria-label="${stars} ${stars===1?'ster':'sterren'} beschikbaar"> <span class="star-symbol" aria-hidden="true">★</span><strong>${stars}</strong></div></div>`;
   }
   function landingHero(title, description, kicker='Tijd om te oefenen',small=false){
     const image=SCENE_ART['bike-to-school.webp'];
@@ -833,7 +833,7 @@ sG+PDJaJy3hM1h9DQCNZoV4PRqqNruoQudpJI7MRvSpaZn6O5wYQ64kKpqBE4iYkeAHHyV0Pl1F4OmmS
   function home(){
     const row=`<span class="preview-word">Sam</span><span class="preview-word preview-verb">fietst</span><span class="preview-word">naar school</span>`;
     const morph=`<span class="preview-word">fiets</span><span class="preview-plus">+</span><span class="preview-word preview-verb">t</span><span class="preview-equals">=</span><span class="preview-word">fietst</span>`;
-    return `<section class="panel home landing-shell">${landingTop()}${landingHero('Maak jij de zin?', 'Kies een oefening. Je mag tikken, slepen en luisteren.', 'Welkom bij Zinsbouwer')}
+    return `<section class="panel home landing-shell">${landingTop()}${landingHero('Maak jij de zin?', 'Kies een oefening. Je mag tikken, slepen en luisteren.', 'Welkom bij Zinbo')}
       <div class="landing-content"><div class="landing-section-label">Wat wil je oefenen?</div><div class="landing-choice-grid">
       ${landingCard('start-order','order','Zinnen bouwen','Zet de woorden in de goede volgorde.',row,'4 series · telkens 5 zinnen','Zinnen')}
       ${landingCard('start-morph','morph','Werkwoorden maken','Kies de vorm die bij de zin past.',morph,'4 series · telkens 5 zinnen','Werkwoorden')}
