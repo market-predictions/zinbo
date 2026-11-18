@@ -500,11 +500,12 @@ try {
     const slotPage=await context.newPage();
     slotPage.on('pageerror',e=>errors.push(width+' slot-focus: '+e.message));
     await slotPage.goto(url,{waitUntil:'load'});
-    await slotPage.locator('[data-action="world-profile"]').click();
-    await slotPage.locator('.op1-menu [data-action="world-group"]').click();
-    await slotPage.locator('.world-parent-dialog [data-level="1"]').click();
-    await slotPage.locator('.parent-close').click();
-    await slotPage.locator('.op1-card[data-action="world-open"][data-world="sport"]').click();
+    // Open the published learner route for sentence-building: unlike a
+    // world-level preference, this guarantees draggable word tiles.
+    await slotPage.locator('.op1-other summary').click();
+    await slotPage.locator('.op1-other [data-action="routes"]').click();
+    await slotPage.locator('[data-action="start-order"]').click();
+    await slotPage.locator('[data-action="pick-series"]').first().click();
     const focusStyle=async locator=>{
       await slotPage.keyboard.press('Tab');
       await locator.focus();
