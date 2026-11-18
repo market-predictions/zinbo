@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>E · Startscherm</title>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&amp;display=swap">
+<style>
+body{margin:0}
+.zb{font-family:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;color:#0E2148;background:#FBF8F2;box-sizing:border-box}
+.zb *{box-sizing:border-box}
+.zb button{font-family:inherit}
+.iconbtn{width:56px;height:56px;border-radius:999px;border:0;background:#FFFFFF;color:#0E2148;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 2px rgba(14,33,72,0.06),0 4px 16px rgba(14,33,72,0.06)}
+.listen{width:64px;height:64px;border-radius:999px;border:0;background:#1F5FD6;color:#FFFFFF;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:inset 0 -3px 0 #164AA8}
+.card{background:#FFFFFF;border-radius:24px;box-shadow:0 1px 2px rgba(14,33,72,0.06),0 4px 16px rgba(14,33,72,0.06)}
+.tile{position:relative;min-height:76px;padding:0 28px;border-radius:16px;border:0;display:flex;align-items:center;justify-content:center;gap:10px;font-size:28px;line-height:34px;font-weight:700;color:#0E2148}
+.tile .mk{position:absolute;left:10px;top:10px;display:flex}
+.slot{min-height:76px;border-radius:16px;border:2px dashed #B9B2A6;background:#F3EFE7;display:flex;align-items:center;justify-content:center;color:#5E6A80;font-size:18px;font-weight:700}
+.hear{width:40px;height:40px;border-radius:999px;border:0;background:rgba(255,255,255,0.8);color:#0E2148;display:flex;align-items:center;justify-content:center}
+.btn{height:60px;padding:0 24px;border-radius:16px;border:0;display:flex;align-items:center;gap:10px;font-size:18px;line-height:24px;font-weight:700}
+.btn2{background:#E6EEFC;color:#164AA8}
+.btn1{background:#1F5FD6;color:#FFFFFF;box-shadow:inset 0 -3px 0 #164AA8;padding:0 32px}
+.btnoff{background:#E9EDF2;color:#5E6A80;padding:0 32px}
+.pill{height:44px;padding:0 16px;border-radius:999px;background:#FFFFFF;display:flex;align-items:center;gap:8px;font-size:18px;font-weight:800;box-shadow:0 1px 2px rgba(14,33,72,0.06),0 4px 16px rgba(14,33,72,0.06)}
+.seg{height:10px;flex:1;border-radius:999px;background:#E3DDD2}
+.seg.on{background:#1F5FD6}
+.small{font-size:15px;line-height:20px;font-weight:700;color:#4A5B78}
+.wcard{display:flex;flex-direction:column;text-align:left;padding:0;border:0;background:#FFFFFF;border-radius:24px;overflow:hidden;box-shadow:0 1px 2px rgba(14,33,72,0.06),0 4px 16px rgba(14,33,72,0.06);color:#0E2148}
+.wimg{width:100%;aspect-ratio:16/10;object-fit:cover;display:block}
+.wbody{padding:16px 20px 20px;display:flex;flex-direction:column;gap:4px}
+.wtitle{font-size:22px;line-height:28px;font-weight:800}
+.wsub{font-size:18px;line-height:24px;font-weight:400;color:#4A5B78}
+.badge{align-self:flex-start;margin-top:10px;height:32px;padding:0 12px;border-radius:999px;display:flex;align-items:center;gap:6px;font-size:15px;line-height:20px;font-weight:700}
+.b-new{background:#E6EEFC;color:#164AA8}
+.b-done{background:#E5F4EC;color:#155C3B}
+.b-now{background:#FFE6D2;color:#8A3D07}
+.link{background:none;border:0;padding:0;font-size:18px;font-weight:700;color:#164AA8;text-decoration:underline;text-underline-offset:3px}
+</style>
+</helmet>
+<div class="zb" style="width:1280px;height:1340px;padding:16px 48px 32px;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;align-items:center;gap:12px;height:72px">
+<span style="font-size:32px;line-height:1;font-weight:800;letter-spacing:-0.5px">Zinbo</span>
+<div style="flex:1"></div>
+<div class="pill" style="height:44px"><svg width="20" height="20" viewBox="0 0 24 24" fill="#F5B82E" stroke="#B07800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"></path></svg>3</div>
+<button class="pill" style="height:44px;border:0;padding:0 16px 0 6px;font-size:18px" aria-label="Profiel en instellingen"><span style="width:34px;height:34px;border-radius:999px;background:#DDF2F3;display:flex;align-items:center;justify-content:center;color:#0F7C86"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="6" fill="#0F7C86"></circle></svg></span>Mijn profiel</button>
+</div>
+<div class="card" style="display:grid;grid-template-columns:1fr 520px;overflow:hidden">
+<div style="padding:40px 48px;display:flex;flex-direction:column;justify-content:center;gap:12px">
+<p style="margin:0;font-size:40px;line-height:44px;font-weight:800">Hoi!</p>
+<p style="margin:0;font-size:20px;line-height:28px">Je was bezig in <b>Over jezelf</b>. Nog drie zinnen.</p>
+<div style="display:flex;gap:12px;margin-top:12px"><button class="btn btn1">Verder oefenen<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button></div></div>
+<img src="art:bike-to-school.webp" alt="Een jongen fietst naar school." style="width:520px;height:280px;object-fit:cover;display:block"></div>
+<div style="display:flex;align-items:baseline;gap:16px;margin-top:8px"><p style="margin:0;font-size:28px;line-height:34px;font-weight:800">Kies een wereld</p></div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px"><button class="wcard"><img class="wimg" src="art:self-backpack-take.webp" alt=""><span class="wbody"><span class="wtitle">Over jezelf</span><span class="wsub">Wat doe jij?</span><span class="badge b-now"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>Bezig · zin 3 van 5</span></span></button><button class="wcard"><img class="wimg" src="art:school-walking-v2.webp" alt=""><span class="wbody"><span class="wtitle">Op school</span><span class="wsub">Leren en spelen</span><span class="badge b-done"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>12 zinnen geoefend</span></span></button><button class="wcard"><img class="wimg" src="art:sam-soccer.webp" alt=""><span class="wbody"><span class="wtitle">Sport en hobby's</span><span class="wsub">Bewegen en plezier</span><span class="badge b-done"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>8 zinnen geoefend</span></span></button><button class="wcard"><img class="wimg" src="art:kitchen-cooking-v2.webp" alt=""><span class="wbody"><span class="wtitle">Thuis</span><span class="wsub">Eten, helpen en doen</span><span class="badge b-new">Nieuw</span></span></button><button class="wcard"><img class="wimg" src="art:family-talk-v2.webp" alt=""><span class="wbody"><span class="wtitle">Familie en vrienden</span><span class="wsub">Samen zijn</span><span class="badge b-new">Nieuw</span></span></button><button class="wcard"><img class="wimg" src="art:town-lookout-v2.webp" alt=""><span class="wbody"><span class="wtitle">Uitstapjes</span><span class="wsub">Op pad</span><span class="badge b-new">Nieuw</span></span></button></div>
+<div style="display:flex;justify-content:flex-end;gap:24px;padding-top:8px"><button class="link">Voor ouders</button></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1340}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
