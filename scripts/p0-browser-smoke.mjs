@@ -494,6 +494,43 @@ try {
     assert.equal(focused.top,focused.bottom,'Focused selection must use even border width');
 
     await choicePage.close();
+    // Regression for the learner's actual screenshot: a grammar-coloured word
+    // must have a single integrated blue focus border (not a second ring over
+    // the raised grammatical underline), on desktop, tablet and phone.
+    const slotPage=await context.newPage();
+    slotPage.on('pageerror',e=>errors.push(width+' slot-focus: '+e.message));
+    await slotPage.goto(url,{waitUntil:'load'});
+    await slotPage.locator('[data-action="world-profile"]').click();
+    await slotPage.locator('.op1-menu [data-action="world-group"]').click();
+    await slotPage.locator('.world-parent-dialog [data-level="1"]').click();
+    await slotPage.locator('.parent-close').click();
+    await slotPage.locator('.op1-card[data-action="world-open"][data-world="sport"]').click();
+    const focusStyle=async locator=>{
+      await slotPage.keyboard.press('Tab');
+      await locator.focus();
+      return locator.evaluate(el=>{
+        const c=getComputedStyle(el);
+        return {outline:c.outlineStyle,shadow:c.boxShadow,
+          top:c.borderTopWidth,bottom:c.borderBottomWidth,
+          topColor:c.borderTopColor,bottomColor:c.borderBottomColor};
+      });
+    };
+    const sourceTile=slotPage.locator('.bank button.tile').first();
+    const bankStyle=await focusStyle(sourceTile);
+    assert.equal(bankStyle.outline,'none','Bank tile must not have a detached focus outline');
+    assert.equal(bankStyle.shadow,'none','Bank tile must not retain a raised focus shadow');
+    assert.equal(bankStyle.top,bankStyle.bottom,'Focused bank tile needs an even border');
+    assert.equal(bankStyle.topColor,bankStyle.bottomColor,'Bank focus must not mix blue and role underlines');
+    await sourceTile.click();
+    const placedTile=slotPage.locator('button.slot.filled').first();
+    assert.equal(await placedTile.count(),1,'Placed learner word must exist');
+    const placedStyle=await focusStyle(placedTile);
+    assert.equal(placedStyle.outline,'none','Placed word must not have a detached blue focus ring');
+    assert.equal(placedStyle.shadow,'none','Placed word must not retain a raised shadow');
+    assert.equal(placedStyle.top,placedStyle.bottom,'Placed word focus needs an even border');
+    assert.equal(placedStyle.topColor,placedStyle.bottomColor,
+      'Placed word focus must not mix blue and grammatical underline');
+    await slotPage.close();
     await context.close();
   }
   assert.deepEqual(errors,[],'No uncaught JS errors in Chromium');
