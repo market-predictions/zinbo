@@ -6,7 +6,7 @@ const colors=new Set([...strip.matchAll(/#[a-f0-9]{3,8}(?![a-f0-9])/gi)].map(x=>
 const textSizes=new Set([...strip.matchAll(/font-size\s*:\s*([^;}]+)/gi)].map(x=>x[1].trim()));
 const weights=new Set([...strip.matchAll(/font-weight\s*:\s*([^;}]+)/gi)].map(x=>x[1].trim()));
 const radii=new Set([...strip.matchAll(/border-radius\s*:\s*([^;}]+)/gi)].map(x=>x[1].trim()));
-const breakpoints=new Set([...strip.matchAll(/(?:max|min)-width\s*:\s*(\d+)px/gi)].map(x=>x[1]));
+const breakpoints=new Set([...strip.matchAll(/@media[^{}]*/gi)].flatMap(m=>[...m[0].matchAll(/(?:max|min)-width\s*:\s*(\d+)px/gi)].map(x=>x[1])));
 assert.ok(colors.size<=30,'Colors exceed 30 design tokens: '+colors.size);
 assert.ok(textSizes.size<=8,'Font sizes exceed 7 styles plus zero: '+[...textSizes].join(','));
 assert.ok(weights.size<=3,'Font weights exceed 400/700/800');
