@@ -359,11 +359,11 @@ body.in-exercise .tile:hover,body.in-exercise .ending:hover{filter:brightness(.9
 body.in-exercise .hear-tile{position:absolute;right:0;bottom:0;display:grid;place-items:center;width:44px;min-width:44px;height:44px;min-height:44px;border:1px solid var(--zb-line);border-radius:var(--zb-radius-pill);background:var(--zb-surface-card);color:var(--zb-brand)}
 body.in-exercise .hear-tile svg{width:20px;height:20px}
 body.in-exercise .slot[data-grammar],body.in-exercise .tile[data-grammar]{--role-color:var(--zb-role-other);--role-soft:var(--zb-role-other-soft);background:var(--role-soft);border-bottom-color:var(--role-color)}
-body.in-exercise [data-grammar="subject"]{--role-color:var(--zb-role-subject);--role-soft:var(--zb-role-subject-soft)}
-body.in-exercise [data-grammar="verb"]{--role-color:var(--zb-role-verb);--role-soft:var(--zb-role-verb-soft)}
-body.in-exercise [data-grammar="object"]{--role-color:var(--zb-role-object);--role-soft:var(--zb-role-object-soft)}
-body.in-exercise [data-grammar="place"]{--role-color:var(--zb-role-place);--role-soft:var(--zb-role-place-soft)}
-body.in-exercise [data-grammar="time"]{--role-color:var(--zb-role-time);--role-soft:var(--zb-role-time-soft)}
+body.in-exercise :is(.slot,.tile)[data-grammar="subject"]{--role-color:var(--zb-role-subject);--role-soft:var(--zb-role-subject-soft)}
+body.in-exercise :is(.slot,.tile)[data-grammar="verb"]{--role-color:var(--zb-role-verb);--role-soft:var(--zb-role-verb-soft)}
+body.in-exercise :is(.slot,.tile)[data-grammar="object"]{--role-color:var(--zb-role-object);--role-soft:var(--zb-role-object-soft)}
+body.in-exercise :is(.slot,.tile)[data-grammar="place"]{--role-color:var(--zb-role-place);--role-soft:var(--zb-role-place-soft)}
+body.in-exercise :is(.slot,.tile)[data-grammar="time"]{--role-color:var(--zb-role-time);--role-soft:var(--zb-role-time-soft)}
 body.in-exercise .tile[data-grammar]::before,body.in-exercise .slot.filled[data-grammar]::before{content:"";position:absolute;top:9px;left:9px;display:block;width:12px;height:12px;background:var(--role-color);border-radius:var(--zb-radius-pill)}
 body.in-exercise [data-grammar="verb"]::before{clip-path:polygon(50% 0,100% 100%,0 100%);border-radius:0}
 body.in-exercise [data-grammar="object"]::before{border-radius:0}
