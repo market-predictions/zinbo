@@ -189,6 +189,9 @@ try {
     await page.reload({waitUntil:'load'});
     // Phase 0: child-facing worlds must never expose QA reward controls.
     await page.locator('.op1-card[data-action="world-open"][data-world="sport"]').click();
+    const afterEnter=await page.evaluate(()=>({scrollY:window.scrollY,emptyArt:!!document.querySelector('.zbv2-task-panel.no-art'),artCount:document.querySelectorAll('.zbv2-scene').length}));
+    assert.ok(afterEnter.scrollY<4,'World entry must reset scroll to show navigation and task: '+afterEnter.scrollY);
+    if(afterEnter.emptyArt) assert.equal(afterEnter.artCount,0,'Exercise without an approved illustration must not show a blank or broken image');
     const worldState=await page.evaluate(()=>window.__zinsbouwerTest.getState());
     assert.equal(worldState.rewardPreview,false,'QA reward preview must be off for learner worlds');
     assert.equal(await page.locator('.reward-prototype-tools,.reward-vault,.reward-demo-trigger').count(),0,
