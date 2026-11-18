@@ -187,10 +187,19 @@ try {
       localStorage.setItem(key,JSON.stringify(prior));
     });
     await page.reload({waitUntil:'load'});
-    // Normal learning worlds use the chest reward, not only the author demo.
+    // Phase 0: child-facing worlds must never expose QA reward controls.
     await page.locator('.op1-card[data-action="world-open"][data-world="sport"]').click();
     const worldState=await page.evaluate(()=>window.__zinsbouwerTest.getState());
-    assert.equal(worldState.rewardPreview,true,'Regular learner world should get chest rewards');
+    assert.equal(worldState.rewardPreview,false,'QA reward preview must be off for learner worlds');
+    assert.equal(await page.locator('.reward-prototype-tools,.reward-vault,.reward-demo-trigger').count(),0,
+      'Child must not see QA controls or a floating chest badge');
+    assert.equal(await page.locator('.op1-menu').count(),0);
+    assert.equal(await page.locator('.bar-actions .star-pill:not(.reward-vault)').count(),1,
+      'Regular learner header should have only the normal star balance');
+    if(width===390){
+      const box=await page.locator('.activity-title h2').boundingBox();
+      assert.ok(box&&box.x>=0&&box.x+box.width<=width+2,'Mobile title must fit without chest overlay');
+    }
 
     const replay=page.locator('.work-area .sentence-review [data-action="speak-built"]');
     assert.equal(await replay.count(),1,'Self-replay should sit in the sentence work area');
@@ -234,25 +243,28 @@ try {
         await page.locator('[data-action="ending"][data-ending="'+q.ending+'"]').click();
       }
       await page.locator('[data-action="check"]').click();
-      assert.equal(await page.locator('.reward-preview-feedback').count(),1,'World lacks feedback');
-      const earned=await page.evaluate(()=>window.__zinsbouwerTest.getRewardPreview());
-      assert.equal(earned.coins,i+1,'Chest visually counts five completed sentences');
-      assert.equal(earned.storedCoins,balancesBefore.coins,'No second spendable currency should be awarded');
+      assert.equal(await page.locator('.reward-preview-feedback,.reward-prototype-tools').count(),0,
+        'QA overlay must remain absent throughout normal rounds');
+      assert.equal((await page.evaluate(()=>window.__zinsbouwerTest.getRewardPreview())).active,false,
+        'Preview must stay off after a correct answer');
       await page.locator('[data-action="next"]').click();
     }
-    assert.equal(await page.locator('.reward-preview-end').count(),1,'World must end with chest');
+    assert.equal(await page.locator('.reward-preview-end').count(),0,
+      'Normal world must show its regular end screen, never the author chest');
+    assert.equal(await page.locator('.panel.success h1').innerText(),'Goed geoefend!');
     const balancesAfter=await page.evaluate(()=>{
       const o=JSON.parse(localStorage.getItem('zinsbouwer-qa-360-feedback-20261019'));
       return {stars:o.stars,coins:o.rewardCoins};
     });
     assert.equal(balancesAfter.stars,balancesBefore.stars+1,'Five completed exercises earn one star');
     assert.equal(balancesAfter.coins,balancesBefore.coins,'Legacy coin counter is no longer a wallet');
-    await page.locator('[data-action="reward-chest-open"]').click();
-    assert.equal(await page.locator('.reward-preview-found').count(),1,'World chest must open');
     await page.locator('[data-action="home"]').first().click();
     await page.reload({waitUntil:'load'});
     assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('zinsbouwer-qa-360-feedback-20261019')).stars),
       balancesAfter.stars,'Earned star must persist after reload');
+    // A single earned star must use the singular label in the home interface.
+    if(balancesAfter.stars===1)
+      assert.ok((await page.locator('.op1-star').getAttribute('aria-label')).includes('1 ster beschikbaar'));
     // Restore the starting sound preference before exercising older audio regressions.
     await page.locator('.op1-card[data-action="world-open"][data-world="sport"]').click();
     await page.locator('[data-action="settings"]').first().click();
