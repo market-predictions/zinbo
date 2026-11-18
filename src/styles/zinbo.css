@@ -328,6 +328,8 @@ body.in-exercise .instruction-card{display:flex;align-items:center;gap:16px;widt
 body.in-exercise .instruction-card .zbv2-listen-icon{display:grid;place-items:center;flex:0 0 64px;width:64px;height:64px;border-radius:var(--zb-radius-pill);background:var(--zb-brand);color:var(--zb-surface-card)}
 body.in-exercise .instruction-card svg{display:block;width:30px;height:30px;min-width:0;padding:0;border:0;border-radius:0;background:transparent;color:inherit}
 body.in-exercise .instruction-card:disabled{opacity:.7}
+body.in-exercise .zbv2-task-panel.no-art{grid-template-columns:1fr}
+body.in-exercise .zbv2-task-panel.no-art .instruction-card{min-height:120px}
 body.in-exercise .zbv2-scene{position:relative;inset:auto;display:flex;align-items:center;justify-content:center;width:100%;height:240px;min-height:0;overflow:hidden;pointer-events:none;border:1px solid var(--zb-line);border-radius:var(--zb-radius-lg);background:var(--zb-surface-card);box-shadow:var(--zb-shadow-card)}
 body.in-exercise .zbv2-scene .scene-art{position:static;display:block;width:100%;height:100%;object-fit:contain;object-position:center;max-height:none;border:0;border-radius:0;opacity:1;-webkit-mask-image:none;mask-image:none;background:var(--zb-surface-card);box-shadow:none}
 body.in-exercise .zbv2-work-area{position:relative;z-index:1;min-height:0;margin:0;padding:0;border:0}
