@@ -479,6 +479,20 @@ try {
     assert.equal(visuals.topColor,visuals.bottomColor,'Selected ending must use a unified border color');
     assert.equal(visuals.shadow,'none','Selected ending must not show the old bottom shadow');
     assert.equal(visuals.outline,'none','Selected ending must not show a second, detached outline');
+    // Reproduce the exact reported state: a chosen button also holds keyboard
+    // focus. A generic :focus-visible rule must not bring back the outer ring.
+    await choicePage.keyboard.press('Tab');
+    await choicePage.locator('.choice-row .ending.selected').focus();
+    const focused=await choicePage.locator('.choice-row .ending.selected').evaluate(el=>{
+      const c=getComputedStyle(el);
+      return {outline:c.outlineStyle,shadow:c.boxShadow,
+        top:c.borderTopWidth,bottom:c.borderBottomWidth,
+        focusVisible:el.matches(':focus-visible')};
+    });
+    assert.equal(focused.outline,'none','Focused selection must never show detached blue outline');
+    assert.equal(focused.shadow,'none','Focused selection must never show bottom shadow');
+    assert.equal(focused.top,focused.bottom,'Focused selection must use even border width');
+
     await choicePage.close();
     await context.close();
   }
