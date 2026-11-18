@@ -13,10 +13,10 @@
   let parentPanelMode='settings';
   function parentPanel(){
     const isGroup=parentPanelMode==='group';
-    const chosen=o4Data.level?`Niveau ${o4Data.level}`:'Kies niveau';
+    const chosen=[1,2,3,4].includes(o4Data.level)?`Handmatig niveau ${o4Data.level}`:'Automatisch';
     return `<div class="world-parent-backdrop" data-action="close-parent" aria-hidden="true"></div><section class="world-parent-dialog" role="dialog" aria-modal="true" aria-labelledby="parent-title">
-    <header><div><span class="parent-kicker">${isGroup?'Kies een uitdagingsniveau':'Voor ouders en begeleiders'}</span><h2 id="parent-title">${isGroup?'Niveau 1 tot en met 4':'Instellingen'}</h2></div><button class="parent-close" data-action="close-parent" aria-label="Sluiten">×</button></header>
-    ${isGroup?`<p>Het gekozen niveau bepaalt het <strong>soort oefenzinnen</strong> in de werelden, geen gemeten taalniveau. Niveau 4 bevat voorlopig gevorderde bestaande zinnen; VTT en bijzinnen zijn nog niet vrijgegeven.</p>${groupSelector()}<div class="parent-note"><strong>Instap:</strong> ${chosen}. ${placement.done?'Kennismaking afgerond.':'Kennismaking: '+Math.min(5,placement.history.length)+' van 5 oefenzinnen.'} Dit is geen schoolgroep en geen taaldiagnose.</div><button class="parent-primary" data-action="start-placement">${opIcon('play',22)} ${placement.done?'Kennismaking opnieuw doen':'Start kennismaking'}</button>`
+    <header><div><span class="parent-kicker">${isGroup?'Kies een uitdagingsniveau':'Voor ouders en begeleiders'}</span><h2 id="parent-title">${isGroup?'Oefenniveau':'Instellingen'}</h2></div><button class="parent-close" data-action="close-parent" aria-label="Sluiten">×</button></header>
+    ${isGroup?`<p>In de automatische stand gebruikt Zinbo de kennismaking als startpunt en oefenresultaten van meerdere dagen om langzaam moeilijkere zinnen aan te bieden. Je kunt altijd handmatig niveau 1–4 kiezen. Dit is geen taaldiagnose.</p>${groupSelector()}<div class="parent-note"><strong>Instap:</strong> ${chosen}. ${placement.done?'Kennismaking afgerond; voorgesteld startniveau '+(placement.recommendedLevel||1)+'.':'Kennismaking: '+Math.min(5,placement.history.length)+' van 5 oefenzinnen.'} Dit is geen schoolgroep en geen taaldiagnose.</div><button class="parent-primary" data-action="start-placement">${opIcon('play',22)} ${placement.done?'Kennismaking opnieuw doen':'Start kennismaking'}</button>`
     :`<p>Kies hoe je wilt oefenen. Deze instellingen gelden op dit apparaat.</p><div class="parent-settings"><button data-action="sound" aria-pressed="${state.audioOn}">${opIcon('volume',24)} Geluid <strong>${state.audioOn?'Aan':'Uit'}</strong></button><button data-action="motion" aria-pressed="${state.motionOn}">${opIcon('settings',24)} Animaties <strong>${state.motionOn?'Aan':'Uit'}</strong></button><button data-action="listen-preview-toggle" aria-pressed="${preferences.listenOwnSentence}">${opIcon('volume',24)} Mijn zin terugluisteren (proef) <strong>${preferences.listenOwnSentence?'Aan':'Uit'}</strong></button></div><p class="parent-note">Zelf terugluisteren is een optionele proef met begeleiding. Een fout gelegde zin kan ook fout klinken. Daarom standaard uit.</p><p class="parent-privacy">De voortgang blijft in deze browser opgeslagen. Oefenresultaten bewijzen niet automatisch dat een kind zinnen spontaan kan gebruiken.</p>${resetConfirmOpen?'<div class="reset-confirm"><strong>Alle oefenresultaten wissen?</strong><p>Dit kan niet ongedaan gemaakt worden.</p><button data-action="clear-learning">Ja, resultaten wissen</button><button data-action="cancel-clear">Annuleren</button></div>':'<button class="parent-reset" data-action="confirm-clear">Oefenresultaten wissen</button>'}`}
     </section>`;
   }
@@ -24,7 +24,7 @@
     const evidence=worldHeading();
     const playable=WORLD_INFO.filter(w=>worldIsPlayable(w.id));
     const last=playable.find(w=>w.id===preferences.lastWorld)||playable[0];
-    const chosen=o4Data.level?`Niveau ${o4Data.level}`:'Kies niveau';
+    const chosen=[1,2,3,4].includes(o4Data.level)?`Niveau ${o4Data.level}`:'Automatisch';
     const placed=Math.min(5,placement.history.length);
     const pct=(placed/5)*100;
     const successRate=evidence.count?Math.round(100*evidence.independent/evidence.count):0;
@@ -272,7 +272,7 @@
     </button>`;
   }
   function groupSelector(){
-    return `<div class="group-selector"><p><strong>Oefenniveau (1–4)</strong><span class="group-description"> 1: basiszinnen · 2: tijdsvormen · 3: omdraaien en afwisselen · 4: gevorderde varianten. Een startpunt, geen meting.</span></p><div class="group-options">${[1,2,3,4].map(n=>`<button type="button" class="group-option" data-action="o4-level" data-level="${n}" aria-pressed="${o4Data.level===n}">Niveau ${n}</button>`).join('')}</div>${preferences.schoolGroup?`<p>Historische schoolgroep ${esc(preferences.schoolGroup)} blijft bewaard, maar is niet automatisch omgezet.</p>`:''}</div>`;
+    return `<div class="group-selector"><p><strong>Oefenniveau</strong><span class="group-description"> Automatisch houdt rekening met de kennismaking en met oefenen op meerdere dagen. Kies 1–4 voor een vaste voorkeur; geen taalniveau-meting.</span></p><div class="group-options"><button type="button" class="group-option" data-action="o4-level" data-level="auto" aria-pressed="${o4Data.level===null}">Automatisch</button>${[1,2,3,4].map(n=>`<button type="button" class="group-option" data-action="o4-level" data-level="${n}" aria-pressed="${o4Data.level===n}">Niveau ${n}</button>`).join('')}</div>${preferences.schoolGroup?`<p>Historische schoolgroep ${esc(preferences.schoolGroup)} blijft bewaard, maar is niet automatisch omgezet.</p>`:''}</div>`;
   }
   function parentDetails(text,clear=false){
     return `<details class="review-info landing-parent"><summary>Voor ouders en begeleiders</summary><div class="parent-content"><p>${text}</p>${groupSelector()}${clear?'<button class="secondary" data-action="clear-learning">Oefenvoortgang wissen</button>':''}</div></details>`;
