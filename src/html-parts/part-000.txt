@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
-<title>Zinsbouwer V4.6.2 QA — O4 adaptieve leerlijn niveau 1–4</title>
+<title>Zinbo</title>
 <style>
 
 :root {--ink:#20354a;--muted:#526779;--paper:#f6f9f6;--card:#fff;--line:#d9e5e2;--blue:#3569ae;--blue-soft:#ecf3fb;--peach:#a75f2d;--peach-soft:#fff1dd;--green:#287c60;--green-soft:#eff9f3;--font-support:19px;--font-body:21px;--font-action:22px;--font-exercise:27px}
@@ -1053,7 +1053,7 @@ body.no-motion.reward-preview-mode .reward-vault-received{animation:none!importa
 <body>
 <div class="container">
   <header class="mast">
-    <div class="branding"><div class="logo" aria-hidden="true">Z</div><span>Zinsbouwer</span></div>
+    <div class="branding"><div class="logo" aria-hidden="true">Z</div><span>Zinbo</span></div>
     
   </header>
   <main id="app" aria-live="off"></main>
