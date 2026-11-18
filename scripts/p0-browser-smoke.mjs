@@ -251,7 +251,9 @@ try {
     }
     assert.equal(await page.locator('.reward-preview-end').count(),0,
       'Normal world must show its regular end screen, never the author chest');
-    assert.equal(await page.locator('.panel.success h1').innerText(),'Goed geoefend!');
+    assert.equal(await page.locator('.panel.success h1').innerText(),'Ronde klaar!');
+    assert.equal(await page.locator('.zbv4-review-row').count(),5,'The round recap must show five actually completed sentences');
+    assert.equal(await page.locator('.zbv4-review-listen').count(),5,'Every sentence needs its own listen control');
     const balancesAfter=await page.evaluate(()=>{
       const o=JSON.parse(localStorage.getItem('zinsbouwer-qa-360-feedback-20261019'));
       return {stars:o.stars,coins:o.rewardCoins};
@@ -290,7 +292,8 @@ try {
     };
     if(width===1366) {
       const first=async level=>{
-        await page.locator('[data-action="world-group"]').click();
+        await page.locator('[data-action="world-profile"]').click();
+        await page.locator('.op1-menu [data-action="world-group"]').click();
         await page.locator('.world-parent-dialog [data-action="o4-level"][data-level="'+level+'"]').click();
         await page.locator('.parent-close').click();
         await page.locator('.op1-card[data-action="world-open"][data-world="sport"]').click();
