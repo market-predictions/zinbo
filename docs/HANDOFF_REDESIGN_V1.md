@@ -116,7 +116,7 @@ Per PR: wat veranderd is, schermafbeeldingen vóór/na op drie formaten, CI-stat
 
 | Fase | Status |
 | --- | --- |
-| 0 | open |
+| 0 | implementatie en regressiechecks voorbereid; PR/CI-verificatie in behandeling |
 | 1 | open |
 | 2 | open |
 | 3 | open |
