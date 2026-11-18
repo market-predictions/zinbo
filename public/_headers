@@ -1,7 +1,5 @@
-/*
-  X-Robots-Tag: noindex, nofollow
-  X-Content-Type-Options: nosniff
-  Referrer-Policy: strict-origin-when-cross-origin
+/art/*
+  Cache-Control: public, max-age=86400
 
-/index.html
-  Cache-Control: no-cache
+/styles.css
+  Cache-Control: public, max-age=3600

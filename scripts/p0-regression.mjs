@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { Script, runInNewContext } from 'node:vm';
 
 const html = await readFile(new URL('../public/index.html', import.meta.url), 'utf8');
+const css = await readFile(new URL('../public/styles.css', import.meta.url), 'utf8');
 
 // Compile embedded JavaScript: catch unterminated templates, malformed regexes
 // and accidental source-segment corruption before publication.
@@ -123,12 +124,7 @@ const resolutions=JSON.parse(resolutionMatch[1]);
 assert.equal(resolutions['market-flowers.webp'],true,'1536x1024 flower image must pass');
 assert.equal(resolutions['schoolyard.webp'],true,'1536x1024 schoolyard image must pass');
 assert.equal(resolutions['pet-dog.webp'],true,'Reviewed replacement dog scene should pass image resolution');
-const dogPrefix='"pet-dog.webp":"data:image/webp;base64,';
-const dogStart=html.indexOf(dogPrefix);
-assert.ok(dogStart>=0,'Embedded dog image missing');
-const dogEnd=html.indexOf('"',dogStart+dogPrefix.length);
-assert.ok(dogEnd>dogStart,'Dog image data incomplete');
-const dogBytes=Buffer.from(html.slice(dogStart+dogPrefix.length,dogEnd),'base64');
+const dogBytes=await readFile(new URL('../public/art/pet-dog.webp', import.meta.url));
 assert.equal(dogBytes.toString('ascii',0,4),'RIFF','Dog image must be WebP');
 const dogVp8=dogBytes.indexOf(Buffer.from('VP8 '));
 assert.ok(dogVp8>=12,'Dog image needs a VP8 WebP frame');
@@ -202,7 +198,7 @@ for(let level=1;level<=4;level++){
 }
 assert.ok(html.includes('<strong>${evidence.unique}</strong><small>verschillende oefeningen</small>'),
   'Count and progress meter must both describe distinct exercises');
-assert.ok(html.includes('@media (min-width:881px) and (max-width:1450px)'),
+assert.ok(css.includes('@media (min-width:881px) and (max-width:1450px)'),
   'Laptop header must be responsive');
 
 
@@ -253,7 +249,7 @@ assert.ok(html.includes("else if(isPilotO3()){if(!isRewardPreview())recordPilotO
 assert.ok(html.includes('function awardRoundStar()'),'Round-based reward must be present');
 assert.ok(html.includes('stars+=1;saveLearning();'),'Stars must be earned on round completion only');
 assert.ok(!html.includes('if(!isAuthorPilot()){stars++;saveLearning();}'),'Independent correctness must not earn spendable stars');
-assert.ok(html.includes("prefers-reduced-motion: reduce"),'Reduced-motion option missing');
+assert.ok(css.includes("prefers-reduced-motion: reduce"),'Reduced-motion option missing');
 assert.ok(html.includes("class=\"reward-vault-slot\""),'Visible chest landing slot missing');
 assert.ok(html.includes("duration:1800"),'Coin must no longer be a 780ms flash');
 assert.ok(html.includes("state.previewShownCoins=state.previewCoins"),'Displayed coins must settle only at landing or skip');
