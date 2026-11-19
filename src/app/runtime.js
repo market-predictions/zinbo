@@ -39,31 +39,68 @@
   for(const skill of ['past','inversion','strong']){
     ADVANCED[skill].push(...V43_CANDIDATES[skill].filter(releasedCandidate));
   }
-  // Decorate a released source item temporarily; never mutate its canonical
-  // choices, correct answer, review metadata, or persistent learning history.
-  function choicePilotItem(candidate,count){
-    if(!CHOICE_PILOT_PREVIEW||![2,3,4].includes(count))return null;
-    const base=[...ADVANCED.past,...ADVANCED.strong].find(q=>q.id===candidate.sourceId);
-    if(!base||!Array.isArray(base.choices)||base.choices.length!==2)return null;
+  // Approved additions are attached to temporary lesson copies. Canonical
+  // content, subject, image, correct form and stable item IDs stay unchanged.
+  // The expert approval was reported by the owner; no external report was supplied.
+  const CHOICE_VARIANTS_APPROVED=CHOICE_PILOT.releaseStatus==='owner-attested-approved'&&
+    CHOICE_PILOT.approval?.logopedistApprovedAsReportedByOwner===true;
+  const APPROVED_CHOICE_BY_ID=new Map(CHOICE_VARIANTS_APPROVED
+    ?CHOICE_PILOT.items.filter(c=>c.reviewStatus==='owner-attested-approved').map(c=>[c.sourceId,c])
+    :[]);
+  function makeChoiceVariant(base,candidate,count){
+    if(!base||!candidate||!['tense','strong'].includes(base.kind)||
+       !Array.isArray(base.choices)||base.choices.length!==2||
+       ![2,3,4].includes(count))return null;
     const extra=candidate.extra.slice(0,count-2);
     const choices=[...base.choices,...extra.map(x=>x.form)];
-    if(new Set(choices).size!==count||!choices.includes(base.ending))return null;
+    if(new Set(choices).size!==count||choices.filter(v=>v===base.ending).length!==1)return null;
     const originalWrong=base.choices.find(form=>form!==base.ending);
-    const pilotErrorTypes={
+    const choiceErrorTypes={
       [originalWrong]:'time',
       ...Object.fromEntries(extra.map(x=>[x.form,x.possibleError]))
     };
-    return {...base,choices,pilotErrorTypes,pilotChoiceCount:count,
-      pilotGoal:count===2?'time':'combined'};
+    return {...base,choices,choiceErrorTypes,choiceCount:count,
+      choiceGoal:count===2?'time':'combined'};
+  }
+  // These are *presentation* bands, not a new clinical language level.
+  // Levels 2/3 offer an extra choice only when the source stage warrants it.
+  function releasedChoiceCount(level,base){
+    if(level<=1)return 2;
+    const stage=Number.isInteger(base.stage)?base.stage:0;
+    if(level===2)return stage>=1?3:2;
+    if(level===3)return stage>=2?4:3;
+    return 4;
+  }
+  function releaseVerbChoices(base,level){
+    const candidate=APPROVED_CHOICE_BY_ID.get(base?.id);
+    if(!candidate)return base; // all other exercises remain byte-for-byte identical
+    const count=releasedChoiceCount(level,base);
+    if(count===2)return base; // levels with one objective keep the original choice pair
+    const variant=makeChoiceVariant(base,candidate,count);
+    return variant||base;
+  }
+  function choicePilotItem(candidate,count){
+    if(!CHOICE_PILOT_PREVIEW)return null;
+    const base=[...ADVANCED.past,...ADVANCED.strong].find(q=>q.id===candidate.sourceId);
+    const variant=makeChoiceVariant(base,candidate,count);
+    return variant?{...variant,pilotErrorTypes:variant.choiceErrorTypes,
+      pilotChoiceCount:count,pilotGoal:variant.choiceGoal}:null;
   }
   function choicePilotItems(count,firstId){
     if(!CHOICE_PILOT_PREVIEW)return [];
     const source=CHOICE_PILOT.items;
     const first=Math.max(0,source.findIndex(x=>x.sourceId===firstId));
-    // All 16 candidates are inspectable by choosing a start item. Each round
-    // runs five distinct source items; the backend and learning data are inert.
     const rotated=[...source.slice(first),...source.slice(0,first)];
     return rotated.slice(0,5).map(v=>choicePilotItem(v,count)).filter(Boolean);
+  }
+  function adaptiveChoiceLevel(skill){
+    if([1,2,3,4].includes(o4Data.level))return o4Data.level;
+    // Normal practice unlocks complexity gradually, with a deliberate
+    // advanced challenge able to offer level-four choice sets.
+    return state.challengeFloor===2?4:Math.min(4,skillStage(skill)+1);
+  }
+  function releaseAdaptiveVerbChoices(base,skill){
+    return releaseVerbChoices(base,adaptiveChoiceLevel(skill));
   }
 
   // V4.1 adaptive selection: separate grammar skills, spaced review on subsequent days.
@@ -311,7 +348,7 @@
     const {audioOn,motionOn}=state;
     state={screen:'exercise',motionOn,settingsOpen:false,mode:skill==='inversion'?'order':'morph',series:0,index:0,positions:[],selected:null,attempts:0,helpUsed:false,solvedFirst:0,message:'',showHint:false,completed:false,focusPos:null,audioOn,lessonSkill:skill,lessonItems:[],reviewPicked:false,challengeFloor:challengeRequested?2:0};
     challengeRequested=false;
-    state.lessonItems.push(pickAdaptiveItem(skill));
+    state.lessonItems.push(releaseAdaptiveVerbChoices(pickAdaptiveItem(skill),skill));
     learning[skill].lastStarted=state.lessonItems[0].id;
     saveLearning();
     resetItem();render();speak(taskInstruction());
@@ -333,7 +370,8 @@
       focus:q.focus||(state.mode==='order'?'volgorde':'vorm'),perspective:itemPerspective(q),
       independent:independently,helpUsed:state.helpUsed,attempts:state.attempts,
       newCombination,unseenItem:!alreadySeen,evidenceFamily:family,retention:Boolean(independently&&previousIndependent),
-      stage:q.stage,family:itemFamily(q),scene:q.art,purpose:q.purpose||'practice'});
+      stage:q.stage,family:itemFamily(q),scene:q.art,purpose:q.purpose||'practice',
+      ...(q.choiceCount?{choicesOffered:q.choiceCount,choiceGoal:q.choiceGoal}: {})});
     stats.history=stats.history.slice(-80);
     saveLearning();
   }
@@ -341,7 +379,8 @@
     const q=item(),independent=state.attempts===0&&!state.helpUsed;
     basicHistory.push({id:q.id,day:todayKey(),evidenceVersion:3,independent,
       focus:state.mode==='order'?'volgorde':'vorm',perspective:itemPerspective(q),
-      helpUsed:state.helpUsed,attempts:state.attempts,evidenceFamily:evidenceFamily(q),scene:q.art});
+      helpUsed:state.helpUsed,attempts:state.attempts,evidenceFamily:evidenceFamily(q),scene:q.art,
+      ...(q.choiceCount?{choicesOffered:q.choiceCount,choiceGoal:q.choiceGoal}: {})});
     basicHistory=basicHistory.slice(-100);
     saveLearning();
   }
@@ -587,7 +626,8 @@
   }
   function startWorld(id){profileMenuOpen=false;
     if(!worldIsPlayable(id))return;
-    const items=selectWorldItems(id);
+    const targetLevel=worldSelectedLevel(id);
+    const items=selectWorldItems(id).map(q=>releaseVerbChoices(q,targetLevel));
     if(items.length!==5)return;
     preferences.lastWorld=id;
     saveLearning();
