@@ -104,7 +104,7 @@
     state.message='';state.focusPos=null;render();
   }
   function unplace(idx){if(state.screen!=='exercise'||state.completed)return;stopAudio();state.positions[idx]=null;state.message='';state.focusPos=null;render();}
-  function chooseEnding(value){if(state.screen!=='exercise'||state.completed)return;stopAudio();state.selected=value;state.message='';render();if(isChoicePilot())speak(value);}
+  function chooseEnding(value){if(state.screen!=='exercise'||state.completed)return;stopAudio();state.selected=value;state.message='';render();if(isChoicePilot()||item().choiceCount>2)speak(value);}
   function toggleHint(){if(state.completed)return;state.showHint=!state.showHint;if(state.showHint){state.helpUsed=true;if(isAuthorPilot()){state.pilotUsedHelp=true;state.message='';}}render();if(state.showHint)speak(hintText(item()));}
   // The instruction shown on screen is the exact text that gets spoken.
   // One short context and one concrete action; grammar rules are available via Hint.
