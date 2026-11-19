@@ -25,6 +25,8 @@ jobs:
         run: node scripts/p0-regression.mjs
       - name: Candidate-choice content and isolation audit
         run: node scripts/choice-pilot-regression.mjs
+      - name: Approved choice-variation release regression
+        run: node scripts/choice-release-regression.mjs
       - name: Install Chromium test driver (CI only)
         run: |
           npm install --no-save --package-lock=false playwright@1.56.0
@@ -33,12 +35,21 @@ jobs:
         run: node scripts/p0-browser-smoke.mjs
       - name: Candidate-choice browser and responsive screenshots
         run: node scripts/choice-pilot-browser.mjs
+      - name: Regular learner choice variants on three viewports
+        run: node scripts/choice-release-browser.mjs
       - name: Capture phase-0 before/after at three viewports
         if: github.event_name == 'pull_request'
         run: |
           git worktree add --detach "$RUNNER_TEMP/zinbo-phase0-baseline" origin/main
           (cd "$RUNNER_TEMP/zinbo-phase0-baseline" && node scripts/build.mjs)
           node scripts/phase0-screenshots.mjs "$RUNNER_TEMP/zinbo-phase0-baseline/public/index.html" public/index.html artifacts/phase-0
+      - name: Publish regular choice-variation screenshots
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: approved-choices-in-regular-worlds
+          path: artifacts/choice-release/
+          if-no-files-found: warn
       - name: Publish choice-pilot review screenshots
         if: always() && github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
