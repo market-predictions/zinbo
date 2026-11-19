@@ -19,7 +19,7 @@
     return `<section class="zb-choice-pilot-card" aria-labelledby="choice-pilot-title">
       <span class="zb-choice-pilot-eyebrow">Afgeschermde proef · niet vrijgegeven</span>
       <h2 id="choice-pilot-title">Welke werkwoordkeuze helpt het kind?</h2>
-      <p>Vergelijk twee keuzes voor tijdsvorm met drie of vier keuzes voor tijd én persoonsvorm. De 16 extra antwoordvormen zijn nog kandidaten voor taalreview. De proef bewaart geen leerlingresultaten en geeft geen sterren.</p>
+      <p>Vergelijk twee keuzes voor tijdsvorm met drie of vier keuzes voor tijd én persoonsvorm. De extra antwoordvormen bij deze 16 oefeningen zijn nog kandidaten voor taalreview. De proef bewaart geen leerlingresultaten en geeft geen sterren.</p>
       <label for="choice-pilot-first">Begin bij deze oefening</label>
       <select id="choice-pilot-first">${options}</select>
       <div class="zb-choice-pilot-actions" role="group" aria-label="Proef met aantal keuzes">
