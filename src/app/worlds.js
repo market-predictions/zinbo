@@ -471,7 +471,7 @@
   }
   function tenseBody(q){
     const selected=state.selected;
-    return `<div class="zbv2-sentence-card"><div class="stem-line"><div class="wordbox">${esc(q.subject)}</div><div class="wordbox stem ${selected===null?'':'chosen'}" data-ending-slot="true">${selected===null?'?':esc(selected)}</div><div class="wordbox">${esc(q.tail)}</div></div>${builtSentenceListenButton()}<div class="feedback-space">${localFeedback()}</div></div>${state.completed?'':`<div class="zbv2-choices"><div class="choice-row ${q.choiceCount>2?'zb-choice-grid zb-choice-grid-'+q.choiceCount:''}">${(state.choiceOrder||q.choices).map(v=>`<button class="ending ${selected===v?'selected':''}" data-action="ending" data-draggable="ending" data-ending="${esc(v)}" aria-pressed="${selected===v}">${esc(v)}</button>`).join('')}</div></div>`}`;
+    return `<div class="zbv2-sentence-card"><div class="stem-line"><div class="wordbox">${esc(q.subject)}</div><div class="wordbox stem ${selected===null?'':'chosen'}" data-ending-slot="true">${selected===null?'?':esc(selected)}</div><div class="wordbox">${esc(q.tail)}</div></div>${builtSentenceListenButton()}<div class="feedback-space">${localFeedback()}</div></div>${state.completed?'':`<div class="zbv2-choices"><div class="choice-row ${(isChoicePilot()||q.choiceCount>2)?'zb-choice-grid zb-choice-grid-'+(q.choiceCount||state.choicePilotCount):''}">${(state.choiceOrder||q.choices).map(v=>`<button class="ending ${selected===v?'selected':''}" data-action="ending" data-draggable="ending" data-ending="${esc(v)}" aria-pressed="${selected===v}">${esc(v)}</button>`).join('')}</div></div>`}`;
   }
   function morphBody(q){
     if(q.kind==='tense'||q.kind==='strong')return tenseBody(q);
