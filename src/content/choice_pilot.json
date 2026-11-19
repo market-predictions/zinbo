@@ -1,7 +1,7 @@
 {
   "schema": "zinbo.choice-variation-pilot.v1",
   "title": "Werkwoordkeuzes — proefset",
-  "releaseStatus": "author-preview-only",
+  "releaseStatus": "owner-attested-approved",
   "items": [
     {
       "sourceId": "v43-p06-ik-past",
@@ -16,7 +16,7 @@
           "possibleError": "time-and-agreement"
         }
       ],
-      "reviewStatus": "candidate"
+      "reviewStatus": "owner-attested-approved"
     },
     {
       "sourceId": "p01",
@@ -31,7 +31,7 @@
           "possibleError": "time-and-agreement"
         }
       ],
-      "reviewStatus": "candidate"
+      "reviewStatus": "owner-attested-approved"
     },
     {
       "sourceId": "p03",
@@ -46,7 +46,7 @@
           "possibleError": "time-and-agreement"
         }
       ],
-      "reviewStatus": "candidate"
+      "reviewStatus": "owner-attested-approved"
     },
     {
       "sourceId": "p04",
@@ -61,7 +61,7 @@
           "possibleError": "time-and-agreement"
         }
       ],
-      "reviewStatus": "candidate"
+      "reviewStatus": "owner-attested-approved"
     },
     {
       "sourceId": "p05",
@@ -76,7 +76,7 @@
           "possibleError": "time-and-agreement"
         }
       ],
-      "reviewStatus": "candidate"
+      "reviewStatus": "owner-attested-approved"
     },
     {
       "sourceId": "p07",
@@ -91,7 +91,7 @@
           "possibleError": "time-and-agreement"
         }
       ],
-      "reviewStatus": "candidate"
+      "reviewStatus": "owner-attested-approved"
     },
     {
       "sourceId": "pr11",
@@ -106,7 +106,7 @@
           "possibleError": "time-and-agreement"
         }
       ],
-      "reviewStatus": "candidate"
+      "reviewStatus": "owner-attested-approved"
     },
     {
       "sourceId": "pr14",
@@ -121,7 +121,7 @@
           "possibleError": "time-and-agreement"
         }
       ],
-      "reviewStatus": "candidate"
+      "reviewStatus": "owner-attested-approved"
     },
     {
       "sourceId": "pr16",
@@ -136,7 +136,7 @@
           "possibleError": "time-and-agreement"
         }
       ],
-      "reviewStatus": "candidate"
+      "reviewStatus": "owner-attested-approved"
     },
     {
       "sourceId": "sv01",
@@ -151,7 +151,7 @@
           "possibleError": "time-and-agreement"
         }
       ],
-      "reviewStatus": "candidate"
+      "reviewStatus": "owner-attested-approved"
     },
     {
       "sourceId": "sv02",
@@ -166,7 +166,7 @@
           "possibleError": "time-and-agreement"
         }
       ],
-      "reviewStatus": "candidate"
+      "reviewStatus": "owner-attested-approved"
     },
     {
       "sourceId": "sv04",
@@ -181,7 +181,7 @@
           "possibleError": "time-and-agreement"
         }
       ],
-      "reviewStatus": "candidate"
+      "reviewStatus": "owner-attested-approved"
     },
     {
       "sourceId": "sv08",
@@ -196,7 +196,7 @@
           "possibleError": "time-and-agreement"
         }
       ],
-      "reviewStatus": "candidate"
+      "reviewStatus": "owner-attested-approved"
     },
     {
       "sourceId": "sv11",
@@ -211,7 +211,7 @@
           "possibleError": "time-and-agreement"
         }
       ],
-      "reviewStatus": "candidate"
+      "reviewStatus": "owner-attested-approved"
     },
     {
       "sourceId": "sv14",
@@ -226,7 +226,7 @@
           "possibleError": "time-and-agreement"
         }
       ],
-      "reviewStatus": "candidate"
+      "reviewStatus": "owner-attested-approved"
     },
     {
       "sourceId": "sv16",
@@ -241,7 +241,15 @@
           "possibleError": "time-and-agreement"
         }
       ],
-      "reviewStatus": "candidate"
+      "reviewStatus": "owner-attested-approved"
     }
-  ]
+  ],
+  "approval": {
+    "source": "owner-confirmation-in-Zinbo-project-chat",
+    "date": "2026-11-19",
+    "scope": "16 existing exercises, 32 additional forms and associated feedback",
+    "logopedistApprovedAsReportedByOwner": true,
+    "independentReportProvided": false,
+    "pr": 17
+  }
 }
