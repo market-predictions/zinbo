@@ -9,6 +9,10 @@
   // V4.0: two explicit grammar goals; old 40 exercises and image library stay intact.
   // The new goals are exercises requiring human TOS-logopedist review, not clinical claims.
   const ADVANCED = __ZINBO_CONTENT_ADVANCED__;
+  // Explicit author preview: new answer forms are candidates, never part of
+  // released ADVANCED/world pools or the existing review attestation.
+  const CHOICE_PILOT = __ZINBO_CONTENT_CHOICE_PILOT__;
+  const CHOICE_PILOT_PREVIEW = new URLSearchParams(window.location.search).get('choice-pilot')==='1';
   // V4.3: candidate authored items are inert until a traceable independent review.
   const V43_CANDIDATES = __ZINBO_CONTENT_V43_CANDIDATES__;
   const V43_ART = {"pet-dog.webp":"./art/pet-dog.webp","school-gate.webp":"./art/school-gate.webp","sports-field.webp":"./art/sports-field.webp","kitchen-cooking.webp":"./art/kitchen-cooking.webp","family-talk.webp":"./art/family-talk.webp","town-outing.webp":"./art/town-outing.webp","kitchen-cooking-v2.webp":"./art/kitchen-cooking-v2.webp","family-talk-v2.webp":"./art/family-talk-v2.webp","school-walking-v2.webp":"./art/school-walking-v2.webp","town-lookout-v2.webp":"./art/town-lookout-v2.webp","self-colors-choose.webp":"./art/self-colors-choose.webp","self-backpack-take.webp":"./art/self-backpack-take.webp","station-walk-to-stop.webp":"./art/station-walk-to-stop.webp","library-borrow.webp":"./art/library-borrow.webp","pool-swimming.webp":"./art/pool-swimming.webp","music-singing.webp":"./art/music-singing.webp","playground-climbing.webp":"./art/playground-climbing.webp","museum-looking.webp":"./art/museum-looking.webp"};
@@ -35,6 +39,33 @@
   for(const skill of ['past','inversion','strong']){
     ADVANCED[skill].push(...V43_CANDIDATES[skill].filter(releasedCandidate));
   }
+  // Decorate a released source item temporarily; never mutate its canonical
+  // choices, correct answer, review metadata, or persistent learning history.
+  function choicePilotItem(candidate,count){
+    if(!CHOICE_PILOT_PREVIEW||![2,3,4].includes(count))return null;
+    const base=[...ADVANCED.past,...ADVANCED.strong].find(q=>q.id===candidate.sourceId);
+    if(!base||!Array.isArray(base.choices)||base.choices.length!==2)return null;
+    const extra=candidate.extra.slice(0,count-2);
+    const choices=[...base.choices,...extra.map(x=>x.form)];
+    if(new Set(choices).size!==count||!choices.includes(base.ending))return null;
+    const originalWrong=base.choices.find(form=>form!==base.ending);
+    const pilotErrorTypes={
+      [originalWrong]:'time',
+      ...Object.fromEntries(extra.map(x=>[x.form,x.possibleError]))
+    };
+    return {...base,choices,pilotErrorTypes,pilotChoiceCount:count,
+      pilotGoal:count===2?'time':'combined'};
+  }
+  function choicePilotItems(count,firstId){
+    if(!CHOICE_PILOT_PREVIEW)return [];
+    const source=CHOICE_PILOT.items;
+    const first=Math.max(0,source.findIndex(x=>x.sourceId===firstId));
+    // All 16 candidates are inspectable by choosing a start item. Each round
+    // runs five distinct source items; the backend and learning data are inert.
+    const rotated=[...source.slice(first),...source.slice(0,first)];
+    return rotated.slice(0,5).map(v=>choicePilotItem(v,count)).filter(Boolean);
+  }
+
   // V4.1 adaptive selection: separate grammar skills, spaced review on subsequent days.
   // No remote data, AI scorer or time-pressure. Saved results are indicative only.
   const SAVE_KEY='zinsbouwer-qa-360-feedback-20261019';
