@@ -14,11 +14,16 @@ for(const name of banks){
   JSON.parse(raw);
   app=app.replace(token,raw);
 }
-// New wording is author-preview-only until independent linguistic review.
-// Enforce separation from the normal release-approved item banks.
+// New answer variants are available only after owner-attested logopedist approval.
+// Keep a hard release gate and preserve the independent-review evidence boundary.
 const choicePilot=JSON.parse(await read('src/content/choice_pilot.json'));
 if(choicePilot.schema!=='zinbo.choice-variation-pilot.v1'||
-   choicePilot.releaseStatus!=='author-preview-only'||
+   choicePilot.releaseStatus!=='owner-attested-approved'||
+   choicePilot.approval?.source!=='owner-confirmation-in-Zinbo-project-chat'||
+   choicePilot.approval?.date!=='2026-11-19'||
+   choicePilot.approval?.pr!==17||
+   choicePilot.approval?.logopedistApprovedAsReportedByOwner!==true||
+   choicePilot.approval?.independentReportProvided!==false||
    !Array.isArray(choicePilot.items)||choicePilot.items.length!==16)
   throw Error('Choice pilot must contain exactly 16 isolated candidates');
 const sourceAdvanced=JSON.parse(await read('src/content/advanced.json'));
@@ -32,7 +37,7 @@ for(const candidate of choicePilot.items){
      !Array.isArray(original.choices)||original.choices.length!==2||
      !original.choices.includes(original.ending)||seenPilotIds.has(candidate.sourceId)||
      !/^[a-z]+(?:-[a-z]+)*$/.test(candidate.lexeme||'')||
-     candidate.reviewStatus!=='candidate'||
+     candidate.reviewStatus!=='owner-attested-approved'||
      !Array.isArray(candidate.extra)||candidate.extra.length!==2)
     throw Error('Malformed or duplicate choice pilot candidate: '+candidate.sourceId);
   seenPilotIds.add(candidate.sourceId);
