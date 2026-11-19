@@ -2,7 +2,7 @@
     const q=item(),morph=state.mode==='morph';
     const subtitle=esc(taskInstruction());
     const controls=`<div class="actions premium-actions zbv2-actions"><button class="secondary reset-action" data-action="reset" ${state.completed?'disabled':''}>${uiIcon('replay',28)} <span>Opnieuw</span></button><div class="action-middle"><button class="secondary hint-action" data-action="hint" aria-pressed="${state.showHint}" ${state.completed?'disabled':''}>${uiIcon('bulb',28)} <span>Hint</span></button>${state.attempts>=2&&!state.completed?'<button class="secondary answer-action" data-action="answer">Laat zien</button>':''}</div><button class="primary check-action" data-action="${state.completed?'next':'check'}" ${!state.completed&&!currentComplete()?'disabled':''}>${uiIcon('check',28)} <span>${state.completed?(state.index===4?'Afronden':'Volgende'):'Controleer'}</span></button></div>`;
-    return `<section class="panel zbv2-exercise">${topBar()}<div class="zbv2-exercise-body"><div class="zbv2-task-panel ${SCENE_ART[q.art]||V43_ART[q.art]?'has-art':'no-art'}"><button class="instruction-card" data-action="speak-task" ${state.audioOn?'':'disabled'} aria-label="Herhaal de opdracht"><span class="zbv2-listen-icon">${uiIcon('audio',32)}</span><span class="zbv2-task-text">${subtitle}</span></button>${scene(q)}</div>${rewardSuccessMarkup()}<div class="work-area zbv2-work-area">${morph?morphBody(q):orderBody(q)}</div>${controls}${isRewardPreview()&&!state.completed?`<div class="reward-prototype-tools"><span class="reward-preview-label">QA · geen echte munten</span><button class="reward-demo-trigger" data-action="reward-demo-complete">Toon visuele beloning</button></div>`:isRewardPreview()?`<div class="reward-prototype-tools"><span class="reward-preview-label">QA · geen echte munten</span></div>`:""}</div></section>`;
+    return `<section class="panel zbv2-exercise">${topBar()}<div class="zbv2-exercise-body">${isChoicePilot()?'<p class="zb-choice-pilot-label">Proef voor begeleiders · '+(state.choicePilotCount===2?'Tijdsvorm herkennen':state.choicePilotCount+' keuzes: tijd en persoonsvorm')+' · Niet vrijgegeven</p>':''}<div class="zbv2-task-panel ${SCENE_ART[q.art]||V43_ART[q.art]?'has-art':'no-art'}"><button class="instruction-card" data-action="speak-task" ${state.audioOn?'':'disabled'} aria-label="Herhaal de opdracht"><span class="zbv2-listen-icon">${uiIcon('audio',32)}</span><span class="zbv2-task-text">${subtitle}</span></button>${scene(q)}</div>${rewardSuccessMarkup()}<div class="work-area zbv2-work-area">${morph?morphBody(q):orderBody(q)}</div>${controls}${isRewardPreview()&&!state.completed?`<div class="reward-prototype-tools"><span class="reward-preview-label">QA · geen echte munten</span><button class="reward-demo-trigger" data-action="reward-demo-complete">Toon visuele beloning</button></div>`:isRewardPreview()?`<div class="reward-prototype-tools"><span class="reward-preview-label">QA · geen echte munten</span></div>`:""}</div></section>`;
   }
   function correctSentence(){const q=item();return state.mode==='order'?sentence(q,state.positions):q.full;}
   function speakBuiltSentence(){
@@ -49,6 +49,11 @@
   }
   function end(){
     if(isRewardPreview())return rewardPreviewEnd();
+    if(isChoicePilot())return `<section class="panel success zb-choice-pilot-end"><div class="checkicon" aria-hidden="true">✓</div>
+      <h1>Proefronde klaar</h1><p>Je hebt vijf zinnen geoefend. Dit was een begeleidersproef: geen sterren of leerlingresultaten opgeslagen.</p>
+      <div class="actions"><button class="secondary" data-action="home">Naar Zinbo</button>
+      <button class="primary" data-action="start-choice-pilot" data-count="${state.choicePilotCount}" data-first="${CHOICE_PILOT.items[(CHOICE_PILOT.items.findIndex(x=>x.sourceId===state.lessonItems[0].id)+5)%CHOICE_PILOT.items.length].sourceId}">Volgende vijf proefzinnen</button></div>
+      </section>`;
     if(isPilotO4())return `<section class="panel success"><div class="checkicon" aria-hidden="true">★</div><h1>O4-oefenronde afgerond</h1><p>Vijf oefenzinnen, met ondersteuning waar nodig. Nog geen officiële taalniveau-uitspraak.</p><div class="actions"><button class="secondary" data-action="home">Terug naar de werelden</button><button class="primary" data-action="o4-start">Nog vijf adaptieve zinnen</button></div></section>`;
     if(isPilotO3())return `<section class="panel success"><div class="checkicon" aria-hidden="true">★</div><h1>O3-pilot afgerond</h1><p>Vijf proefzinnen geoefend, nog niet vrijgegeven.</p><div class="actions"><button class="secondary" data-action="home">Terug naar de leerwereld</button><button class="primary" data-action="o3-pilot-again">Nog vijf proefzinnen</button></div></section>`;
     if(isPilotVTT())return `<section class="panel success"><div class="checkicon" aria-hidden="true">★</div><h1>VTT-pilot afgerond</h1><p>Je hebt vijf proefzinnen gemaakt. Ze blijven kandidaatmateriaal.</p><div class="actions"><button class="secondary" data-action="home">Terug naar de leerwereld</button><button class="primary" data-action="vtt-pilot-again">Nog vijf proefzinnen</button></div></section>`;
@@ -97,7 +102,22 @@
   }catch(_){}
   function isPilotO3(){return state.lessonSkill==='o3-pilot';}
   function isRewardPreview(){return Boolean(state.rewardPreview && isPilotO3());}
-  function isAuthorPilot(){return isPilotVTT()||isPilotO3()||isPilotO4();}
+  function isChoicePilot(){return state.lessonSkill==='choice-pilot';}
+  function startChoicePilot(count,firstId){
+    if(!CHOICE_PILOT_PREVIEW)return;
+    const n=Number(count);
+    const items=choicePilotItems(n,firstId);
+    if(items.length!==5)return;
+    stopAudio();profileMenuOpen=false;parentPanelOpen=false;
+    const {audioOn,motionOn}=state;
+    state={screen:'exercise',lessonSkill:'choice-pilot',lessonItems:items,
+      choicePilotCount:n,mode:'morph',series:0,index:0,positions:[],selected:null,
+      attempts:0,helpUsed:false,solvedFirst:0,message:'',showHint:false,
+      completed:false,focusPos:null,audioOn,motionOn,settingsOpen:false,
+      roundReview:[],pilotAttemptedError:false,pilotUsedHelp:false};
+    resetItem();render();speak(taskInstruction());
+  }
+  function isAuthorPilot(){return isPilotVTT()||isPilotO3()||isPilotO4()||isChoicePilot();}
   function recordPilotO3(){
     const q=item();const independent=state.attempts===0&&!state.helpUsed&&!state.pilotAttemptedError&&!state.pilotUsedHelp;
     o3PilotHistory.push({id:q.id,goalId:q.goalId,level:q.level,day:todayKey(),independent,
@@ -276,6 +296,10 @@
       const a=button.dataset.action;
       if(a==='o4-level'){const value=button.dataset.level;const n=Number(value);if(value==='auto'||[1,2,3,4].includes(n)){o4Data.level=value==='auto'?null:n;saveO4();render();}}
       else if(a==='o4-start'){startPilotO4();}
+      else if(a==='start-choice-pilot'&&CHOICE_PILOT_PREVIEW){
+        const first=button.dataset.first||app.querySelector('#choice-pilot-first')?.value;
+        startChoicePilot(button.dataset.count,first);
+      }
       else if(a==='o3-pilot-open'){startPilotO3(app.querySelector('#o3-pilot-picker')?.value);}
       else if(a==='reward-preview-open'){startPilotO3('o3-omdat-01',true);}
       else if(a==='reward-preview-again'){if(isWorld())startWorld(state.worldId);else startPilotO3('o3-omdat-01',true);}
