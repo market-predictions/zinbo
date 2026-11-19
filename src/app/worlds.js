@@ -17,9 +17,9 @@
       return q?'<option value="'+esc(v.sourceId)+'">'+(i+1)+'. '+esc(q.subject+' '+q.ending+' '+q.tail)+'</option>':'';
     }).join('');
     return `<section class="zb-choice-pilot-card" aria-labelledby="choice-pilot-title">
-      <span class="zb-choice-pilot-eyebrow">Afgeschermde proef · niet vrijgegeven</span>
+      <span class="zb-choice-pilot-eyebrow">Vergelijkingsproef · goedgekeurde varianten</span>
       <h2 id="choice-pilot-title">Welke werkwoordkeuze helpt het kind?</h2>
-      <p>Vergelijk twee keuzes voor tijdsvorm met drie of vier keuzes voor tijd én persoonsvorm. De extra antwoordvormen bij deze 16 oefeningen zijn nog kandidaten voor taalreview. De proef bewaart geen leerlingresultaten en geeft geen sterren.</p>
+      <p>Vergelijk twee keuzes voor tijdsvorm met drie of vier keuzes voor tijd én persoonsvorm. De extra antwoordvormen bij deze 16 oefeningen zijn door de eigenaar als logopedisch goedgekeurd bevestigd. Dit vergelijkingsscherm bewaart geen leerlingresultaten en geeft geen sterren.</p>
       <label for="choice-pilot-first">Begin bij deze oefening</label>
       <select id="choice-pilot-first">${options}</select>
       <div class="zb-choice-pilot-actions" role="group" aria-label="Proef met aantal keuzes">
@@ -27,7 +27,7 @@
         <button type="button" data-action="start-choice-pilot" data-count="3">3 keuzes · Combineren</button>
         <button type="button" data-action="start-choice-pilot" data-count="4">4 keuzes · Combineren</button>
       </div>
-      <p class="zb-choice-pilot-footnote">Dit is een ontwerp- en inhoudsproef voor begeleiders, geen diagnostische test. Nieuwe antwoorden worden pas voor kinderen vrijgegeven na logopedische controle.</p>
+      <p class="zb-choice-pilot-footnote">Dit is een vergelijking voor begeleiders, geen diagnostische test. De goedgekeurde extra antwoorden komen nu ook in de gewone oefenwerelden voor, passend bij het oefenniveau.</p>
     </section>`;
   }
   let parentPanelMode='settings';
