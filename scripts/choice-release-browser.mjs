@@ -91,9 +91,12 @@ try {
     // At level two the approved stage-one tense tasks can have three choices.
     items=await enter(2,'thuis');
     const three=items.filter(q=>q.choiceCount===3);
-    assert.ok(three.length>=1,'Level 2 Thuis must include a suitable three-choice form');
+    // Level 2 *may* present a three-choice item. The existing diversity and
+    // spaced-repeat selector is allowed to choose five other relevant tasks.
     assert.ok(items.every(q=>!q.choiceCount||q.choiceCount<=3),
       'Level 2 must not offer four answers');
+    assert.ok(three.every(q=>q.choiceGoal==='combined'&&q.choices.length===3),
+      'Any level-two released variant must offer exactly three reviewed choices');
 
     assert.deepEqual(errors.filter(e=>e.startsWith(width+'px: ')),[],
       'Uncaught browser error at '+width+'px');
