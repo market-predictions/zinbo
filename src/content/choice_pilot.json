@@ -1,0 +1,247 @@
+{
+  "schema": "zinbo.choice-variation-pilot.v1",
+  "title": "Werkwoordkeuzes — proefset",
+  "releaseStatus": "author-preview-only",
+  "items": [
+    {
+      "sourceId": "v43-p06-ik-past",
+      "lexeme": "kijken",
+      "extra": [
+        {
+          "form": "keken",
+          "possibleError": "agreement"
+        },
+        {
+          "form": "kijkt",
+          "possibleError": "time-and-agreement"
+        }
+      ],
+      "reviewStatus": "candidate"
+    },
+    {
+      "sourceId": "p01",
+      "lexeme": "spelen",
+      "extra": [
+        {
+          "form": "speelden",
+          "possibleError": "agreement"
+        },
+        {
+          "form": "spelen",
+          "possibleError": "time-and-agreement"
+        }
+      ],
+      "reviewStatus": "candidate"
+    },
+    {
+      "sourceId": "p03",
+      "lexeme": "wandelen",
+      "extra": [
+        {
+          "form": "wandelden",
+          "possibleError": "agreement"
+        },
+        {
+          "form": "wandelen",
+          "possibleError": "time-and-agreement"
+        }
+      ],
+      "reviewStatus": "candidate"
+    },
+    {
+      "sourceId": "p04",
+      "lexeme": "dansen",
+      "extra": [
+        {
+          "form": "danst",
+          "possibleError": "agreement"
+        },
+        {
+          "form": "danste",
+          "possibleError": "time-and-agreement"
+        }
+      ],
+      "reviewStatus": "candidate"
+    },
+    {
+      "sourceId": "p05",
+      "lexeme": "tekenen",
+      "extra": [
+        {
+          "form": "tekende",
+          "possibleError": "agreement"
+        },
+        {
+          "form": "tekent",
+          "possibleError": "time-and-agreement"
+        }
+      ],
+      "reviewStatus": "candidate"
+    },
+    {
+      "sourceId": "p07",
+      "lexeme": "werken",
+      "extra": [
+        {
+          "form": "werkten",
+          "possibleError": "agreement"
+        },
+        {
+          "form": "werken",
+          "possibleError": "time-and-agreement"
+        }
+      ],
+      "reviewStatus": "candidate"
+    },
+    {
+      "sourceId": "pr11",
+      "lexeme": "rennen",
+      "extra": [
+        {
+          "form": "rennen",
+          "possibleError": "agreement"
+        },
+        {
+          "form": "renden",
+          "possibleError": "time-and-agreement"
+        }
+      ],
+      "reviewStatus": "candidate"
+    },
+    {
+      "sourceId": "pr14",
+      "lexeme": "fietsen",
+      "extra": [
+        {
+          "form": "fietsten",
+          "possibleError": "agreement"
+        },
+        {
+          "form": "fietsen",
+          "possibleError": "time-and-agreement"
+        }
+      ],
+      "reviewStatus": "candidate"
+    },
+    {
+      "sourceId": "pr16",
+      "lexeme": "voetballen",
+      "extra": [
+        {
+          "form": "voetbalden",
+          "possibleError": "agreement"
+        },
+        {
+          "form": "voetballen",
+          "possibleError": "time-and-agreement"
+        }
+      ],
+      "reviewStatus": "candidate"
+    },
+    {
+      "sourceId": "sv01",
+      "lexeme": "lezen",
+      "extra": [
+        {
+          "form": "lezen",
+          "possibleError": "agreement"
+        },
+        {
+          "form": "lazen",
+          "possibleError": "time-and-agreement"
+        }
+      ],
+      "reviewStatus": "candidate"
+    },
+    {
+      "sourceId": "sv02",
+      "lexeme": "lezen",
+      "extra": [
+        {
+          "form": "lazen",
+          "possibleError": "agreement"
+        },
+        {
+          "form": "lezen",
+          "possibleError": "time-and-agreement"
+        }
+      ],
+      "reviewStatus": "candidate"
+    },
+    {
+      "sourceId": "sv04",
+      "lexeme": "lopen",
+      "extra": [
+        {
+          "form": "lopen",
+          "possibleError": "agreement"
+        },
+        {
+          "form": "liepen",
+          "possibleError": "time-and-agreement"
+        }
+      ],
+      "reviewStatus": "candidate"
+    },
+    {
+      "sourceId": "sv08",
+      "lexeme": "geven",
+      "extra": [
+        {
+          "form": "gaven",
+          "possibleError": "agreement"
+        },
+        {
+          "form": "geven",
+          "possibleError": "time-and-agreement"
+        }
+      ],
+      "reviewStatus": "candidate"
+    },
+    {
+      "sourceId": "sv11",
+      "lexeme": "brengen",
+      "extra": [
+        {
+          "form": "brachten",
+          "possibleError": "agreement"
+        },
+        {
+          "form": "brengen",
+          "possibleError": "time-and-agreement"
+        }
+      ],
+      "reviewStatus": "candidate"
+    },
+    {
+      "sourceId": "sv14",
+      "lexeme": "rijden",
+      "extra": [
+        {
+          "form": "reden",
+          "possibleError": "agreement"
+        },
+        {
+          "form": "rijden",
+          "possibleError": "time-and-agreement"
+        }
+      ],
+      "reviewStatus": "candidate"
+    },
+    {
+      "sourceId": "sv16",
+      "lexeme": "zitten",
+      "extra": [
+        {
+          "form": "zitten",
+          "possibleError": "agreement"
+        },
+        {
+          "form": "zaten",
+          "possibleError": "time-and-agreement"
+        }
+      ],
+      "reviewStatus": "candidate"
+    }
+  ]
+}
