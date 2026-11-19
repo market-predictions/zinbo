@@ -8,7 +8,7 @@ const pilot=await read('src/content/choice_pilot.json');
 const adv=await read('src/content/advanced.json');
 const v43=await read('src/content/v43_candidates.json');
 const raw=await readFile(new URL('../src/app/runtime.js',import.meta.url),'utf8');
-const start=raw.indexOf('  function choicePilotItem(');
+const start=raw.indexOf('  const CHOICE_VARIANTS_APPROVED=');
 const end=raw.indexOf('  // V4.1 adaptive selection:',start);
 assert.ok(start>=0&&end>start,'Pilot selector must be isolated from released selection');
 const sourceMap=new Map([...Object.values(adv).flat(),...Object.values(v43).flat()].map(q=>[q.id,q]));
