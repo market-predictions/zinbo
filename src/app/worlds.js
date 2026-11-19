@@ -10,6 +10,26 @@
       <span class="zbv4-card-copy"><strong class="op1-card-name">${esc(w.name)}</strong><span class="op1-card-desc">${esc(w.sub)}</span><small class="zbv4-badge zbv4-badge-${stateLabel}">${esc(status)}</small></span>
     </button>`;
   }
+  function choicePilotCard(){
+    if(!CHOICE_PILOT_PREVIEW)return '';
+    const options=CHOICE_PILOT.items.map((v,i)=>{
+      const q=[...ADVANCED.past,...ADVANCED.strong].find(x=>x.id===v.sourceId);
+      return q?'<option value="'+esc(v.sourceId)+'">'+(i+1)+'. '+esc(q.subject+' '+q.ending+' '+q.tail)+'</option>':'';
+    }).join('');
+    return `<section class="zb-choice-pilot-card" aria-labelledby="choice-pilot-title">
+      <span class="zb-choice-pilot-eyebrow">Vergelijkingsproef · goedgekeurde varianten</span>
+      <h2 id="choice-pilot-title">Welke werkwoordkeuze helpt het kind?</h2>
+      <p>Vergelijk twee keuzes voor tijdsvorm met drie of vier keuzes voor tijd én persoonsvorm. De extra antwoordvormen bij deze 16 oefeningen zijn door de eigenaar als logopedisch goedgekeurd bevestigd. Dit vergelijkingsscherm bewaart geen leerlingresultaten en geeft geen sterren.</p>
+      <label for="choice-pilot-first">Begin bij deze oefening</label>
+      <select id="choice-pilot-first">${options}</select>
+      <div class="zb-choice-pilot-actions" role="group" aria-label="Proef met aantal keuzes">
+        <button type="button" data-action="start-choice-pilot" data-count="2">2 keuzes · Tijd</button>
+        <button type="button" data-action="start-choice-pilot" data-count="3">3 keuzes · Combineren</button>
+        <button type="button" data-action="start-choice-pilot" data-count="4">4 keuzes · Combineren</button>
+      </div>
+      <p class="zb-choice-pilot-footnote">Dit is een vergelijking voor begeleiders, geen diagnostische test. De goedgekeurde extra antwoorden komen nu ook in de gewone oefenwerelden voor, passend bij het oefenniveau.</p>
+    </section>`;
+  }
   let parentPanelMode='settings';
   function parentPanel(){
     const isGroup=parentPanelMode==='group';
@@ -47,7 +67,7 @@
         <button class="op1-start zbv4-continue" ${last?'data-action="world-open" data-world="'+last.id+'"':'data-action="routes"'}>${opIcon('play',24)} <strong>Verder oefenen</strong></button></div>
         <div class="zbv4-hero-art"><img src="${SCENE_ART['bike-to-school.webp']}" alt="Een jongen fietst naar school." draggable="false"></div>
       </section>
-      <section class="op1-worlds zbv4-worlds" aria-label="Kies een wereld"><h2>Kies een wereld</h2><div class="op1-cards">${WORLD_INFO.map(w=>worldCard(w,last?.id)).join('')}</div></section>
+      <section class="op1-worlds zbv4-worlds" aria-label="Kies een wereld"><h2>Kies een wereld</h2><div class="op1-cards">${WORLD_INFO.map(w=>worldCard(w,last?.id)).join('')}</div></section>${choicePilotCard()}
       <details class="op1-progress zbv4-parent-info" id="op1-progress"><summary>Voor ouders en begeleiders</summary><div class="zbv4-parent-content"><h2>Jouw voortgang</h2><div class="op1-progress-grid">
         <article class="op1-stat"><span class="op1-stat-icon">${opIcon('message-circle',32)}</span><span class="op1-stat-text"><strong>${evidence.unique}</strong><small>verschillende oefeningen</small></span><div class="op1-stat-meter" role="progressbar" aria-label="Verschillende oefeningen geprobeerd" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${discoveryRate}" title="${evidence.unique} van ${approvedTotal} verschillende oefeningen geprobeerd"><span class="op1-stat-deco"><i style="width:${discoveryRate}%"></i></span><small>${discoveryRate}%</small></div></article>
         <article class="op1-stat"><span class="op1-stat-icon good">${opIcon('circle-check',32)}</span><span class="op1-stat-text"><strong>${evidence.independent}</strong><small>zelfstandig goed</small></span><div class="op1-stat-meter" role="progressbar" aria-label="Zinnen zelfstandig goed gemaakt" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${successRate}" title="${evidence.independent} van ${evidence.count} antwoorden zonder hulp correct"><span class="op1-stat-deco green"><i style="width:${successRate}%"></i></span><small>${successRate}%</small></div></article>
@@ -84,7 +104,7 @@
     state.message='';state.focusPos=null;render();
   }
   function unplace(idx){if(state.screen!=='exercise'||state.completed)return;stopAudio();state.positions[idx]=null;state.message='';state.focusPos=null;render();}
-  function chooseEnding(value){if(state.screen!=='exercise'||state.completed)return;stopAudio();state.selected=value;state.message='';render();}
+  function chooseEnding(value){if(state.screen!=='exercise'||state.completed)return;stopAudio();state.selected=value;state.message='';render();if(isChoicePilot()||item().choiceCount>2)speak(value);}
   function toggleHint(){if(state.completed)return;state.showHint=!state.showHint;if(state.showHint){state.helpUsed=true;if(isAuthorPilot()){state.pilotUsedHelp=true;state.message='';}}render();if(state.showHint)speak(hintText(item()));}
   // The instruction shown on screen is the exact text that gets spoken.
   // One short context and one concrete action; grammar rules are available via Hint.
@@ -93,13 +113,18 @@
     if(q.kind==='because'||q.kind==='conditional')
       return q.contextCue+' Maak met de blokjes één zin met '+(q.kind==='because'?'omdat.':'als.');
     if(q.kind==='vtt')return q.contextCue;
-    if(q.kind==='tense'||q.kind==='strong')return q.prompt+' Kies het goede werkwoord.';
+    if(q.kind==='tense'||q.kind==='strong'){
+      if(q.choiceGoal==='combined')
+        return q.prompt+' Kijk ook naar wie het doet. Kies het passende werkwoord.';
+      return q.prompt+' Kies het goede werkwoord.';
+    }
     if(state.mode==='order')return (q.beginWith?'Begin met '+q.beginWith+'. ':'')+'Maak met de blokjes een zin.';
     return 'Maak het werkwoord af. Kies wat past.';
   }
   function finishItem(){
     if(state.attempts===0&&!state.helpUsed){state.solvedFirst++;} // Language evidence is separate from spendable stars.
-    if(isPilotO4())recordPilotO4();
+    if(isChoicePilot()){ /* Candidate trial: never update SAVE_KEY or pilot evidence. */ }
+    else if(isPilotO4())recordPilotO4();
     else if(isPilotVTT())recordPilotVTT();
     else if(isPilotO3()){if(!isRewardPreview())recordPilotO3();}
     else if(isPlacement())recordPlacementResult();
@@ -139,8 +164,24 @@
     state.attempts++;
     if(isAuthorPilot())state.pilotAttemptedError=true;
     if(state.mode==='morph'){
+      const selectedWrongAnswer=state.selected;
       state.selected=null;
-      if(q.kind==='tense'||q.kind==='strong')state.message=state.attempts>=2?'Kies '+q.ending+'.':q.when==='Nu'?'Dit gebeurt nu. Welk woord past?':'Dit gebeurde gisteren. Welk woord past?';
+      if(q.kind==='tense'||q.kind==='strong'){
+        if(q.choiceGoal==='combined'){
+          const tag=q.choiceErrorTypes?.[selectedWrongAnswer];
+          state.message=state.attempts>=2
+            ?'Luister naar de zin met Laat zien, of probeer het nog eens.'
+            :tag==='time'
+              ?'Kijk naar wanneer het gebeurt. Welk woord hoort bij die tijd?'
+              :tag==='agreement'
+                ?'Kijk wie het doet. Welk woord past bij die persoon of groep?'
+                :'Kijk naar wanneer het gebeurt én naar wie het doet.';
+        }else{
+          state.message=state.attempts>=2?'Kies '+q.ending+'.'
+            :q.when==='Nu'?'Dit gebeurt nu. Welk woord past?'
+            :'Dit gebeurde gisteren. Welk woord past?';
+        }
+      }
       else {
       state.message=state.attempts>=2
         ?'Tik op '+(q.ending===''?'geen einde':'-'+q.ending)+'.'
@@ -238,7 +279,8 @@
         state.screen='end';render();speak('Goed geoefend! Wil je nog vijf zinnen?');
       } else {
         state.index++;
-        state.lessonItems.push(pickAdaptiveItem(state.lessonSkill,state.lessonItems.map(q=>q.id)));
+        state.lessonItems.push(releaseAdaptiveVerbChoices(
+          pickAdaptiveItem(state.lessonSkill,state.lessonItems.map(q=>q.id)),state.lessonSkill));
         resetItem();render();speak(taskInstruction());
       }
       return;
@@ -429,7 +471,7 @@
   }
   function tenseBody(q){
     const selected=state.selected;
-    return `<div class="zbv2-sentence-card"><div class="stem-line"><div class="wordbox">${esc(q.subject)}</div><div class="wordbox stem ${selected===null?'':'chosen'}" data-ending-slot="true">${selected===null?'?':esc(selected)}</div><div class="wordbox">${esc(q.tail)}</div></div>${builtSentenceListenButton()}<div class="feedback-space">${localFeedback()}</div></div>${state.completed?'':`<div class="zbv2-choices"><div class="choice-row">${(state.choiceOrder||q.choices).map(v=>`<button class="ending ${selected===v?'selected':''}" data-action="ending" data-draggable="ending" data-ending="${esc(v)}" aria-pressed="${selected===v}">${esc(v)}</button>`).join('')}</div></div>`}`;
+    return `<div class="zbv2-sentence-card"><div class="stem-line"><div class="wordbox">${esc(q.subject)}</div><div class="wordbox stem ${selected===null?'':'chosen'}" data-ending-slot="true">${selected===null?'?':esc(selected)}</div><div class="wordbox">${esc(q.tail)}</div></div>${builtSentenceListenButton()}<div class="feedback-space">${localFeedback()}</div></div>${state.completed?'':`<div class="zbv2-choices"><div class="choice-row ${(isChoicePilot()||q.choiceCount>2)?'zb-choice-grid zb-choice-grid-'+(q.choiceCount||state.choicePilotCount):''}">${(state.choiceOrder||q.choices).map(v=>`<button class="ending ${selected===v?'selected':''}" data-action="ending" data-draggable="ending" data-ending="${esc(v)}" aria-pressed="${selected===v}">${esc(v)}</button>`).join('')}</div></div>`}`;
   }
   function morphBody(q){
     if(q.kind==='tense'||q.kind==='strong')return tenseBody(q);
@@ -455,8 +497,11 @@
       return 'Begint de zin met als? Dan komt in het tweede stukje het werkwoord vóór het onderwerp. Je kunt ook met het andere stukje beginnen.';
     if(q.kind==='vtt')
       return 'Kies het hulpwerkwoord bij het onderwerp. Het voltooid deelwoord staat achteraan.';
-    if(q.kind==='tense'||q.kind==='strong')
+    if(q.kind==='tense'||q.kind==='strong'){
+      if(q.choiceGoal==='combined')
+        return 'Kijk naar het onderwerp en de tijd. Kies de vorm die bij allebei past.';
       return q.when==='Nu'?'Nu: het gebeurt op dit moment.':'Gisteren: het gebeurde al. Luister naar de twee woorden.';
+    }
     if(Array.isArray(q.solutions)&&Array.isArray(q.tiles)){
       const slot=commonVerbSlot(q);
       return slot>=0?'Het oranje werkwoord staat op plek '+(slot+1)+'.':'Kijk waar het oranje werkwoord past in deze zin.';

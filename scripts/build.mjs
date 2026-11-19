@@ -5,7 +5,7 @@ const read=async path=>readFile(new URL(path,root),'utf8');
 
 // The served code is reconstructed from maintained sources; the old 15
 // arbitrary 600-KB HTML slices and whole-file hash are no longer the source.
-const banks=['ORDER','MORPH','ADVANCED','V43_CANDIDATES','O3_PILOT','VTT_PILOT','V43_RESOLUTION_PASS'];
+const banks=['ORDER','MORPH','ADVANCED','V43_CANDIDATES','O3_PILOT','VTT_PILOT','V43_RESOLUTION_PASS','CHOICE_PILOT'];
 let app=(await Promise.all(['runtime','worlds','screens'].map(name=>read('src/app/'+name+'.js')))).join('');
 for(const name of banks){
   const token='__ZINBO_CONTENT_'+name+'__';
@@ -14,6 +14,47 @@ for(const name of banks){
   JSON.parse(raw);
   app=app.replace(token,raw);
 }
+// New answer variants are available only after owner-attested logopedist approval.
+// Keep a hard release gate and preserve the independent-review evidence boundary.
+const choicePilot=JSON.parse(await read('src/content/choice_pilot.json'));
+if(choicePilot.schema!=='zinbo.choice-variation-pilot.v1'||
+   choicePilot.releaseStatus!=='owner-attested-approved'||
+   choicePilot.approval?.source!=='owner-confirmation-in-Zinbo-project-chat'||
+   choicePilot.approval?.date!=='2026-11-19'||
+   choicePilot.approval?.pr!==17||
+   choicePilot.approval?.logopedistApprovedAsReportedByOwner!==true||
+   choicePilot.approval?.independentReportProvided!==false||
+   !Array.isArray(choicePilot.items)||choicePilot.items.length!==16)
+  throw Error('Choice pilot must contain exactly 16 isolated candidates');
+const sourceAdvanced=JSON.parse(await read('src/content/advanced.json'));
+const sourceV43=JSON.parse(await read('src/content/v43_candidates.json'));
+const sourceById=new Map([...Object.values(sourceAdvanced).flat(),
+  ...Object.values(sourceV43).flat()].map(item=>[item.id,item]));
+const seenPilotIds=new Set();
+for(const candidate of choicePilot.items){
+  const original=sourceById.get(candidate.sourceId);
+  if(!original||!['tense','strong'].includes(original.kind)||
+     !Array.isArray(original.choices)||original.choices.length!==2||
+     !original.choices.includes(original.ending)||seenPilotIds.has(candidate.sourceId)||
+     !/^[a-z]+(?:-[a-z]+)*$/.test(candidate.lexeme||'')||
+     candidate.reviewStatus!=='owner-attested-approved'||
+     !Array.isArray(candidate.extra)||candidate.extra.length!==2)
+    throw Error('Malformed or duplicate choice pilot candidate: '+candidate.sourceId);
+  seenPilotIds.add(candidate.sourceId);
+  const expectedTags=['agreement','time-and-agreement'];
+  const allForms=[...original.choices];
+  for(let i=0;i<2;i++){
+    const option=candidate.extra[i];
+    if(!option||option.possibleError!==expectedTags[i]||
+      typeof option.form!=='string'||!/^[a-zà-ÿ]+$/i.test(option.form)||
+      allForms.includes(option.form))
+      throw Error('Unusable pilot distractor for '+candidate.sourceId);
+    allForms.push(option.form);
+  }
+  if(allForms.filter(v=>v===original.ending).length!==1||new Set(allForms).size!==4)
+    throw Error('Pilot must have exactly one correct form: '+candidate.sourceId);
+}
+
 // Verify the original artwork survived extraction byte-for-byte.
 const manifest=JSON.parse(await read('src/art-manifest.json'));
 if(manifest.schema!=='zinbo.art-manifest.v1'||manifest.images.length!==37)

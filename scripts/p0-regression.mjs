@@ -195,7 +195,7 @@ const samples=[1,2,3,4].flatMap(level=>Array.from({length:6},(_,i)=>{
 }));
 const context={
   o4Data:{level:1}, placement:{done:false,recommendedLevel:null}, worldItems:()=>samples, worldHistory:()=>[],
-  evidenceFamily:q=>q.family, itemFamily:q=>q.family
+  evidenceFamily:q=>q.family, itemFamily:q=>q.family, APPROVED_CHOICE_BY_ID:new Map()
 };
 const picker=runInNewContext(
   html.slice(bandStart,bandEnd)+'\n'+html.slice(pickerStart,pickerEnd)+
@@ -245,7 +245,7 @@ const diversePicker=runInNewContext(
   '\nselectWorldItems', {
     o4Data:{level:1},placement:{done:false,recommendedLevel:null},
     worldItems:()=>diversePool,worldHistory:()=>[],
-    evidenceFamily:q=>q.family,itemFamily:q=>q.family
+    evidenceFamily:q=>q.family,itemFamily:q=>q.family,APPROVED_CHOICE_BY_ID:new Map()
   });
 for(let repeat=0;repeat<20;repeat++){
   const selected=diversePicker('sport');
@@ -259,7 +259,7 @@ const sparsePicker=runInNewContext(
   '\nselectWorldItems', {
     o4Data:{level:1},placement:{done:false,recommendedLevel:null},
     worldItems:()=>diversePool.filter(q=>q.family==='a').concat(diversePool.filter(q=>q.family==='b').slice(0,1)),
-    worldHistory:()=>[],evidenceFamily:q=>q.family,itemFamily:q=>q.family
+    worldHistory:()=>[],evidenceFamily:q=>q.family,itemFamily:q=>q.family,APPROVED_CHOICE_BY_ID:new Map()
   });
 assert.equal(sparsePicker('sport').length,5,
   'A limited reviewed pool must still yield five exercises rather than break the round');
