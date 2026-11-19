@@ -81,7 +81,7 @@ assert.match(worlds,/q\.choiceGoal==='combined'/,
   'Combined goal must be announced and hinted outside adult comparison');
 assert.match(worlds,/q\.choiceErrorTypes\?\.\[selectedWrongAnswer\]/,
   'Released choices must have targeted error guidance');
-assert.match(worlds,/q\.choiceCount>2\?'zb-choice-grid/,
+assert.match(worlds,/isChoicePilot\(\)\|\|q\.choiceCount>2/,
   'Three/four released choices must reuse responsive tile grid');
 assert.ok(!runtime.includes("const SAVE_KEY='zinsbouwer-choice"),
   'Release must not rename the existing learning storage key');
