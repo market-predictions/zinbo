@@ -114,7 +114,7 @@
       return q.contextCue+' Maak met de blokjes één zin met '+(q.kind==='because'?'omdat.':'als.');
     if(q.kind==='vtt')return q.contextCue;
     if(q.kind==='tense'||q.kind==='strong'){
-      if(isChoicePilot()&&q.pilotGoal==='combined')
+      if(q.choiceGoal==='combined')
         return q.prompt+' Kijk ook naar wie het doet. Kies het passende werkwoord.';
       return q.prompt+' Kies het goede werkwoord.';
     }
@@ -164,11 +164,11 @@
     state.attempts++;
     if(isAuthorPilot())state.pilotAttemptedError=true;
     if(state.mode==='morph'){
-      if(isChoicePilot())state.pilotLastWrong=state.selected;
+      const selectedWrongAnswer=state.selected;
       state.selected=null;
       if(q.kind==='tense'||q.kind==='strong'){
-        if(isChoicePilot()&&q.pilotGoal==='combined'){
-          const tag=q.pilotErrorTypes?.[state.pilotLastWrong];
+        if(q.choiceGoal==='combined'){
+          const tag=q.choiceErrorTypes?.[selectedWrongAnswer];
           state.message=state.attempts>=2
             ?'Luister naar de zin met Laat zien, of probeer het nog eens.'
             :tag==='time'
@@ -279,7 +279,8 @@
         state.screen='end';render();speak('Goed geoefend! Wil je nog vijf zinnen?');
       } else {
         state.index++;
-        state.lessonItems.push(pickAdaptiveItem(state.lessonSkill,state.lessonItems.map(q=>q.id)));
+        state.lessonItems.push(releaseAdaptiveVerbChoices(
+          pickAdaptiveItem(state.lessonSkill,state.lessonItems.map(q=>q.id)),state.lessonSkill));
         resetItem();render();speak(taskInstruction());
       }
       return;
@@ -470,7 +471,7 @@
   }
   function tenseBody(q){
     const selected=state.selected;
-    return `<div class="zbv2-sentence-card"><div class="stem-line"><div class="wordbox">${esc(q.subject)}</div><div class="wordbox stem ${selected===null?'':'chosen'}" data-ending-slot="true">${selected===null?'?':esc(selected)}</div><div class="wordbox">${esc(q.tail)}</div></div>${builtSentenceListenButton()}<div class="feedback-space">${localFeedback()}</div></div>${state.completed?'':`<div class="zbv2-choices"><div class="choice-row ${isChoicePilot()?'zb-choice-grid zb-choice-grid-'+state.choicePilotCount:''}">${(state.choiceOrder||q.choices).map(v=>`<button class="ending ${selected===v?'selected':''}" data-action="ending" data-draggable="ending" data-ending="${esc(v)}" aria-pressed="${selected===v}">${esc(v)}</button>`).join('')}</div></div>`}`;
+    return `<div class="zbv2-sentence-card"><div class="stem-line"><div class="wordbox">${esc(q.subject)}</div><div class="wordbox stem ${selected===null?'':'chosen'}" data-ending-slot="true">${selected===null?'?':esc(selected)}</div><div class="wordbox">${esc(q.tail)}</div></div>${builtSentenceListenButton()}<div class="feedback-space">${localFeedback()}</div></div>${state.completed?'':`<div class="zbv2-choices"><div class="choice-row ${q.choiceCount>2?'zb-choice-grid zb-choice-grid-'+q.choiceCount:''}">${(state.choiceOrder||q.choices).map(v=>`<button class="ending ${selected===v?'selected':''}" data-action="ending" data-draggable="ending" data-ending="${esc(v)}" aria-pressed="${selected===v}">${esc(v)}</button>`).join('')}</div></div>`}`;
   }
   function morphBody(q){
     if(q.kind==='tense'||q.kind==='strong')return tenseBody(q);
@@ -497,7 +498,7 @@
     if(q.kind==='vtt')
       return 'Kies het hulpwerkwoord bij het onderwerp. Het voltooid deelwoord staat achteraan.';
     if(q.kind==='tense'||q.kind==='strong'){
-      if(isChoicePilot()&&q.pilotGoal==='combined')
+      if(q.choiceGoal==='combined')
         return 'Kijk naar het onderwerp en de tijd. Kies de vorm die bij allebei past.';
       return q.when==='Nu'?'Nu: het gebeurt op dit moment.':'Gisteren: het gebeurde al. Luister naar de twee woorden.';
     }
