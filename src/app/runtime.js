@@ -65,7 +65,8 @@
   // These are *presentation* bands, not a new clinical language level.
   // Levels 2/3 offer an extra choice only when the source stage warrants it.
   function releasedChoiceCount(level,base){
-    if(level<=1)return 2;
+    if(!Number.isInteger(level)||level<1||level>4)return 2;
+    if(level===1)return 2;
     const stage=Number.isInteger(base.stage)?base.stage:0;
     if(level===2)return stage>=1?3:2;
     if(level===3)return stage>=2?4:3;
@@ -280,6 +281,10 @@
       if(visited.has(q.id))s+=28;
       if(usedFamilies.has(itemFamily(q)))s+=35;
       if(usedScenes.has(q.art))s+=12;
+      // A modest, single-item-per-block preference makes approved variations
+      // discoverable without replacing other grammar or recent-review goals.
+      if(stage>=1&&APPROVED_CHOICE_BY_ID.has(q.id)&&
+         !(state.lessonItems||[]).some(x=>APPROVED_CHOICE_BY_ID.has(x.id)))s-=24;
       if(recentFamilies.has(itemFamily(q)))s+=8;
       if(used.length===0&&q.id===stats.lastStarted)s+=60;
       const last=state.lessonItems?.slice(-1)[0];
@@ -617,7 +622,9 @@
         const sameFamily=chosen.filter(x=>family(x)===family(q)).length;
         return Math.abs(worldExerciseBand(q)-target)*180+
           (prior.has(q.id)?20:0)+sameScene*45+sameFamily*25+
-          (recentArts.has(q.art)?6:0)+Math.random()*9;
+          (recentArts.has(q.art)?6:0)-
+          (target>=2&&APPROVED_CHOICE_BY_ID.has(q.id)&&
+            !chosen.some(x=>APPROVED_CHOICE_BY_ID.has(x.id))?24:0)+Math.random()*9;
       };
       const ranked=choices.map(q=>({q,value:score(q)})).sort((a,b)=>a.value-b.value);
       chosen.push(ranked[0].q);
